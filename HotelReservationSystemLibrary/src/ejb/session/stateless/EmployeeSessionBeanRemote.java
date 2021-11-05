@@ -9,8 +9,10 @@ import entity.Employee;
 import java.util.List;
 import javax.ejb.Remote;
 import util.enumeration.StaffRole;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidCredentialsException;
 import util.exception.InvalidEmployeeException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -23,7 +25,7 @@ public interface EmployeeSessionBeanRemote {
 
     public Employee employeeLogin(String username, String password) throws InvalidEmployeeException, InvalidCredentialsException;
     
-    public Long createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException;
+    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Employee> retrieveAllEmployees();
     

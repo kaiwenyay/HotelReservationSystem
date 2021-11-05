@@ -9,7 +9,6 @@ import entity.Employee;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.ejb.embeddable.EJBContainer;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -63,6 +62,7 @@ public class EmployeeSessionBeanTest {
         System.out.println("retrieveEmployeeByUsername");
         String username = "sysadmin";
         Employee result = employeeSessionBean.retrieveEmployeeByUsername(username);
+        System.out.println(result);
         assertNotNull(result);
     }
     
@@ -86,6 +86,7 @@ public class EmployeeSessionBeanTest {
         String username = "sysadmin";
         String password = "password";
         Employee result = employeeSessionBean.employeeLogin(username, password);
+        System.out.println(result);
         assertNotNull(result);
     }
     
@@ -122,7 +123,7 @@ public class EmployeeSessionBeanTest {
         String username = "sysadmin";
         String password = "password";
         StaffRole staffRole = StaffRole.ADMIN;
-        Long result = employeeSessionBean.createEmployee(username, password, staffRole);
+        Employee result = employeeSessionBean.createEmployee(username, password, staffRole);
         assertNotNull(result);
 
     }
@@ -134,6 +135,7 @@ public class EmployeeSessionBeanTest {
     public void test07RetrieveAllEmployees() throws Exception {
         System.out.println("retrieveAllEmployees");
         List<Employee> result = employeeSessionBean.retrieveAllEmployees();
+        System.out.println(result);
         assertNotNull(result);
         assertEquals(4, result.size());
     }

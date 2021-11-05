@@ -32,7 +32,7 @@ public abstract class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long userId;
     
-    @Column(length = 16)
+    @Column(length = 16, unique = true)
     @Size(min = 1, max = 16)
     private String username;
     

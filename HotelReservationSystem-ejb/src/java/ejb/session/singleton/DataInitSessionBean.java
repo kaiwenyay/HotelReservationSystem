@@ -6,7 +6,11 @@
 package ejb.session.singleton;
 
 import ejb.session.stateless.EmployeeSessionBeanLocal;
+import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import entity.Employee;
+import entity.RoomType;
+import java.util.Arrays;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.Singleton;
@@ -16,6 +20,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.StaffRole;
 import util.exception.InvalidEmployeeException;
+import util.exception.InvalidRoomTypeException;
 
 /**
  *
@@ -25,6 +30,9 @@ import util.exception.InvalidEmployeeException;
 @LocalBean
 @Startup
 public class DataInitSessionBean {
+
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBean;
 
     @EJB
     private EmployeeSessionBeanLocal employeeSessionBean;
@@ -40,7 +48,19 @@ public class DataInitSessionBean {
                 employeeSessionBean.createEmployee("opmanager", "password", StaffRole.OPERATIONS);
                 employeeSessionBean.createEmployee("salesmanager", "password", StaffRole.SALES);
                 employeeSessionBean.createEmployee("guestrelo", "password", StaffRole.GUEST_RELATIONS);
-            } catch (InvalidEmployeeException e) {
+            } catch (Exception e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        }
+        if (em.find(RoomType.class, 1l) == null) {
+            try {
+                List<String> amenities = Arrays.asList(new String[]{"Toilet"});
+                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null);
+                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite);
+                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite);
+                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom);
+                roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom);
+            } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }
         }

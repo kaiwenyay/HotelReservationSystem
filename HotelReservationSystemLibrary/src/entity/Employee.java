@@ -12,6 +12,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.validation.constraints.NotNull;
 import util.enumeration.StaffRole;
 
 /**
@@ -35,6 +36,7 @@ public class Employee extends User implements Serializable {
     
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private StaffRole staffRole;
 
     @Override

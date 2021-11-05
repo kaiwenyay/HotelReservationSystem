@@ -5,7 +5,7 @@
  */
 package ejb.session.stateless;
 
-import entity.Partner;
+import entity.RoomType;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -18,8 +18,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.InputDataValidationException;
-import util.exception.InvalidCredentialsException;
-import util.exception.InvalidPartnerException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -27,7 +26,7 @@ import util.exception.UnknownPersistenceException;
  * @author kwpwn
  */
 @Stateless
-public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSessionBeanLocal {
+public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeSessionBeanLocal {
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -35,39 +34,38 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
-    public PartnerSessionBean() {
+    public RoomTypeSessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
-
+    
     @Override
-    public Partner retrievePartnerByUsername(String username) {
+    public RoomType retrieveRoomTypeByName(String name) {
         try {
-            Partner partner = em.createNamedQuery("retrievePartnerByUsername", Partner.class)
-                    .setParameter("inUsername", username)
+            RoomType roomType = em.createNamedQuery("retrieveRoomTypeByName", RoomType.class)
+                    .setParameter("inName", name)
                     .getSingleResult();
-            return partner;
+            return roomType;
         } catch (NoResultException e) {
             return null;
         }
     }
-    
     @Override
-    public Partner createPartner(String username, String password, String partnerName) throws InvalidPartnerException, UnknownPersistenceException, InputDataValidationException {
-        Partner partner = new Partner(username, password, partnerName);
-        Set<ConstraintViolation<Partner>>constraintViolations = validator.validate(partner);
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
+        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType);
+        Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
         if (constraintViolations.isEmpty()) {
             try {
                 
-                em.persist(partner);
+                em.persist(roomType);
                 em.flush();
                 
             } catch (PersistenceException e) {
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     
                     if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                        throw new InvalidPartnerException(String.format("Partner with username %s already exists.", username));
+                        throw new InvalidRoomTypeException(String.format("RoomType with name %s already exists.", name));
                     } else {
                         throw new UnknownPersistenceException(e.getMessage());
                     }
@@ -80,29 +78,21 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
         
-        return partner;
+        return roomType;
     }
-
+    
     @Override
-    public List<Partner> retrieveAllPartners() {
-        List<Partner> partners = em.createNamedQuery("retrieveAllPartners", Partner.class)
+    public List<RoomType> retrieveAllRoomTypes() {
+        List<RoomType> roomTypes = em.createNamedQuery("retrieveAllRoomTypes", RoomType.class)
                 .getResultList();
-        return partners;
+        return roomTypes;
     }
     
-    @Override
-    public Partner partnerLogin(String username, String password) throws InvalidPartnerException, InvalidCredentialsException {
-        Partner partner = retrievePartnerByUsername(username);
-        if (partner == null) {
-            throw new InvalidPartnerException(String.format("Partner with username %s does not exist.", username));
-        }
-        if (! partner.getPassword().equals(password)) {
-            throw new InvalidCredentialsException("Invalid password.");
-        }
-        return partner;
+    public void updateRoomType(RoomType roomType) {
+        
     }
     
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>>constraintViolations) {
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomType>>constraintViolations) {
         String msg = "Input data validation error!:";
             
         for(ConstraintViolation constraintViolation:constraintViolations) {

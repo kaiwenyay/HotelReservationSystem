@@ -5,11 +5,11 @@
  */
 package ejb.session.stateless;
 
-import entity.Employee;
+import entity.RoomType;
+import java.util.List;
 import javax.ejb.Local;
-import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
-import util.exception.InvalidEmployeeException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -17,8 +17,7 @@ import util.exception.UnknownPersistenceException;
  * @author kwpwn
  */
 @Local
-public interface EmployeeSessionBeanLocal {
-
-    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException, UnknownPersistenceException, InputDataValidationException;
+public interface RoomTypeSessionBeanLocal {
     
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 }

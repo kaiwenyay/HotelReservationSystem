@@ -9,9 +9,13 @@ import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -22,6 +26,16 @@ import javax.validation.constraints.Size;
  * @author kwpwn
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(
+            name = "retrieveRoomTypeByName",
+            query = "SELECT rt FROM RoomType rt WHERE rt.name LIKE :inName"
+    ),
+    @NamedQuery(
+            name = "retrieveAllRoomTypes",
+            query = "SELECT rt FROM RoomType rt"
+    )
+})
 public class RoomType implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -36,28 +50,42 @@ public class RoomType implements Serializable {
     
     @Column(nullable = false, length = 128)
     @NotNull
+    @Size(min = 1, max = 128)
     private String description;
     
     @Column(nullable = false)
+    @NotNull
     @Positive
     private Integer size;
     
     @Column(nullable = false)
+    @NotNull
     @Min(1)
     private Integer bedCapacity;
     
     @Column(nullable = false)
+    @NotNull
     @Size(min = 1, max = 20)
     private List<String> amenities;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    private RoomType nextHigherRoomType;
 
     public RoomType() {
     }
-
-    public RoomType(String name, String description, Integer size, Integer bedCapacity) {
+    
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities) {
         this.name = name;
         this.description = description;
         this.size = size;
         this.bedCapacity = bedCapacity;
+        this.amenities = amenities;
+    }
+
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType) {
+        this(name, description, size, bedCapacity, amenities);
+                
+        this.nextHigherRoomType = nextHigherRoomType;
     }
     
     public Long getRoomTypeId() {
@@ -161,5 +189,19 @@ public class RoomType implements Serializable {
      */
     public void setAmenities(List<String> amenities) {
         this.amenities = amenities;
+    }
+
+    /**
+     * @return the nextHigherRoomType
+     */
+    public RoomType getNextHigherRoomType() {
+        return nextHigherRoomType;
+    }
+
+    /**
+     * @param nextHigherRoomType the nextHigherRoomType to set
+     */
+    public void setNextHigherRoomType(RoomType nextHigherRoomType) {
+        this.nextHigherRoomType = nextHigherRoomType;
     }
 }
