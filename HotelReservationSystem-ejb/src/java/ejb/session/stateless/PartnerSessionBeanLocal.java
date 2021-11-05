@@ -5,18 +5,13 @@
  */
 package ejb.session.stateless;
 
-import entity.Employee;
 import javax.ejb.Local;
-import util.enumeration.StaffRole;
-import util.exception.InvalidEmployeeException;
 
 /**
  *
  * @author kwpwn
  */
 @Local
-public interface EmployeeSessionBeanLocal {
-
-    public Long createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException;
+public interface PartnerSessionBeanLocal {
     
 }

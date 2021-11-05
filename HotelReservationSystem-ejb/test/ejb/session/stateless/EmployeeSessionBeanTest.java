@@ -122,7 +122,7 @@ public class EmployeeSessionBeanTest {
         String username = "sysadmin";
         String password = "password";
         StaffRole staffRole = StaffRole.ADMIN;
-        Employee result = employeeSessionBean.createEmployee(username, password, staffRole);
+        Long result = employeeSessionBean.createEmployee(username, password, staffRole);
         assertNotNull(result);
 
     }

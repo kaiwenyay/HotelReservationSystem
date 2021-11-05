@@ -35,9 +35,7 @@ public class Guest extends User implements Serializable {
         super();
     }
 
-    public Guest(String email, String mobilePhoneNumber, String passportNumber, String username, String password) {
-        super(username, password);
-        
+    public Guest(String email, String mobilePhoneNumber, String passportNumber) {
         this.email = email;
         this.mobilePhoneNumber = mobilePhoneNumber;
         this.passportNumber = passportNumber;

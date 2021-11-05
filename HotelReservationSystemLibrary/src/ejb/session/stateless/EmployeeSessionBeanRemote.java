@@ -23,7 +23,7 @@ public interface EmployeeSessionBeanRemote {
 
     public Employee employeeLogin(String username, String password) throws InvalidEmployeeException, InvalidCredentialsException;
     
-    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException;
+    public Long createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException;
 
     public List<Employee> retrieveAllEmployees();
     

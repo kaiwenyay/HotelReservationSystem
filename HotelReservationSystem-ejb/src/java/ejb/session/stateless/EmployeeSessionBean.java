@@ -50,7 +50,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
 
     @Override
-    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException {
+    public Long createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException {
         Employee employee = retrieveEmployeeByUsername(username);
         if (employee != null) {
             throw new InvalidEmployeeException(String.format("Employee with username %s already exists.", username));
@@ -58,7 +58,7 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
         employee = new Employee(username, password, staffRole);
         em.persist(employee);
         em.flush();
-        return employee;
+        return employee.getUserId();
     }
     
     @Override

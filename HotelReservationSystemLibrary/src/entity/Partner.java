@@ -8,12 +8,24 @@ package entity;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 
 /**
  *
  * @author kwpwn
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(
+            name = "retrievePartnerByUsername",
+            query = "SELECT p FROM Partner p WHERE p.username LIKE :inUsername"
+    ),
+    @NamedQuery(
+            name = "retrieveAllPartners",
+            query = "SELECT p FROM Partner p"
+    )
+})
 public class Partner extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
