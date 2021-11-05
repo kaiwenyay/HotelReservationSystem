@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomType;
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ import javax.validation.ValidatorFactory;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -51,8 +53,19 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         }
     }
     @Override
-    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
-        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType);
+    public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException {
+        RoomType roomType = em.find(RoomType.class, productId);     
+        if(roomType != null) {
+            return roomType;
+        } else {
+            throw new InvalidRoomTypeException("Room Type " + productId + " does not exist!");
+        }               
+    }
+    
+    // Doesn't yet account for creating a new room type whose ranking is inbetween two existing room types
+    @Override
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
+        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType);
         Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
         if (constraintViolations.isEmpty()) {
@@ -88,8 +101,41 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         return roomTypes;
     }
     
-    public void updateRoomType(RoomType roomType) {
+    @Override
+    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException {
         
+        if(roomType != null && roomType.getRoomTypeId()!= null) {
+            Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
+        
+            if(constraintViolations.isEmpty()) {
+                RoomType roomTypeToUpdate = retrieveRoomTypeById(roomType.getRoomTypeId());
+
+                if (roomTypeToUpdate.getName().equals(roomType.getName())) {
+                    em.merge(roomType);
+                    em.flush();
+                } else {
+                    throw new UpdateRoomTypeException("Name of Room Type to be updated does not match the existing record");
+                }
+            } else {
+                throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+            }
+        } else {
+            throw new InvalidRoomTypeException("Room Type ID not provided for product to be updated");
+        }
+        
+        return roomType;
+    }
+    
+    @Override
+    public void deleteRoomType(Long roomTypeId) throws InvalidRoomTypeException {
+        RoomType roomTypeToRemove = retrieveRoomTypeById(roomTypeId);
+        List<Room> rooms = roomTypeToRemove.getRooms();
+        if (rooms.isEmpty()) {
+            roomTypeToRemove.disassociateHigherAndLower();
+            em.remove(roomTypeToRemove);
+        } else {
+           roomTypeToRemove.setDisabled(true); 
+        }
     }
     
     private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<RoomType>>constraintViolations) {

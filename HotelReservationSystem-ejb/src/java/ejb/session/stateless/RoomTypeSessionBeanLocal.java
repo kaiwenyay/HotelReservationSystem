@@ -19,5 +19,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface RoomTypeSessionBeanLocal {
     
-    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
+
+    public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException;
 }

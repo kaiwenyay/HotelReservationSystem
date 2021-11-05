@@ -19,8 +19,6 @@ import javax.ejb.Startup;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import util.enumeration.StaffRole;
-import util.exception.InvalidEmployeeException;
-import util.exception.InvalidRoomTypeException;
 
 /**
  *
@@ -55,11 +53,15 @@ public class DataInitSessionBean {
         if (em.find(RoomType.class, 1l) == null) {
             try {
                 List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null);
-                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite);
-                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite);
-                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom);
-                roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom);
+                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null);
+                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite, null);
+                grandSuite.setNextLowerRoomType(juniorSuite);
+                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite, null);
+                juniorSuite.setNextLowerRoomType(familyRoom);
+                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom, null);
+                familyRoom.setNextLowerRoomType(premierRoom);
+                RoomType deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom, null);
+                premierRoom.setNextLowerRoomType(deluxeRoom);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }

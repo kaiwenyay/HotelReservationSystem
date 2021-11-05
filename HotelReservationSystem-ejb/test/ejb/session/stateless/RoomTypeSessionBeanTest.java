@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +23,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomTypeException;
+import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -73,7 +75,7 @@ public class RoomTypeSessionBeanTest {
         Integer size = 0;
         Integer bedCapacity = 0;
         List<String> amenities = new ArrayList<>();
-        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null);
+        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null, null);
         assertNotNull(result);
 
     }
@@ -89,7 +91,7 @@ public class RoomTypeSessionBeanTest {
         Integer size = 400;
         Integer bedCapacity = 2;
         List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null);
+        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null, null);
         assertNotNull(result);
 
     }
@@ -104,6 +106,76 @@ public class RoomTypeSessionBeanTest {
         System.out.println(result);
         assertNotNull(result);
         assertEquals(5, result.size());
+    }
+    
+    /**
+     * Test of updateRoomType method, of class RoomTypeSessionBean.
+     */
+    @Test
+    public void updateRoomType() throws Exception {
+        System.out.println("updateRoomType");
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(1l);
+        roomType.setDescription("after test");
+        RoomType result = roomTypeSessionBean.updateRoomType(roomType);
+        assertEquals(roomType.getDescription(), result.getDescription());
+    }
+    
+    /**
+     * Test of updateRoomType method, of class RoomTypeSessionBean.
+     */
+    @Test(expected = UpdateRoomTypeException.class)
+    public void updateRoomType2() throws Exception {
+        System.out.println("updateRoomType");
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(1l);
+        roomType.setName("room");
+        RoomType result = roomTypeSessionBean.updateRoomType(roomType);
+    }
+    
+    /**
+     * Test of updateRoomType method, of class RoomTypeSessionBean.
+     */
+    @Test(expected = InvalidRoomTypeException.class)
+    public void updateRoomType3() throws Exception {
+        System.out.println("updateRoomType");
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(1l);
+        roomType.setRoomTypeId(null);
+        RoomType result = roomTypeSessionBean.updateRoomType(roomType);
+    }
+    
+    /**
+     * Test of updateRoomType method, of class RoomTypeSessionBean.
+     */
+    @Test(expected = InputDataValidationException.class)
+    public void updateRoomType4() throws Exception {
+        System.out.println("updateRoomType");
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(1l);
+        roomType.setSize(-1);
+        RoomType result = roomTypeSessionBean.updateRoomType(roomType);
+    }
+    
+    /**
+     * Test of deleteRoomType method, of class RoomTypeSessionBean.
+     */
+    
+    // @Test(expected = InvalidRoomTypeException.class)
+    public void deleteRoomType() throws Exception {
+        System.out.println("deleteRoomType");
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeByName("Deluxe Room");
+        roomTypeSessionBean.deleteRoomType(roomType.getRoomTypeId());
+        roomTypeSessionBean.retrieveRoomTypeByName("Deluxe Room");
+    }
+    
+    /**
+     * Test of deleteRoomType method, of class RoomTypeSessionBean.
+     */
+    
+    // @Test
+    public void deleteRoomType2() throws Exception {
+        System.out.println("deleteRoomType");
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeByName("Premier Room");
+        roomType.addRoom(new Room());
+        roomTypeSessionBean.deleteRoomType(roomType.getRoomTypeId());
+        assertEquals(true, roomType.isDisabled());
     }
     
     private RoomTypeSessionBeanRemote lookupRoomTypeSessionBeanRemote() 

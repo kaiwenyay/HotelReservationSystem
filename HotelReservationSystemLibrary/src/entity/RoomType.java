@@ -6,6 +6,7 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -15,6 +16,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -68,24 +70,32 @@ public class RoomType implements Serializable {
     @Size(min = 1, max = 20)
     private List<String> amenities;
     
+    @Column(nullable = false)
+    @NotNull
+    private boolean disabled;
+    
+    @OneToMany
+    private List<Room> rooms;
+    
     @OneToOne(fetch = FetchType.LAZY)
     private RoomType nextHigherRoomType;
+    
+    @OneToOne(fetch = FetchType.LAZY)
+    private RoomType nextLowerRoomType;
 
     public RoomType() {
+        this.rooms = new ArrayList<>();
+        this.disabled = false;
     }
-    
-    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities) {
+
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) {
         this.name = name;
         this.description = description;
         this.size = size;
         this.bedCapacity = bedCapacity;
         this.amenities = amenities;
-    }
-
-    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType) {
-        this(name, description, size, bedCapacity, amenities);
-                
         this.nextHigherRoomType = nextHigherRoomType;
+        this.nextLowerRoomType = nextLowerRoomType;
     }
     
     public Long getRoomTypeId() {
@@ -203,5 +213,66 @@ public class RoomType implements Serializable {
      */
     public void setNextHigherRoomType(RoomType nextHigherRoomType) {
         this.nextHigherRoomType = nextHigherRoomType;
+    }
+
+    /**
+     * @return the rooms
+     */
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    /**
+     * @param rooms the rooms to set
+     */
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
+    }
+
+    /**
+     * @return the nextLowerRoomType
+     */
+    public RoomType getNextLowerRoomType() {
+        return nextLowerRoomType;
+    }
+
+    /**
+     * @param nextLowerRoomType the nextLowerRoomType to set
+     */
+    public void setNextLowerRoomType(RoomType nextLowerRoomType) {
+        this.nextLowerRoomType = nextLowerRoomType;
+    }
+    
+    public void addRoom(Room room) {
+        if (! rooms.contains(room)) {
+            rooms.add(room);
+        }
+    }
+
+    /**
+     * @return the disabled
+     */
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    /**
+     * @param disabled the disabled to set
+     */
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+    
+    public void disassociateHigherAndLower() {
+        if (this.nextLowerRoomType != null && this.nextHigherRoomType != null) {
+            this.nextLowerRoomType.setNextHigherRoomType(this.nextHigherRoomType);
+            this.nextHigherRoomType.setNextLowerRoomType(this.nextLowerRoomType);
+        }
+        if (this.nextLowerRoomType == null) {
+            this.nextHigherRoomType.setNextLowerRoomType(null);
+        }
+        if (this.nextHigherRoomType == null) {
+            this.nextLowerRoomType.setNextHigherRoomType(null);
+        }
     }
 }
