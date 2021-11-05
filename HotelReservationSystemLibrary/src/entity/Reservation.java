@@ -8,11 +8,15 @@ package entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
@@ -44,6 +48,22 @@ public class Reservation implements Serializable {
     @NotNull
     @Future
     private LocalDateTime checkOutDate;
+    
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Room> rooms;
+
+    public Reservation() {
+        this.rooms = new ArrayList<>();
+    }
+
+    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, List<Room> rooms) {
+        this();
+        
+        this.totalAmount = totalAmount;
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
+        this.rooms.addAll(rooms);
+    }
 
     public Long getReservationId() {
         return reservationId;
@@ -76,6 +96,62 @@ public class Reservation implements Serializable {
     @Override
     public String toString() {
         return "entity.Reservation[ id=" + reservationId + " ]";
+    }
+
+    /**
+     * @return the totalAmount
+     */
+    public BigDecimal getTotalAmount() {
+        return totalAmount;
+    }
+
+    /**
+     * @param totalAmount the totalAmount to set
+     */
+    public void setTotalAmount(BigDecimal totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
+    /**
+     * @return the checkInDate
+     */
+    public LocalDateTime getCheckInDate() {
+        return checkInDate;
+    }
+
+    /**
+     * @param checkInDate the checkInDate to set
+     */
+    public void setCheckInDate(LocalDateTime checkInDate) {
+        this.checkInDate = checkInDate;
+    }
+
+    /**
+     * @return the checkOutDate
+     */
+    public LocalDateTime getCheckOutDate() {
+        return checkOutDate;
+    }
+
+    /**
+     * @param checkOutDate the checkOutDate to set
+     */
+    public void setCheckOutDate(LocalDateTime checkOutDate) {
+        this.checkOutDate = checkOutDate;
+    }
+
+    /**
+     * @return the rooms
+     */
+    public List<Room> getRooms() {
+        return rooms;
+    }
+
+    /**
+     * @param rooms the rooms to set
+     */
+    public void setRooms(List<Room> rooms) {
+        this.rooms = rooms;
     }
     
 }

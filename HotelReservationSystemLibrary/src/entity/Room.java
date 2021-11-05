@@ -10,9 +10,12 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.enumeration.RoomStatus;
@@ -38,6 +41,19 @@ public class Room implements Serializable {
     @Enumerated(EnumType.STRING)
     @NotNull
     private RoomStatus roomStatus;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private RoomType roomType;
+
+    public Room() {
+    }
+
+    public Room(String roomNumber, RoomStatus roomStatus, RoomType roomType) {
+        this.roomNumber = roomNumber;
+        this.roomStatus = roomStatus;
+        this.roomType = roomType;
+    }
 
     public Long getRoomId() {
         return roomId;
@@ -71,5 +87,47 @@ public class Room implements Serializable {
     public String toString() {
         return "entity.Room[ id=" + roomId + " ]";
     }
-    
+
+    /**
+     * @return the roomNumber
+     */
+    public String getRoomNumber() {
+        return roomNumber;
+    }
+
+    /**
+     * @param roomNumber the roomNumber to set
+     */
+    public void setRoomNumber(String roomNumber) {
+        this.roomNumber = roomNumber;
+    }
+
+    /**
+     * @return the roomStatus
+     */
+    public RoomStatus getRoomStatus() {
+        return roomStatus;
+    }
+
+    /**
+     * @param roomStatus the roomStatus to set
+     */
+    public void setRoomStatus(RoomStatus roomStatus) {
+        this.roomStatus = roomStatus;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
+    }
+
 }

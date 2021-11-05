@@ -12,7 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.validation.constraints.Max;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
@@ -51,6 +51,16 @@ public class RoomType implements Serializable {
     @Size(min = 1, max = 20)
     private List<String> amenities;
 
+    public RoomType() {
+    }
+
+    public RoomType(String name, String description, Integer size, Integer bedCapacity) {
+        this.name = name;
+        this.description = description;
+        this.size = size;
+        this.bedCapacity = bedCapacity;
+    }
+    
     public Long getRoomTypeId() {
         return roomTypeId;
     }
@@ -83,5 +93,74 @@ public class RoomType implements Serializable {
     public String toString() {
         return "entity.RoomType[ id=" + roomTypeId + " ]";
     }
-    
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the description
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * @param description the description to set
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * @return the size
+     */
+    public Integer getSize() {
+        return size;
+    }
+
+    /**
+     * @param size the size to set
+     */
+    public void setSize(Integer size) {
+        this.size = size;
+    }
+
+    /**
+     * @return the bedCapacity
+     */
+    public Integer getBedCapacity() {
+        return bedCapacity;
+    }
+
+    /**
+     * @param bedCapacity the bedCapacity to set
+     */
+    public void setBedCapacity(Integer bedCapacity) {
+        this.bedCapacity = bedCapacity;
+    }
+
+    /**
+     * @return the amenities
+     */
+    public List<String> getAmenities() {
+        return amenities;
+    }
+
+    /**
+     * @param amenities the amenities to set
+     */
+    public void setAmenities(List<String> amenities) {
+        this.amenities = amenities;
+    }
 }

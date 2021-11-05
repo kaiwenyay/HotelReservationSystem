@@ -45,6 +45,7 @@ public class Employee extends User implements Serializable {
     }
 
     public Employee() {
+        super();
     }
 
     public Employee(String username, String password, StaffRole staffRole) {

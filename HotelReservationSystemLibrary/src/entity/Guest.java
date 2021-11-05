@@ -31,6 +31,18 @@ public class Guest extends User implements Serializable {
     @Size(min = 9, max = 9)
     private String passportNumber;
 
+    public Guest() {
+        super();
+    }
+
+    public Guest(String email, String mobilePhoneNumber, String passportNumber, String username, String password) {
+        super(username, password);
+        
+        this.email = email;
+        this.mobilePhoneNumber = mobilePhoneNumber;
+        this.passportNumber = passportNumber;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -54,6 +66,48 @@ public class Guest extends User implements Serializable {
     @Override
     public String toString() {
         return "entity.Guest[ userId=" + userId + " ]";
+    }
+
+    /**
+     * @return the email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    /**
+     * @param email the email to set
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    /**
+     * @return the mobilePhoneNumber
+     */
+    public String getMobilePhoneNumber() {
+        return mobilePhoneNumber;
+    }
+
+    /**
+     * @param mobilePhoneNumber the mobilePhoneNumber to set
+     */
+    public void setMobilePhoneNumber(String mobilePhoneNumber) {
+        this.mobilePhoneNumber = mobilePhoneNumber;
+    }
+
+    /**
+     * @return the passportNumber
+     */
+    public String getPassportNumber() {
+        return passportNumber;
+    }
+
+    /**
+     * @param passportNumber the passportNumber to set
+     */
+    public void setPassportNumber(String passportNumber) {
+        this.passportNumber = passportNumber;
     }
     
 }

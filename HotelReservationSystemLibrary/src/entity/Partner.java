@@ -28,6 +28,16 @@ public class Partner extends User implements Serializable {
         return hash;
     }
 
+    public Partner() {
+        super();
+    }
+
+    public Partner(String username, String password, String partnerName) {
+        super(username, password);
+        
+        this.partnerName = partnerName;
+    }
+
     @Override
     public boolean equals(Object object) {
         // TODO: Warning - this method won't work in the case the id fields are not set
@@ -44,6 +54,20 @@ public class Partner extends User implements Serializable {
     @Override
     public String toString() {
         return "entity.Partner[ id=" + userId + " ]";
+    }
+
+    /**
+     * @return the partnerName
+     */
+    public String getPartnerName() {
+        return partnerName;
+    }
+
+    /**
+     * @param partnerName the partnerName to set
+     */
+    public void setPartnerName(String partnerName) {
+        this.partnerName = partnerName;
     }
     
 }

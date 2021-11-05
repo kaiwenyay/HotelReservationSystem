@@ -58,6 +58,22 @@ public class RoomRate implements Serializable {
     @Future
     private LocalDateTime validTo;
 
+    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight) {
+        this.name = name;
+        this.rateType = rateType;
+        this.ratePerNight = ratePerNight;
+    }
+
+    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight, LocalDateTime validFrom, LocalDateTime validTo) {
+        this(name, rateType, ratePerNight);
+                
+        this.validFrom = validFrom;
+        this.validTo = validTo;
+    }
+
+    public RoomRate() {
+    }
+
     public Long getRoomRateId() {
         return roomRateId;
     }
@@ -89,6 +105,76 @@ public class RoomRate implements Serializable {
     @Override
     public String toString() {
         return "entity.RoomRate[ id=" + roomRateId + " ]";
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @return the rateType
+     */
+    public RateType getRateType() {
+        return rateType;
+    }
+
+    /**
+     * @param rateType the rateType to set
+     */
+    public void setRateType(RateType rateType) {
+        this.rateType = rateType;
+    }
+
+    /**
+     * @return the ratePerNight
+     */
+    public BigDecimal getRatePerNight() {
+        return ratePerNight;
+    }
+
+    /**
+     * @param ratePerNight the ratePerNight to set
+     */
+    public void setRatePerNight(BigDecimal ratePerNight) {
+        this.ratePerNight = ratePerNight;
+    }
+
+    /**
+     * @return the validFrom
+     */
+    public LocalDateTime getValidFrom() {
+        return validFrom;
+    }
+
+    /**
+     * @param validFrom the validFrom to set
+     */
+    public void setValidFrom(LocalDateTime validFrom) {
+        this.validFrom = validFrom;
+    }
+
+    /**
+     * @return the validTo
+     */
+    public LocalDateTime getValidTo() {
+        return validTo;
+    }
+
+    /**
+     * @param validTo the validTo to set
+     */
+    public void setValidTo(LocalDateTime validTo) {
+        this.validTo = validTo;
     }
     
 }
