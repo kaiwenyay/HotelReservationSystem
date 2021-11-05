@@ -16,6 +16,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Future;
@@ -51,18 +53,23 @@ public class Reservation implements Serializable {
     
     @OneToMany(fetch = FetchType.LAZY)
     private List<Room> rooms;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private User user;
 
     public Reservation() {
         this.rooms = new ArrayList<>();
     }
 
-    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, List<Room> rooms) {
+    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, List<Room> rooms, User user) {
         this();
         
         this.totalAmount = totalAmount;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
         this.rooms.addAll(rooms);
+        this.user = user;
     }
 
     public Long getReservationId() {
@@ -152,6 +159,20 @@ public class Reservation implements Serializable {
      */
     public void setRooms(List<Room> rooms) {
         this.rooms = rooms;
+    }
+
+    /**
+     * @return the user
+     */
+    public User getUser() {
+        return user;
+    }
+
+    /**
+     * @param user the user to set
+     */
+    public void setUser(User user) {
+        this.user = user;
     }
     
 }

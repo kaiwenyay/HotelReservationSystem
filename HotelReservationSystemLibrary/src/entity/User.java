@@ -6,13 +6,17 @@
 package entity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.Size;
 
 /**
@@ -36,10 +40,16 @@ public abstract class User implements Serializable {
     @Size(min = 1)
     private String password;
 
+    @OneToMany(fetch = FetchType.LAZY)
+    private List<Reservation> reservations;
+    
     public User() {
+        this.reservations = new ArrayList<>();
     }
 
     public User(String username, String password) {
+        this();
+        
         this.username = username;
         this.password = password;
     }
@@ -103,6 +113,26 @@ public abstract class User implements Serializable {
      */
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    /**
+     * @return the reservations
+     */
+    public List<Reservation> getReservations() {
+        return reservations;
+    }
+
+    /**
+     * @param reservations the reservations to set
+     */
+    public void setReservations(List<Reservation> reservations) {
+        this.reservations = reservations;
+    }
+    
+    public void addReservation(Reservation reservation) {
+        if (! reservations.contains(reservation)) {
+            reservations.add(reservation);
+        }
     }
     
 }

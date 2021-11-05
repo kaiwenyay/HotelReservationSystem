@@ -71,5 +71,19 @@ public class Employee extends User implements Serializable {
     public String toString() {
         return "entity.Employee[ userId=" + userId + " ]";
     }
+
+    /**
+     * @return the staffRole
+     */
+    public StaffRole getStaffRole() {
+        return staffRole;
+    }
+
+    /**
+     * @param staffRole the staffRole to set
+     */
+    public void setStaffRole(StaffRole staffRole) {
+        this.staffRole = staffRole;
+    }
     
 }
