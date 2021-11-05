@@ -1,0 +1,39 @@
+# NetBeans specific #
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+HoRSManagementClient/nbproject/private
+HoRSManagementClient/build/
+HoRSManagementClient/dist/
+
+HotelReservationSystem-ejb/nbproject/private
+HotelReservationSystem-ejb/build/
+HotelReservationSystem-ejb/dist/
+
+HoRSReservationClient/nbproject/private
+HoRSReservationClient/build/
+HoRSReservationClient/dist/
+
+HotelReservationSystemLibrary/nbproject/private
+HotelReservationSystemLibrary/build/
+HotelReservationSystemLibrary/dist/
+
+HolidayReservationSystem/nbproject/private
+HolidayReservationSystem/build/
+HolidayReservationSystem/dist/
+
+# Class Files #
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear
+
+# Log Files #
+.log
