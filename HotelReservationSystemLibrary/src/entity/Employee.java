@@ -10,6 +10,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import util.enumeration.StaffRole;
 
 /**
@@ -17,6 +19,16 @@ import util.enumeration.StaffRole;
  * @author kwpwn
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(
+            name = "retrieveEmployeeByUsername",
+            query = "SELECT e FROM Employee e WHERE e.username LIKE :inUsername"
+    ),
+    @NamedQuery(
+            name = "retrieveAllEmployees",
+            query = "SELECT e FROM Employee e"
+    )
+})
 public class Employee extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -30,6 +42,15 @@ public class Employee extends User implements Serializable {
         int hash = 0;
         hash += (userId != null ? userId.hashCode() : 0);
         return hash;
+    }
+
+    public Employee() {
+    }
+
+    public Employee(String username, String password, StaffRole staffRole) {
+        super(username, password);
+        
+        this.staffRole = staffRole;
     }
 
     @Override
