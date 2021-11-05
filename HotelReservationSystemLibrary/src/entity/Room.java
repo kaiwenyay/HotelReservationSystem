@@ -16,6 +16,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import util.enumeration.RoomStatus;
@@ -25,6 +27,16 @@ import util.enumeration.RoomStatus;
  * @author kwpwn
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(
+            name = "retrieveRoomByRoomNumber",
+            query = "SELECT r FROM Room r WHERE r.roomNumber LIKE :inRoomNumber"
+    ),
+    @NamedQuery(
+            name = "retrieveAllRooms",
+            query = "SELECT r FROM Room r"
+    )
+})
 public class Room implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -42,14 +54,21 @@ public class Room implements Serializable {
     @NotNull
     private RoomStatus roomStatus;
     
+    @Column(nullable = false)
+    @NotNull
+    private boolean disabled;
+    
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private RoomType roomType;
 
     public Room() {
+        this.disabled = false;
     }
 
     public Room(String roomNumber, RoomStatus roomStatus, RoomType roomType) {
+        this();
+        
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
         this.roomType = roomType;
@@ -130,4 +149,26 @@ public class Room implements Serializable {
         this.roomType = roomType;
     }
 
+    /**
+     * @return the disabled
+     */
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    /**
+     * @param disabled the disabled to set
+     */
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+    
+    public void associate(RoomType roomType) {
+        setRoomType(roomType);
+        this.roomType.addRoom(this);
+    }
+    
+    public void disassociate() {
+        this.roomType.getRooms().remove(this);  
+    }
 }
