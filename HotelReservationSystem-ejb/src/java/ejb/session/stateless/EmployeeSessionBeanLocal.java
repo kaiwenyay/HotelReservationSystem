@@ -5,7 +5,10 @@
  */
 package ejb.session.stateless;
 
+import entity.Employee;
 import javax.ejb.Local;
+import util.enumeration.StaffRole;
+import util.exception.InvalidEmployeeException;
 
 /**
  *
@@ -13,5 +16,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface EmployeeSessionBeanLocal {
+
+    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException;
     
 }

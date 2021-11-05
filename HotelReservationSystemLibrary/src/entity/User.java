@@ -40,7 +40,7 @@ public abstract class User implements Serializable {
     @Size(min = 1)
     private String password;
 
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user")
     private List<Reservation> reservations;
     
     public User() {

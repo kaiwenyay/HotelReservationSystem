@@ -5,7 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.Employee;
+import java.util.List;
 import javax.ejb.Remote;
+import util.enumeration.StaffRole;
+import util.exception.InvalidCredentialsException;
+import util.exception.InvalidEmployeeException;
 
 /**
  *
@@ -13,5 +18,13 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface EmployeeSessionBeanRemote {
+
+    public Employee retrieveEmployeeByUsername(String username);
+
+    public Employee employeeLogin(String username, String password) throws InvalidEmployeeException, InvalidCredentialsException;
+    
+    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException;
+
+    public List<Employee> retrieveAllEmployees();
     
 }

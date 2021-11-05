@@ -51,10 +51,10 @@ public class Reservation implements Serializable {
     @Future
     private LocalDateTime checkOutDate;
     
-    @OneToMany(fetch = FetchType.LAZY)
+    @OneToMany
     private List<Room> rooms;
     
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User user;
 
