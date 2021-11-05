@@ -17,7 +17,7 @@ import util.exception.InvalidRoomException;
 @Local
 public interface RoomSessionBeanLocal {
 
-    public Room retrieveRoomById(Long productId) throws InvalidRoomException;
+    public Room retrieveRoomById(Long roomId) throws InvalidRoomException;
 
     public List<Room> retrieveAllRooms();
     

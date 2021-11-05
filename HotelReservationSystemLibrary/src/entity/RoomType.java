@@ -14,6 +14,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -74,8 +75,12 @@ public class RoomType implements Serializable {
     @NotNull
     private boolean disabled;
     
-    @OneToMany
+    @OneToMany(mappedBy = "roomType")
     private List<Room> rooms;
+    
+    @OneToMany(mappedBy = "roomType")
+    @JoinColumn(nullable = false)
+    private List<RoomRate> roomRates;
     
     @OneToOne(fetch = FetchType.LAZY)
     private RoomType nextHigherRoomType;
@@ -85,6 +90,7 @@ public class RoomType implements Serializable {
 
     public RoomType() {
         this.rooms = new ArrayList<>();
+        this.roomRates = new ArrayList<>();
         this.disabled = false;
     }
 
@@ -273,6 +279,26 @@ public class RoomType implements Serializable {
         }
         if (this.nextHigherRoomType == null) {
             this.nextLowerRoomType.setNextHigherRoomType(null);
+        }
+    }
+
+    /**
+     * @return the roomRates
+     */
+    public List<RoomRate> getRoomRates() {
+        return roomRates;
+    }
+
+    /**
+     * @param roomRates the roomRates to set
+     */
+    public void setRoomRates(List<RoomRate> roomRates) {
+        this.roomRates = roomRates;
+    }
+    
+    public void addRoomRate(RoomRate roomRate) {
+        if (! roomRates.contains(roomRate)) {
+            roomRates.add(roomRate);
         }
     }
 }

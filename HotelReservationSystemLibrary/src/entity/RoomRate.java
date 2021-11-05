@@ -15,6 +15,10 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
@@ -27,6 +31,16 @@ import util.enumeration.RateType;
  * @author kwpwn
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(
+            name = "retrieveRoomRateByName",
+            query = "SELECT rr FROM RoomRate rr WHERE rr.name LIKE :inName"
+    ),
+    @NamedQuery(
+            name = "retrieveAllRoomRates",
+            query = "SELECT rr FROM RoomRate rr"
+    )
+})
 public class RoomRate implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -57,6 +71,10 @@ public class RoomRate implements Serializable {
     @Column(columnDefinition = "TIMESTAMP")
     @Future
     private LocalDateTime validTo;
+    
+    @ManyToOne(optional = false)
+    @JoinColumn(nullable = false)
+    private RoomType roomType;
 
     public RoomRate(String name, RateType rateType, BigDecimal ratePerNight) {
         this.name = name;
@@ -175,6 +193,20 @@ public class RoomRate implements Serializable {
      */
     public void setValidTo(LocalDateTime validTo) {
         this.validTo = validTo;
+    }
+
+    /**
+     * @return the roomType
+     */
+    public RoomType getRoomType() {
+        return roomType;
+    }
+
+    /**
+     * @param roomType the roomType to set
+     */
+    public void setRoomType(RoomType roomType) {
+        this.roomType = roomType;
     }
     
 }

@@ -54,12 +54,12 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         }
     }
     @Override
-    public Room retrieveRoomById(Long productId) throws InvalidRoomException {
-        Room room = em.find(Room.class, productId);     
+    public Room retrieveRoomById(Long roomId) throws InvalidRoomException {
+        Room room = em.find(Room.class, roomId);     
         if(room != null) {
             return room;
         } else {
-            throw new InvalidRoomException("Room Type " + productId + " does not exist!");
+            throw new InvalidRoomException("Room Type " + roomId + " does not exist!");
         }               
     }
     
