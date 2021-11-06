@@ -6,7 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Reservation;
-import entity.Room;
+import entity.ReservationItem;
 import entity.User;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -53,8 +53,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
-    public Reservation createReservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<Room> rooms, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
-        Reservation reservation = new Reservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, rooms, user);
+    public Reservation createReservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
+        Reservation reservation = new Reservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, reservationItems, user);
         Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
         
         if (constraintViolations.isEmpty()) {

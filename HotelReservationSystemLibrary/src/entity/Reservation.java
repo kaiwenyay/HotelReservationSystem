@@ -65,24 +65,25 @@ public class Reservation implements Serializable {
     private LocalDateTime reservationDateTime;
     
     @OneToMany
-    private List<Room> rooms;
+    @JoinColumn(nullable = false)
+    private List<ReservationItem> reservationItems;
     
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private User user;
 
     public Reservation() {
-        this.rooms = new ArrayList<>();
+        this.reservationItems = new ArrayList<>();
     }
 
-    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<Room> rooms, User user) {
+    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) {
         this();
         
         this.totalAmount = totalAmount;
         this.checkInDate = checkInDate;
-        this.checkOutDate = checkOutDate;
+        this.checkOutDate = checkOutDate;      
         this.reservationDateTime = reservationDateTime;
-        this.rooms.addAll(rooms);
+        this.reservationItems = reservationItems;
         this.user = user;
     }
 
@@ -162,20 +163,6 @@ public class Reservation implements Serializable {
     }
 
     /**
-     * @return the rooms
-     */
-    public List<Room> getRooms() {
-        return rooms;
-    }
-
-    /**
-     * @param rooms the rooms to set
-     */
-    public void setRooms(List<Room> rooms) {
-        this.rooms = rooms;
-    }
-
-    /**
      * @return the user
      */
     public User getUser() {
@@ -201,6 +188,20 @@ public class Reservation implements Serializable {
      */
     public void setReservationDateTime(LocalDateTime reservationDateTime) {
         this.reservationDateTime = reservationDateTime;
+    }
+
+    /**
+     * @return the reservationItems
+     */
+    public List<ReservationItem> getReservationItems() {
+        return reservationItems;
+    }
+
+    /**
+     * @param reservationItems the reservationItems to set
+     */
+    public void setReservationItems(List<ReservationItem> reservationItems) {
+        this.reservationItems = reservationItems;
     }
     
 }

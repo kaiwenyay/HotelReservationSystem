@@ -6,7 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Reservation;
-import entity.Room;
+import entity.ReservationItem;
 import entity.User;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface ReservationSessionBeanRemote {
 
-    public Reservation createReservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<Room> rooms, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+    public Reservation createReservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Reservation> retrieveAllReservationsByUser(String username);
     
