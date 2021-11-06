@@ -94,7 +94,9 @@ public class RoomType implements Serializable {
         this.disabled = false;
     }
 
-    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) {
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType, RoomRate roomRate) {
+        this();
+        
         this.name = name;
         this.description = description;
         this.size = size;
@@ -102,6 +104,7 @@ public class RoomType implements Serializable {
         this.amenities = amenities;
         this.nextHigherRoomType = nextHigherRoomType;
         this.nextLowerRoomType = nextLowerRoomType;
+        this.roomRates.add(roomRate);
     }
     
     public Long getRoomTypeId() {
@@ -300,5 +303,9 @@ public class RoomType implements Serializable {
         if (! roomRates.contains(roomRate)) {
             roomRates.add(roomRate);
         }
+    }
+    
+    public void removeRoomRate(RoomRate roomRate) {
+        roomRates.remove(roomRate);
     }
 }

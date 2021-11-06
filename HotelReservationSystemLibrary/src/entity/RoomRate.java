@@ -64,6 +64,10 @@ public class RoomRate implements Serializable {
     @Digits(integer = 6, fraction = 2)
     private BigDecimal ratePerNight;
     
+    @Column(nullable = false)
+    @NotNull
+    private boolean disabled;
+    
     @Column(columnDefinition = "TIMESTAMP")
     @Future
     private LocalDateTime validFrom;
@@ -76,20 +80,24 @@ public class RoomRate implements Serializable {
     @JoinColumn(nullable = false)
     private RoomType roomType;
 
-    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight) {
+    public RoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight) {
+        this();
+        
         this.name = name;
+        this.roomType = roomType;
         this.rateType = rateType;
         this.ratePerNight = ratePerNight;
     }
 
-    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight, LocalDateTime validFrom, LocalDateTime validTo) {
-        this(name, rateType, ratePerNight);
+    public RoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDateTime validFrom, LocalDateTime validTo) {
+        this(name, roomType, rateType, ratePerNight);
                 
         this.validFrom = validFrom;
         this.validTo = validTo;
     }
 
     public RoomRate() {
+        this.disabled = false;
     }
 
     public Long getRoomRateId() {
@@ -208,5 +216,19 @@ public class RoomRate implements Serializable {
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
     }
-    
+
+    /**
+     * @return the disabled
+     */
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    /**
+     * @param disabled the disabled to set
+     */
+    public void setDisabled(boolean disabled) {
+        this.disabled = disabled;
+    }
+   
 }

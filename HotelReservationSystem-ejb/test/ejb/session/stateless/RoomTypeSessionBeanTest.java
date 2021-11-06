@@ -64,37 +64,37 @@ public class RoomTypeSessionBeanTest {
         assertNotNull(result);
     }
     
-    /**
-     * Test of createEmployee method, of class EmployeeSessionBean.
-     */
-    @Test(expected = InputDataValidationException.class)
-    public void testCreateRoomType() throws Exception {
-        System.out.println("createEmployee");
-        String name = "Deluxe Room";
-        String description = "";
-        Integer size = 0;
-        Integer bedCapacity = 0;
-        List<String> amenities = new ArrayList<>();
-        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null, null);
-        assertNotNull(result);
-
-    }
-    
-    /**
-     * Test of createEmployee method, of class EmployeeSessionBean.
-     */
-    @Test(expected = InvalidRoomTypeException.class)
-    public void testCreateRoomType2() throws Exception {
-        System.out.println("createEmployee");
-        String name = "Deluxe Room";
-        String description = "A deluxe room";
-        Integer size = 400;
-        Integer bedCapacity = 2;
-        List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null, null);
-        assertNotNull(result);
-
-    }
+//    /**
+//     * Test of createEmployee method, of class EmployeeSessionBean.
+//     */
+//    @Test(expected = InputDataValidationException.class)
+//    public void testCreateRoomType() throws Exception {
+//        System.out.println("createEmployee");
+//        String name = "Deluxe Room";
+//        String description = "";
+//        Integer size = 0;
+//        Integer bedCapacity = 0;
+//        List<String> amenities = new ArrayList<>();
+//        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null, null, null);
+//        assertNotNull(result);
+//
+//    }
+//    
+//    /**
+//     * Test of createEmployee method, of class EmployeeSessionBean.
+//     */
+//    @Test(expected = InvalidRoomTypeException.class)
+//    public void testCreateRoomType2() throws Exception {
+//        System.out.println("createEmployee");
+//        String name = "Deluxe Room";
+//        String description = "A deluxe room";
+//        Integer size = 400;
+//        Integer bedCapacity = 2;
+//        List<String> amenities = Arrays.asList(new String[]{"Toilet"});
+//        RoomType result = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, null, null, null);
+//        assertNotNull(result);
+//
+//    }
 
     /**
      * Test of retrieveAllRoomTypes method, of class RoomTypeSessionBean.

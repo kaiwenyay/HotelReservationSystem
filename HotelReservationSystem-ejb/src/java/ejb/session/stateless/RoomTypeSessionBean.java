@@ -6,6 +6,7 @@
 package ejb.session.stateless;
 
 import entity.Room;
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import java.util.Set;
@@ -64,14 +65,15 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     
     // Doesn't yet account for creating a new room type whose ranking is inbetween two existing room types
     @Override
-    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
-        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType);
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType, RoomRate roomRate) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
+        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType, roomRate);
         Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
         if (constraintViolations.isEmpty()) {
             try {
                 
                 em.persist(roomType);
+                roomRate.setRoomType(roomType);
                 em.flush();
                 
             } catch (PersistenceException e) {

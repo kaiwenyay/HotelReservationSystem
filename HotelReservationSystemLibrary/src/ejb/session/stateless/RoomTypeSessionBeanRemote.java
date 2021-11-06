@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Remote;
@@ -24,7 +25,7 @@ public interface RoomTypeSessionBeanRemote {
     
     public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException;
 
-    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType, RoomRate roomRate) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 
     public List<RoomType> retrieveAllRoomTypes();
 

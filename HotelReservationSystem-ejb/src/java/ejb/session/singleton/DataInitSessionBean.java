@@ -53,14 +53,14 @@ public class DataInitSessionBean {
         if (em.find(RoomType.class, 1l) == null) {
             try {
                 List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null);
-                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite, null);
+                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null, null);
+                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite, null, null);
                 grandSuite.setNextLowerRoomType(juniorSuite);
-                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite, null);
+                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite, null, null);
                 juniorSuite.setNextLowerRoomType(familyRoom);
-                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom, null);
+                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom, null, null);
                 familyRoom.setNextLowerRoomType(premierRoom);
-                RoomType deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom, null);
+                RoomType deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom, null, null);
                 premierRoom.setNextLowerRoomType(deluxeRoom);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());

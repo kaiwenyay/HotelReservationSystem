@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
@@ -19,7 +20,7 @@ import util.exception.UnknownPersistenceException;
 @Local
 public interface RoomTypeSessionBeanLocal {
     
-    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
+    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType, RoomRate roomRate) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 
     public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException;
 }
