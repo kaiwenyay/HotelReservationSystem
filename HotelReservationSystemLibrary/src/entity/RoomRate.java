@@ -7,7 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -70,11 +70,11 @@ public class RoomRate implements Serializable {
     
     @Column(columnDefinition = "TIMESTAMP")
     @Future
-    private LocalDateTime validFrom;
+    private LocalDate validFrom;
     
     @Column(columnDefinition = "TIMESTAMP")
     @Future
-    private LocalDateTime validTo;
+    private LocalDate validTo;
     
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false)
@@ -89,7 +89,7 @@ public class RoomRate implements Serializable {
         this.ratePerNight = ratePerNight;
     }
 
-    public RoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDateTime validFrom, LocalDateTime validTo) {
+    public RoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDate validFrom, LocalDate validTo) {
         this(name, roomType, rateType, ratePerNight);
                 
         this.validFrom = validFrom;
@@ -178,28 +178,28 @@ public class RoomRate implements Serializable {
     /**
      * @return the validFrom
      */
-    public LocalDateTime getValidFrom() {
+    public LocalDate getValidFrom() {
         return validFrom;
     }
 
     /**
      * @param validFrom the validFrom to set
      */
-    public void setValidFrom(LocalDateTime validFrom) {
+    public void setValidFrom(LocalDate validFrom) {
         this.validFrom = validFrom;
     }
 
     /**
      * @return the validTo
      */
-    public LocalDateTime getValidTo() {
+    public LocalDate getValidTo() {
         return validTo;
     }
 
     /**
      * @param validTo the validTo to set
      */
-    public void setValidTo(LocalDateTime validTo) {
+    public void setValidTo(LocalDate validTo) {
         this.validTo = validTo;
     }
 

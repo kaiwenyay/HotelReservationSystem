@@ -9,6 +9,7 @@ import entity.Reservation;
 import entity.ReservationItem;
 import entity.User;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +54,15 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
-    public Reservation createReservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
+    public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate) {
+        List<Reservation> employees = em.createNamedQuery("retrieveReservationByCheckInDate", Reservation.class)
+                .setParameter("inCheckInDate", checkInDate)
+                .getResultList();
+        return employees;
+    }
+    
+    @Override
+    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
         Reservation reservation = new Reservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, reservationItems, user);
         Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
         
@@ -86,7 +95,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @Override
     public List<Reservation> retrieveAllReservationsByUser(String username) {
-        List<Reservation> reservations = em.createNamedQuery("retrieveAllReservationsByUser", Reservation.class)
+        List<Reservation> reservations = em.createNamedQuery("retrieveReservationsByUser", Reservation.class)
                 .setParameter("inUsername", username)
                 .getResultList();
         return reservations;

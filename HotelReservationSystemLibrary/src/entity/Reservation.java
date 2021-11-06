@@ -7,6 +7,7 @@ package entity;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,12 @@ import javax.validation.constraints.Positive;
 @Entity
 @NamedQueries({
     @NamedQuery(
-            name = "retrieveAllReservationsByUser",
+            name = "retrieveReservationsByUser",
             query = "SELECT r FROM Reservation r WHERE r.user.username LIKE :inUsername"
+    ),
+    @NamedQuery(
+            name = "retrieveReservationsByCheckInDate",
+            query = "SELECT r FROM Reservation r WHERE r.checkInDate LIKE :inCheckInDate"
     )
 })
 public class Reservation implements Serializable {
@@ -52,12 +57,12 @@ public class Reservation implements Serializable {
     
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     @NotNull
-    private LocalDateTime checkInDate;
+    private LocalDate checkInDate;
     
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     @NotNull
     @Future
-    private LocalDateTime checkOutDate;
+    private LocalDate checkOutDate;
     
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     @NotNull
@@ -76,7 +81,7 @@ public class Reservation implements Serializable {
         this.reservationItems = new ArrayList<>();
     }
 
-    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) {
+    public Reservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) {
         this();
         
         this.totalAmount = totalAmount;
@@ -137,28 +142,28 @@ public class Reservation implements Serializable {
     /**
      * @return the checkInDate
      */
-    public LocalDateTime getCheckInDate() {
+    public LocalDate getCheckInDate() {
         return checkInDate;
     }
 
     /**
      * @param checkInDate the checkInDate to set
      */
-    public void setCheckInDate(LocalDateTime checkInDate) {
+    public void setCheckInDate(LocalDate checkInDate) {
         this.checkInDate = checkInDate;
     }
 
     /**
      * @return the checkOutDate
      */
-    public LocalDateTime getCheckOutDate() {
+    public LocalDate getCheckOutDate() {
         return checkOutDate;
     }
 
     /**
      * @param checkOutDate the checkOutDate to set
      */
-    public void setCheckOutDate(LocalDateTime checkOutDate) {
+    public void setCheckOutDate(LocalDate checkOutDate) {
         this.checkOutDate = checkOutDate;
     }
 

@@ -8,7 +8,7 @@ package ejb.session.stateless;
 import entity.RoomRate;
 import entity.RoomType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
@@ -66,7 +66,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public RoomRate createRoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDateTime validityFrom, LocalDateTime validityTo) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
+    public RoomRate createRoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDate validityFrom, LocalDate validityTo) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
         RoomRate roomRate = new RoomRate(name, roomType, rateType, ratePerNight, validityFrom, validityTo);
         Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);
         
@@ -142,8 +142,8 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     public void deleteRoomRate(Long roomRateId) throws InvalidRoomRateException {
         RoomRate roomRateToRemove = retrieveRoomRateById(roomRateId);
         RoomType roomType = roomRateToRemove.getRoomType();
-        LocalDateTime validTo = roomRateToRemove.getValidTo();
-        LocalDateTime timeNow = LocalDateTime.now();
+        LocalDate validTo = roomRateToRemove.getValidTo();
+        LocalDate timeNow = LocalDate.now();
         if (timeNow.isAfter(validTo) && roomType.getRoomRates().size() > 1) {
             roomType.removeRoomRate(roomRateToRemove);
             em.remove(roomRateToRemove);

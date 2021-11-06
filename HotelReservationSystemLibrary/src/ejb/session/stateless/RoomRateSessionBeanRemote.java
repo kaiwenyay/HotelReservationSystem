@@ -8,7 +8,7 @@ package ejb.session.stateless;
 import entity.RoomRate;
 import entity.RoomType;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import javax.ejb.Remote;
 import util.enumeration.RateType;
@@ -30,7 +30,7 @@ public interface RoomRateSessionBeanRemote {
 
     public List<RoomRate> retrieveAllRoomRates(boolean fetchRoomType);
 
-    public RoomRate createRoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDateTime validityFrom, LocalDateTime validityTo) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
+    public RoomRate createRoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDate validityFrom, LocalDate validityTo) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
 
     public RoomRate retrieveRoomRateById(Long roomRateId) throws InvalidRoomRateException;
 
