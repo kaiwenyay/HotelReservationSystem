@@ -94,7 +94,7 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
         return guest;
     }
     
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Guest>>constraintViolations) {
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Guest>> constraintViolations) {
         String msg = "Input data validation error!:";
             
         for(ConstraintViolation constraintViolation:constraintViolations) {

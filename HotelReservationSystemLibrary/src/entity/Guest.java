@@ -6,11 +6,9 @@
 package entity;
 
 import java.io.Serializable;
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.validation.constraints.Size;
 
 /**
  *
@@ -20,7 +18,7 @@ import javax.validation.constraints.Size;
 @NamedQueries({
     @NamedQuery(
             name = "retrieveGuestByEmail",
-            query = "SELECT g FROM Guest g WHERE p.username LIKE :inEmail"
+            query = "SELECT g FROM Guest g WHERE g.username LIKE :inEmail"
     ),
 })
 public class Guest extends User implements Serializable {

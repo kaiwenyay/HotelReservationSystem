@@ -102,7 +102,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
         return partner;
     }
     
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>>constraintViolations) {
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Partner>> constraintViolations) {
         String msg = "Input data validation error!:";
             
         for(ConstraintViolation constraintViolation:constraintViolations) {

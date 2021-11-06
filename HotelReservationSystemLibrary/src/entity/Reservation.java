@@ -18,6 +18,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.Future;
@@ -29,6 +31,12 @@ import javax.validation.constraints.Positive;
  * @author kwpwn
  */
 @Entity
+@NamedQueries({
+    @NamedQuery(
+            name = "retrieveAllReservationsByUser",
+            query = "SELECT r FROM Reservation r WHERE r.user.username LIKE :inUsername"
+    )
+})
 public class Reservation implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -51,6 +59,11 @@ public class Reservation implements Serializable {
     @Future
     private LocalDateTime checkOutDate;
     
+    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    @NotNull
+    @Future
+    private LocalDateTime reservationDateTime;
+    
     @OneToMany
     private List<Room> rooms;
     
@@ -62,12 +75,13 @@ public class Reservation implements Serializable {
         this.rooms = new ArrayList<>();
     }
 
-    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, List<Room> rooms, User user) {
+    public Reservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<Room> rooms, User user) {
         this();
         
         this.totalAmount = totalAmount;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;
+        this.reservationDateTime = reservationDateTime;
         this.rooms.addAll(rooms);
         this.user = user;
     }
@@ -173,6 +187,20 @@ public class Reservation implements Serializable {
      */
     public void setUser(User user) {
         this.user = user;
+    }
+
+    /**
+     * @return the reservationDateTime
+     */
+    public LocalDateTime getReservationDateTime() {
+        return reservationDateTime;
+    }
+
+    /**
+     * @param reservationDateTime the reservationDateTime to set
+     */
+    public void setReservationDateTime(LocalDateTime reservationDateTime) {
+        this.reservationDateTime = reservationDateTime;
     }
     
 }

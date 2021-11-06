@@ -5,22 +5,23 @@
  */
 package ejb.session.stateless;
 
-import entity.Employee;
+import entity.Reservation;
+import entity.Room;
+import entity.User;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
-import util.exception.InvalidCredentialsException;
-import util.exception.InvalidEmployeeException;
+import util.exception.InvalidReservationException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -28,7 +29,7 @@ import util.exception.UnknownPersistenceException;
  * @author kwpwn
  */
 @Stateless
-public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeSessionBeanLocal {
+public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -36,51 +37,38 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
-    public EmployeeSessionBean() {
+    public ReservationSessionBean() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
     
     @Override
-    public Employee retrieveEmployeeByUsername(String username) {
-        try {
-            Employee employee = em.createNamedQuery("retrieveEmployeeByUsername", Employee.class)
-                    .setParameter("inUsername", username)
-                    .getSingleResult();
-            return employee;
-        } catch (NoResultException e) {
-            return null;
-        }
+    public Reservation retrieveReservationById(Long reservationId) throws InvalidReservationException {
+        Reservation reservation = em.find(Reservation.class, reservationId);     
+        if(reservation != null) {
+            return reservation;
+        } else {
+            throw new InvalidReservationException("Rservation " + reservationId + " does not exist!");
+        }               
     }
     
     @Override
-    public Employee employeeLogin(String username, String password) throws InvalidEmployeeException, InvalidCredentialsException {
-        Employee employee = retrieveEmployeeByUsername(username);
-        if (employee == null) {
-            throw new InvalidEmployeeException(String.format("Employee with username %s does not exist.", username));
-        }
-        if (! employee.getPassword().equals(password)) {
-            throw new InvalidCredentialsException("Invalid password.");
-        }
-        return employee;
-    }
-
-    @Override
-    public Employee createEmployee(String username, String password, StaffRole staffRole) throws InvalidEmployeeException, UnknownPersistenceException, InputDataValidationException {
-        Employee employee = new Employee(username, password, staffRole);
-        Set<ConstraintViolation<Employee>>constraintViolations = validator.validate(employee);
+    public Reservation createReservation(BigDecimal totalAmount, LocalDateTime checkInDate, LocalDateTime checkOutDate, LocalDateTime reservationDateTime, List<Room> rooms, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
+        Reservation reservation = new Reservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, rooms, user);
+        Set<ConstraintViolation<Reservation>>constraintViolations = validator.validate(reservation);
         
         if (constraintViolations.isEmpty()) {
             try {
                 
-                em.persist(employee);
+                em.persist(reservation);
+                user.addReservation(reservation);
                 em.flush();
                 
             } catch (PersistenceException e) {
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     
                     if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                        throw new InvalidEmployeeException(String.format("Employee with username %s already exists.", username));
+                        throw new InvalidReservationException();
                     } else {
                         throw new UnknownPersistenceException(e.getMessage());
                     }
@@ -93,17 +81,18 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
         
-        return employee;
+        return reservation;
     }
     
     @Override
-    public List<Employee> retrieveAllEmployees() {
-        List<Employee> employees = em.createNamedQuery("retrieveAllEmployees", Employee.class)
+    public List<Reservation> retrieveAllReservationsByUser(String username) {
+        List<Reservation> reservations = em.createNamedQuery("retrieveAllReservationsByUser", Reservation.class)
+                .setParameter("inUsername", username)
                 .getResultList();
-        return employees;
+        return reservations;
     }
     
-    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Employee>> constraintViolations) {
+    private String prepareInputDataValidationErrorsMessage(Set<ConstraintViolation<Reservation>> constraintViolations) {
         String msg = "Input data validation error!:";
             
         for(ConstraintViolation constraintViolation:constraintViolations) {
