@@ -13,6 +13,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import javax.ejb.Remote;
+import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
 import util.exception.UnknownPersistenceException;
@@ -24,10 +25,10 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface ReservationSessionBeanRemote {
 
-    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
-
-    public List<Reservation> retrieveAllReservationsByUser(String username);
+    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, ReservationStatus reservationStatus, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate);
+
+    public List<Reservation> retrieveReservationsByUser(String username);
     
 }

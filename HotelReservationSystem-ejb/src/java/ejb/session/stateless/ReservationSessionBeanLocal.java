@@ -6,8 +6,17 @@
 package ejb.session.stateless;
 
 import entity.Reservation;
+import entity.ReservationItem;
+import entity.User;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import javax.ejb.Local;
+import util.enumeration.ReservationStatus;
+import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -18,4 +27,7 @@ public interface ReservationSessionBeanLocal {
 
     public Reservation retrieveReservationById(Long reservationId) throws InvalidReservationException;
     
+    public List<Reservation> retrieveReservationsByPeriod(LocalDate checkInDate, LocalDate checkOutDate);
+    
+    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, ReservationStatus reservationStatus, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
 }

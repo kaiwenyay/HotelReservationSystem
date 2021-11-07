@@ -169,6 +169,6 @@ public class Room implements Serializable {
     }
     
     public void disassociate() {
-        this.roomType.getRooms().remove(this);  
+        this.roomType.removeRoom(this);  
     }
 }

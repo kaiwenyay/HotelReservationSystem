@@ -42,23 +42,21 @@ public class EmployeeSessionBean implements EmployeeSessionBeanRemote, EmployeeS
     }
     
     @Override
-    public Employee retrieveEmployeeByUsername(String username) {
+    public Employee retrieveEmployeeByUsername(String username) throws InvalidEmployeeException {
+        Employee employee;
         try {
-            Employee employee = em.createNamedQuery("retrieveEmployeeByUsername", Employee.class)
+            employee = em.createNamedQuery("retrieveEmployeeByUsername", Employee.class)
                     .setParameter("inUsername", username)
                     .getSingleResult();
-            return employee;
         } catch (NoResultException e) {
-            return null;
+            throw new InvalidEmployeeException(String.format("Employee with username %s does not exist.", username));
         }
+        return employee;
     }
     
     @Override
     public Employee employeeLogin(String username, String password) throws InvalidEmployeeException, InvalidCredentialsException {
         Employee employee = retrieveEmployeeByUsername(username);
-        if (employee == null) {
-            throw new InvalidEmployeeException(String.format("Employee with username %s does not exist.", username));
-        }
         if (! employee.getPassword().equals(password)) {
             throw new InvalidCredentialsException("Invalid password.");
         }

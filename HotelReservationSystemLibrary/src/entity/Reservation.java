@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -26,6 +28,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import util.enumeration.ReservationStatus;
 
 /**
  *
@@ -40,6 +43,10 @@ import javax.validation.constraints.Positive;
     @NamedQuery(
             name = "retrieveReservationsByCheckInDate",
             query = "SELECT r FROM Reservation r WHERE r.checkInDate LIKE :inCheckInDate"
+    ),
+    @NamedQuery(
+            name = "retrieveReservationsByPeriod",
+            query = "SELECT r FROM Reservation r WHERE :inCheckInDate BETWEEN r.checkInDate AND r.checkOutDate OR :inCheckOutDate BETWEEN r.checkInDate AND r.checkOutDate"
     )
 })
 public class Reservation implements Serializable {
@@ -69,6 +76,11 @@ public class Reservation implements Serializable {
     @Future
     private LocalDateTime reservationDateTime;
     
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private ReservationStatus reservationStatus;
+    
     @OneToMany
     @JoinColumn(nullable = false)
     private List<ReservationItem> reservationItems;
@@ -81,13 +93,14 @@ public class Reservation implements Serializable {
         this.reservationItems = new ArrayList<>();
     }
 
-    public Reservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, List<ReservationItem> reservationItems, User user) {
+    public Reservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, ReservationStatus reservationStatus, List<ReservationItem> reservationItems, User user) {
         this();
         
         this.totalAmount = totalAmount;
         this.checkInDate = checkInDate;
         this.checkOutDate = checkOutDate;      
         this.reservationDateTime = reservationDateTime;
+        this.reservationStatus = reservationStatus;
         this.reservationItems = reservationItems;
         this.user = user;
     }
@@ -207,6 +220,20 @@ public class Reservation implements Serializable {
      */
     public void setReservationItems(List<ReservationItem> reservationItems) {
         this.reservationItems = reservationItems;
+    }
+
+    /**
+     * @return the reservationStatus
+     */
+    public ReservationStatus getReservationStatus() {
+        return reservationStatus;
+    }
+
+    /**
+     * @param reservationStatus the reservationStatus to set
+     */
+    public void setReservationStatus(ReservationStatus reservationStatus) {
+        this.reservationStatus = reservationStatus;
     }
     
 }

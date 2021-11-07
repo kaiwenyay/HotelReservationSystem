@@ -20,7 +20,7 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface PartnerSessionBeanRemote {
 
-    public Partner retrievePartnerByUsername(String username);
+    public Partner retrievePartnerByUsername(String username) throws InvalidPartnerException;
 
     public Partner createPartner(String username, String password, String partnerName) throws InvalidPartnerException, UnknownPersistenceException, InputDataValidationException;
 

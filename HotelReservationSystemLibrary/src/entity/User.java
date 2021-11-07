@@ -15,6 +15,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -25,6 +27,12 @@ import javax.validation.constraints.Size;
  */
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
+@NamedQueries({
+    @NamedQuery(
+            name = "retrieveUserByUsername",
+            query = "SELECT u FROM User u WHERE u.username LIKE :inUsername"
+    )
+})
 public abstract class User implements Serializable {
 
     private static final long serialVersionUID = 1L;

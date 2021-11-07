@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.math.BigDecimal;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,6 +20,7 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.Digits;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
+import util.enumeration.AllocationExceptionType;
 
 /**
  *
@@ -37,6 +40,11 @@ public class ReservationItem implements Serializable {
     @Digits(integer = 6, fraction = 2)
     private BigDecimal subTotal;
     
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private AllocationExceptionType allocationExceptionType;
+    
     @ManyToOne(fetch = FetchType.LAZY)
     private Room allocatedRoom;
     
@@ -45,6 +53,7 @@ public class ReservationItem implements Serializable {
     private RoomType reservedRoomType;
 
     public ReservationItem() {
+        allocationExceptionType = AllocationExceptionType.NO_EXCEPTION;
     }
 
     public ReservationItem(BigDecimal subTotal, RoomType reservedRoomType) {
@@ -125,6 +134,20 @@ public class ReservationItem implements Serializable {
      */
     public void setReservedRoomType(RoomType reservedRoomType) {
         this.reservedRoomType = reservedRoomType;
+    }
+
+    /**
+     * @return the allocationExceptionType
+     */
+    public AllocationExceptionType getAllocationExceptionType() {
+        return allocationExceptionType;
+    }
+
+    /**
+     * @param allocationExceptionType the allocationExceptionType to set
+     */
+    public void setAllocationExceptionType(AllocationExceptionType allocationExceptionType) {
+        this.allocationExceptionType = allocationExceptionType;
     }
     
 }

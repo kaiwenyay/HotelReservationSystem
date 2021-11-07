@@ -45,14 +45,14 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public RoomRate retrieveRoomRateByName(String name) {
+    public RoomRate retrieveRoomRateByName(String name) throws InvalidRoomRateException {
         try {
             RoomRate roomRate = em.createNamedQuery("retrieveRoomRateByName", RoomRate.class)
                     .setParameter("inName", name)
                     .getSingleResult();
             return roomRate;
         } catch (NoResultException e) {
-            return null;
+            throw new InvalidRoomRateException(String.format("Room rate with name %s does not exist.", name));
         }
     }
     @Override

@@ -34,6 +34,6 @@ public interface RoomRateSessionBeanRemote {
 
     public RoomRate retrieveRoomRateById(Long roomRateId) throws InvalidRoomRateException;
 
-    public RoomRate retrieveRoomRateByName(String name);
+    public RoomRate retrieveRoomRateByName(String name) throws InvalidRoomRateException;
     
 }

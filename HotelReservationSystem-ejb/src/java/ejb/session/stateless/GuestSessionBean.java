@@ -40,15 +40,16 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     }
 
     @Override
-    public Guest retrieveGuestByEmail(String email) {
+    public Guest retrieveGuestByEmail(String email) throws InvalidGuestException {
+        Guest guest;
         try {
-            Guest guest = em.createNamedQuery("retrieveGuestByEmail", Guest.class)
+            guest = em.createNamedQuery("retrieveGuestByEmail", Guest.class)
                     .setParameter("inEmail", email)
                     .getSingleResult();
-            return guest;
         } catch (NoResultException e) {
-            return null;
+            throw new InvalidGuestException(String.format("Guest with email %s does not exist.", email));
         }
+        return guest;
     }
     
     @Override
@@ -85,9 +86,6 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     @Override
     public Guest guestLogin(String email, String password) throws InvalidGuestException, InvalidCredentialsException {
         Guest guest = retrieveGuestByEmail(email);
-        if (guest == null) {
-            throw new InvalidGuestException(String.format("Guest with email %s does not exist.", email));
-        }
         if (! guest.getPassword().equals(password)) {
             throw new InvalidCredentialsException("Invalid password.");
         }

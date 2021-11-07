@@ -43,16 +43,18 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public Room retrieveRoomByName(String roomNumber) {
+    public Room retrieveRoomByName(String roomNumber) throws InvalidRoomException {
+        Room room;
         try {
-            Room room = em.createNamedQuery("retrieveRoomByRoomNumber", Room.class)
+            room = em.createNamedQuery("retrieveRoomByRoomNumber", Room.class)
                     .setParameter("inRoomNumber", roomNumber)
                     .getSingleResult();
-            return room;
         } catch (NoResultException e) {
-            return null;
+            throw new InvalidRoomException("Room with room number %s does not exist.");
         }
+        return room;
     }
+    
     @Override
     public Room retrieveRoomById(Long roomId) throws InvalidRoomException {
         Room room = em.find(Room.class, roomId);     

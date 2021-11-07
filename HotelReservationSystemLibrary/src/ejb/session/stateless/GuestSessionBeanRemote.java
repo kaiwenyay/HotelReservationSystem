@@ -23,6 +23,6 @@ public interface GuestSessionBeanRemote {
 
     public Guest createGuest(String email, String password) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException;
 
-    public Guest retrieveGuestByEmail(String email);
+    public Guest retrieveGuestByEmail(String email) throws InvalidGuestException;
     
 }

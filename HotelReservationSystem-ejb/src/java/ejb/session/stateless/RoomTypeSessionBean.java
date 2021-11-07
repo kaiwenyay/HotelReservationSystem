@@ -43,15 +43,16 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public RoomType retrieveRoomTypeByName(String name) {
+    public RoomType retrieveRoomTypeByName(String name) throws InvalidRoomTypeException {
+        RoomType roomType;
         try {
-            RoomType roomType = em.createNamedQuery("retrieveRoomTypeByName", RoomType.class)
+            roomType = em.createNamedQuery("retrieveRoomTypeByName", RoomType.class)
                     .setParameter("inName", name)
                     .getSingleResult();
-            return roomType;
         } catch (NoResultException e) {
-            return null;
+            throw new InvalidRoomTypeException(String.format("Room Type with name %s does not exist.", name));
         }
+        return roomType;
     }
     @Override
     public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException {
@@ -100,6 +101,19 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     public List<RoomType> retrieveAllRoomTypes() {
         List<RoomType> roomTypes = em.createNamedQuery("retrieveAllRoomTypes", RoomType.class)
                 .getResultList();
+        return roomTypes;
+    }
+    
+    @Override
+    public List<RoomType> retrieveAllRoomTypes(boolean fetchRooms, boolean fetchRoomRates) {
+        List<RoomType> roomTypes = em.createNamedQuery("retrieveAllRoomTypes", RoomType.class)
+                .getResultList();
+        if (fetchRooms) {
+            roomTypes.forEach(x -> x.getRooms().size());
+        }
+        if (fetchRoomRates) {
+            roomTypes.forEach(x -> x.getRoomRates().size());
+        }
         return roomTypes;
     }
     

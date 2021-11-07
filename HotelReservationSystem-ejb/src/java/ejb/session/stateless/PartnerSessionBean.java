@@ -41,15 +41,16 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     }
 
     @Override
-    public Partner retrievePartnerByUsername(String username) {
+    public Partner retrievePartnerByUsername(String username) throws InvalidPartnerException {
+        Partner partner;
         try {
-            Partner partner = em.createNamedQuery("retrievePartnerByUsername", Partner.class)
+            partner = em.createNamedQuery("retrievePartnerByUsername", Partner.class)
                     .setParameter("inUsername", username)
                     .getSingleResult();
-            return partner;
         } catch (NoResultException e) {
-            return null;
+            throw new InvalidPartnerException(String.format("Partner with username %s does not exist.", username));
         }
+        return partner;
     }
     
     @Override
@@ -92,10 +93,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
     
     @Override
     public Partner partnerLogin(String username, String password) throws InvalidPartnerException, InvalidCredentialsException {
-        Partner partner = retrievePartnerByUsername(username);
-        if (partner == null) {
-            throw new InvalidPartnerException(String.format("Partner with username %s does not exist.", username));
-        }
+        Partner partner = retrievePartnerByUsername(username); 
         if (! partner.getPassword().equals(password)) {
             throw new InvalidCredentialsException("Invalid password.");
         }

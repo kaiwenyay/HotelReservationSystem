@@ -21,7 +21,7 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface EmployeeSessionBeanRemote {
 
-    public Employee retrieveEmployeeByUsername(String username);
+    public Employee retrieveEmployeeByUsername(String username) throws InvalidEmployeeException;
 
     public Employee employeeLogin(String username, String password) throws InvalidEmployeeException, InvalidCredentialsException;
     

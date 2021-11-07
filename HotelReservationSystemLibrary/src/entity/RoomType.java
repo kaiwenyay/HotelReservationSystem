@@ -75,6 +75,16 @@ public class RoomType implements Serializable {
     @NotNull
     private boolean disabled;
     
+    @Column(nullable = false)
+    @NotNull
+    @Positive
+    private Integer totalRooms;
+    
+    @Column(nullable = false)
+    @NotNull
+    @Positive
+    private Integer currentAvailableRooms;
+    
     @OneToMany(mappedBy = "roomType")
     private List<Room> rooms;
     
@@ -255,6 +265,16 @@ public class RoomType implements Serializable {
     public void addRoom(Room room) {
         if (! rooms.contains(room)) {
             rooms.add(room);
+            currentAvailableRooms++;
+            totalRooms++;
+        }
+    }
+    
+    public void removeRoom(Room room) {
+        if (rooms.contains(room)) {
+            rooms.remove(room);
+            currentAvailableRooms--;
+            totalRooms--;
         }
     }
 
@@ -307,5 +327,37 @@ public class RoomType implements Serializable {
     
     public void removeRoomRate(RoomRate roomRate) {
         roomRates.remove(roomRate);
+    }
+
+    /**
+     * @return the inventory
+     */
+    public Integer getCurrentAvailableRooms() {
+        return currentAvailableRooms;
+    }
+
+    /**
+     * @param currentAvailableRooms the inventory to set
+     */
+    public void setCurrentAvailableRooms(Integer currentAvailableRooms) {
+        this.currentAvailableRooms = currentAvailableRooms;
+    }
+
+    /**
+     * @return the totalRooms
+     */
+    public Integer getTotalRooms() {
+        return totalRooms;
+    }
+
+    /**
+     * @param totalRooms the totalRooms to set
+     */
+    public void setTotalRooms(Integer totalRooms) {
+        this.totalRooms = totalRooms;
+    }
+    
+    public void decreaseTotalRooms() {
+        totalRooms--;
     }
 }
