@@ -18,7 +18,9 @@ import org.junit.runners.Suite;
  */
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-    
+    EmployeeSessionBeanTest.class,
+    GuestSessionBeanTest.class,
+    PartnerSessionBeanTest.class
 })
 public class HotelReservationSystemTestSuite {
 

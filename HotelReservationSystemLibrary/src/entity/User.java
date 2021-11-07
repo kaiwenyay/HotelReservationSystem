@@ -40,14 +40,14 @@ public abstract class User implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     protected Long userId;
     
-    @Column(nullable = false, length = 16, unique = true)
+    @Column(nullable = false, length = 32, unique = true)
     @NotNull
-    @Size(min = 1, max = 16)
+    @Size(min = 1, max = 32)
     private String username;
     
     @Column(nullable = false)
     @NotNull
-    @Size(min = 1)
+    @Size(min = 8)
     private String password;
 
     @OneToMany(mappedBy = "user")

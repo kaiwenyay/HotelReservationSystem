@@ -26,7 +26,7 @@ import util.enumeration.StaffRole;
  */
 @Singleton
 @LocalBean
-@Startup
+// @Startup
 public class DataInitSessionBean {
 
     @EJB
@@ -38,33 +38,33 @@ public class DataInitSessionBean {
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
 
-    @PostConstruct
-    public void postConstruct() {
-        if (em.find(Employee.class, 1l) == null) {
-            try {
-                employeeSessionBean.createEmployee("sysadmin", "password", StaffRole.ADMIN);
-                employeeSessionBean.createEmployee("opmanager", "password", StaffRole.OPERATIONS);
-                employeeSessionBean.createEmployee("salesmanager", "password", StaffRole.SALES);
-                employeeSessionBean.createEmployee("guestrelo", "password", StaffRole.GUEST_RELATIONS);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        }
-        if (em.find(RoomType.class, 1l) == null) {
-            try {
-                List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null, null);
-                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite, null, null);
-                grandSuite.setNextLowerRoomType(juniorSuite);
-                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite, null, null);
-                juniorSuite.setNextLowerRoomType(familyRoom);
-                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom, null, null);
-                familyRoom.setNextLowerRoomType(premierRoom);
-                RoomType deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom, null, null);
-                premierRoom.setNextLowerRoomType(deluxeRoom);
-            } catch (Exception e) {
-                System.out.println("Error: " + e.getMessage());
-            }
-        }
-    }
+//    @PostConstruct
+//    public void postConstruct() {
+//        if (em.find(Employee.class, 1l) == null) {
+//            try {
+//                employeeSessionBean.createEmployee("sysadmin", "password", StaffRole.ADMIN);
+//                employeeSessionBean.createEmployee("opmanager", "password", StaffRole.OPERATIONS);
+//                employeeSessionBean.createEmployee("salesmanager", "password", StaffRole.SALES);
+//                employeeSessionBean.createEmployee("guestrelo", "password", StaffRole.GUEST_RELATIONS);
+//            } catch (Exception e) {
+//                System.out.println("Error: " + e.getMessage());
+//            }
+//        }
+//        if (em.find(RoomType.class, 1l) == null) {
+//            try {
+//                List<String> amenities = Arrays.asList(new String[]{"Toilet"});
+//                RoomType grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null, null);
+//                RoomType juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite, null, null);
+//                grandSuite.setNextLowerRoomType(juniorSuite);
+//                RoomType familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite, null, null);
+//                juniorSuite.setNextLowerRoomType(familyRoom);
+//                RoomType premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom, null, null);
+//                familyRoom.setNextLowerRoomType(premierRoom);
+//                RoomType deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom, null, null);
+//                premierRoom.setNextLowerRoomType(deluxeRoom);
+//            } catch (Exception e) {
+//                System.out.println("Error: " + e.getMessage());
+//            }
+//        }
+//    }
 }

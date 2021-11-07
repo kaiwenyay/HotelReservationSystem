@@ -19,10 +19,10 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface GuestSessionBeanRemote {
 
-    public Guest guestLogin(String email, String password) throws InvalidGuestException, InvalidCredentialsException;
-
-    public Guest createGuest(String email, String password) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException;
-
     public Guest retrieveGuestByEmail(String email) throws InvalidGuestException;
     
+    public Guest createGuest(String email, String password) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException;
+ 
+    public Guest guestLogin(String email, String password) throws InvalidGuestException, InvalidCredentialsException;
+ 
 }
