@@ -23,17 +23,24 @@ import util.exception.UpdateRoomRateException;
  */
 @Remote
 public interface RoomRateSessionBeanRemote {
-
-    public void deleteRoomRate(Long roomRateId) throws InvalidRoomRateException;
-
-    public RoomRate updateRoomRate(RoomRate roomRate) throws InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException;
-
-    public List<RoomRate> retrieveAllRoomRates(boolean fetchRoomType);
-
-    public RoomRate createRoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDate validityFrom, LocalDate validityTo) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
-
+    
     public RoomRate retrieveRoomRateById(Long roomRateId) throws InvalidRoomRateException;
 
     public RoomRate retrieveRoomRateByName(String name) throws InvalidRoomRateException;
+
+    public RoomRate createRoomRate(
+            String name, 
+            RoomType roomType, 
+            RateType rateType, 
+            BigDecimal ratePerNight, 
+            LocalDate validityFrom, 
+            LocalDate validityTo
+    ) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
+
+    public List<RoomRate> retrieveAllRoomRates(boolean fetchRoomType);
+    
+    public RoomRate updateRoomRate(RoomRate roomRate) throws InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException;
+    
+    public void deleteRoomRate(Long roomRateId) throws InvalidRoomRateException;
     
 }

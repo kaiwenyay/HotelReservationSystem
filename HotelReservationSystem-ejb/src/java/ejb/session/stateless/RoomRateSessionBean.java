@@ -66,7 +66,15 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public RoomRate createRoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDate validityFrom, LocalDate validityTo) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
+    public RoomRate createRoomRate(
+            String name, 
+            RoomType roomType, 
+            RateType rateType, 
+            BigDecimal ratePerNight, 
+            LocalDate validityFrom, 
+            LocalDate validityTo
+    ) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
+        
         RoomRate roomRate = new RoomRate(name, roomType, rateType, ratePerNight, validityFrom, validityTo);
         Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);
         
@@ -74,7 +82,10 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             try {
                 
                 em.persist(roomRate);
-                roomType.addRoomRate(roomRate);
+                // Ignore roomType for testing purposes
+                if (roomType != null) {
+                    roomType.addRoomRate(roomRate);
+                } 
                 em.flush();
                 
             } catch (PersistenceException e) {
@@ -143,8 +154,8 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
         RoomRate roomRateToRemove = retrieveRoomRateById(roomRateId);
         RoomType roomType = roomRateToRemove.getRoomType();
         LocalDate validTo = roomRateToRemove.getValidTo();
-        LocalDate timeNow = LocalDate.now();
-        if (timeNow.isAfter(validTo) && roomType.getRoomRates().size() > 1) {
+        LocalDate dateNow = LocalDate.now();
+        if (validTo != null && dateNow.isAfter(validTo)) {
             roomType.removeRoomRate(roomRateToRemove);
             em.remove(roomRateToRemove);
         } else {

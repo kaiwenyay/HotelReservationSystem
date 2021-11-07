@@ -332,7 +332,9 @@ public class RoomType implements Serializable {
     }
     
     public void removeRoomRate(RoomRate roomRate) {
-        roomRates.remove(roomRate);
+        if (roomRates.contains(roomRate)) {
+            roomRates.remove(roomRate);
+        }   
     }
 
     /**

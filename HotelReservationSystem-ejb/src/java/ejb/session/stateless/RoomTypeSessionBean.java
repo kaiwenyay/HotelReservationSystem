@@ -54,6 +54,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         }
         return roomType;
     }
+    
     @Override
     public RoomType retrieveRoomTypeById(Long roomTypeId) throws InvalidRoomTypeException {
         RoomType roomType = em.find(RoomType.class, roomTypeId);     

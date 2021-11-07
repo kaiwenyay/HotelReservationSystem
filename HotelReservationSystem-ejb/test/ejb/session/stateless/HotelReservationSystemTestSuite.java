@@ -21,7 +21,8 @@ import org.junit.runners.Suite;
     EmployeeSessionBeanTest.class,
     GuestSessionBeanTest.class,
     PartnerSessionBeanTest.class,
-    RoomTypeSessionBeanTest.class
+    RoomTypeSessionBeanTest.class,
+    RoomRateSessionBeanTest.class
 })
 public class HotelReservationSystemTestSuite {
 

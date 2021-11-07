@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.util.Arrays;
@@ -188,13 +189,25 @@ public class RoomTypeSessionBeanTest {
     /**
      * Test of deleteRoomType method, of class RoomTypeSessionBean.
      */
+//    @Test
+//    public void test13DeleteRoomType() throws Exception {
+//        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeByName("Deluxe Room");
+//        Room room = new Room();
+//        room.setRoomType(roomType);
+//        roomType.addRoom(room);
+//        roomTypeSessionBean.updateRoomType(roomType);
+//        roomTypeSessionBean.deleteRoomType(1l);
+//        roomType = roomTypeSessionBean.retrieveRoomTypeById(1l);
+//        assertTrue(roomType.isDisabled());
+//    }
+    
     @Test
-    public void test13DeleteRoomType() throws Exception {
+    public void test14DeleteRoomType() throws Exception {
         roomTypeSessionBean.deleteRoomType(1l);
     }
     
     @Test(expected = InvalidRoomTypeException.class)
-    public void test14DeleteRoomType() throws Exception {
+    public void test15DeleteRoomType() throws Exception {
         roomTypeSessionBean.deleteRoomType(1l);
     }
     
