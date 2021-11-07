@@ -77,12 +77,12 @@ public class RoomType implements Serializable {
     
     @Column(nullable = false)
     @NotNull
-    @Positive
+    @Min(0)
     private Integer totalRooms;
     
     @Column(nullable = false)
     @NotNull
-    @Positive
+    @Min(0)
     private Integer currentAvailableRooms;
     
     @OneToMany(mappedBy = "roomType")
@@ -99,6 +99,8 @@ public class RoomType implements Serializable {
     private RoomType nextLowerRoomType;
 
     public RoomType() {
+        this.totalRooms = 0;
+        this.currentAvailableRooms = 0;
         this.rooms = new ArrayList<>();
         this.roomRates = new ArrayList<>();
         this.disabled = false;
@@ -294,14 +296,18 @@ public class RoomType implements Serializable {
     
     public void disassociateHigherAndLower() {
         if (this.nextLowerRoomType != null && this.nextHigherRoomType != null) {
+            
             this.nextLowerRoomType.setNextHigherRoomType(this.nextHigherRoomType);
             this.nextHigherRoomType.setNextLowerRoomType(this.nextLowerRoomType);
-        }
-        if (this.nextLowerRoomType == null) {
+            
+        } else if (this.nextLowerRoomType == null && this.nextHigherRoomType != null) {
+            
             this.nextHigherRoomType.setNextLowerRoomType(null);
-        }
-        if (this.nextHigherRoomType == null) {
+            
+        } else if (this.nextLowerRoomType != null && this.nextHigherRoomType == null) {
+            
             this.nextLowerRoomType.setNextHigherRoomType(null);
+            
         }
     }
 

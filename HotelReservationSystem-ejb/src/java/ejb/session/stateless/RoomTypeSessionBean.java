@@ -55,12 +55,12 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         return roomType;
     }
     @Override
-    public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException {
-        RoomType roomType = em.find(RoomType.class, productId);     
+    public RoomType retrieveRoomTypeById(Long roomTypeId) throws InvalidRoomTypeException {
+        RoomType roomType = em.find(RoomType.class, roomTypeId);     
         if(roomType != null) {
             return roomType;
         } else {
-            throw new InvalidRoomTypeException("Room Type " + productId + " does not exist!");
+            throw new InvalidRoomTypeException("Room Type " + roomTypeId + " does not exist!");
         }               
     }
     
@@ -74,7 +74,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             try {
                 
                 em.persist(roomType);
-                roomRate.setRoomType(roomType);
+                // Ignore roomRate for testing purposes
+                if (roomRate != null) {
+                    roomRate.setRoomType(roomType);
+                }
                 em.flush();
                 
             } catch (PersistenceException e) {
