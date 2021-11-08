@@ -29,6 +29,7 @@ import javax.validation.ValidatorFactory;
 import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
+import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.InvalidUserException;
 import util.exception.UnknownPersistenceException;
@@ -96,7 +97,7 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
         totalAmount.add(reservationItem.getSubTotal());
     }
     
-    public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
+    public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
         User user = userSessionBean.retrieveUserByUsername(username);
         LocalDateTime reservationDateTime = LocalDateTime.now();
         Reservation reservation = reservationSessionBean.createReservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, ReservationStatus.RESERVED, reservationItems, user);

@@ -5,11 +5,19 @@
  */
 package horsmanagementclient;
 
+import entity.Employee;
+
 /**
  *
  * @author kwpwn
  */
 public class HotelOperationModule {
+    
+    private Employee currentEmployee; 
+
+    public HotelOperationModule(Employee currentEmployee) {
+        this.currentEmployee = currentEmployee;
+    }
     
     public void menu() {
         

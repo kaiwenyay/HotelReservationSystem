@@ -5,11 +5,19 @@
  */
 package horsmanagementclient;
 
+import entity.Employee;
+
 /**
  *
  * @author kwpwn
  */
 public class FrontOfficeModule {
+    
+    private Employee currentEmployee; 
+
+    public FrontOfficeModule(Employee currentEmployee) {
+        this.currentEmployee = currentEmployee;
+    }
     
     public void menu() {
         

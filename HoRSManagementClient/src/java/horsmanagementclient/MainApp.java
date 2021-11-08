@@ -6,8 +6,10 @@
 package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeSessionBeanRemote;
+import ejb.session.stateless.PartnerSessionBeanRemote;
 import entity.Employee;
 import java.util.Scanner;
+import util.enumeration.InvalidStaffRoleException;
 import util.exception.InvalidCredentialsException;
 import util.exception.InvalidEmployeeException;
 
@@ -21,14 +23,20 @@ public class MainApp {
     
     private EmployeeSessionBeanRemote employeeSessionBean;
     
+    private PartnerSessionBeanRemote partnerSessionBean;
+    
     private SystemAdministrationModule systemAdministrationModule;
     
     private HotelOperationModule hotelOperationModule;
     
     private FrontOfficeModule frontOfficeModule;
     
-    MainApp(EmployeeSessionBeanRemote employeeSessionBean) {
+    MainApp() {
+    }
+    
+    MainApp(EmployeeSessionBeanRemote employeeSessionBean, PartnerSessionBeanRemote partnerSessionBean) {
         this.employeeSessionBean = employeeSessionBean;
+        this.partnerSessionBean = partnerSessionBean;
     }
     
     public void runApp() {
@@ -45,9 +53,9 @@ public class MainApp {
             if (response == 1) {
                 try {
                     doLogin();
-                    systemAdministrationModule = new SystemAdministrationModule();
-                    hotelOperationModule = new HotelOperationModule();
-                    frontOfficeModule = new FrontOfficeModule();
+                    systemAdministrationModule = new SystemAdministrationModule(currentEmployee, employeeSessionBean, partnerSessionBean);
+                    hotelOperationModule = new HotelOperationModule(currentEmployee);
+                    frontOfficeModule = new FrontOfficeModule(currentEmployee);
                     mainMenu();
                 } catch (InvalidEmployeeException | InvalidCredentialsException e) {
                     System.out.println("Error: " + e.toString());
@@ -66,9 +74,9 @@ public class MainApp {
         String username = sc.nextLine();
         System.out.print("Enter password: ");
         String password = sc.nextLine();
+        currentEmployee = employeeSessionBean.employeeLogin(username, password);
         System.out.println();
         System.out.println(String.format("Successfully logged in as %s!\n", currentEmployee.getUsername()));
-        currentEmployee = employeeSessionBean.employeeLogin(username, password);
     }
     
     public void mainMenu() {
@@ -85,16 +93,21 @@ public class MainApp {
             System.out.print(">");
             
             response = sc.nextInt();
-            if (response == 1) {
-                systemAdministrationModule.menu();
-            } else if (response == 2) {
-                hotelOperationModule.menu();
-            } else if (response == 3) {
-                frontOfficeModule.menu();
-            } else if (response == 4) {
-                break;
-            } else {
-                System.out.println("Invalid option.");
+            try {
+                if (response == 1) {
+                    systemAdministrationModule.menu();
+                } else if (response == 2) {
+                    hotelOperationModule.menu();
+                } else if (response == 3) {
+                    frontOfficeModule.menu();
+                } else if (response == 4) {
+                    break;
+                } else {
+                    System.out.println("Invalid option.");
+                }
+            } catch (InvalidStaffRoleException e) {
+                System.out.println("Error: " + e.toString());
+                System.out.println("Please try again.");
             }
         }
     }
