@@ -8,6 +8,7 @@ package horsmanagementclient;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import entity.Employee;
+import entity.Partner;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -19,6 +20,7 @@ import util.enumeration.InvalidStaffRoleException;
 import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidEmployeeException;
+import util.exception.InvalidPartnerException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -133,7 +135,7 @@ public class SystemAdministrationModule {
     }
     
     public void doViewAllEmployees() {
-      Scanner scanner = new Scanner(System.in);
+        Scanner scanner = new Scanner(System.in);
         
         List<Employee> employees = employeeSessionBean.retrieveAllEmployees();
         System.out.printf("%8s%20s%20s%20s\n", "User ID", "Username", "Password", "Staff Role");
@@ -141,20 +143,60 @@ public class SystemAdministrationModule {
         for(Employee e : employees) {
             System.out.printf("%8s%20s%20s%20s\n", e.getUserId().toString(), e.getUsername(), e.getPassword(), e.getStaffRole().toString());
         }
-        
+
         System.out.print("Press any key to continue...> ");
         scanner.nextLine();
     }
     
     public void doCreateNewPartner() {
+        Scanner sc = new Scanner(System.in);
         
+        System.out.print("Enter Username> ");
+        String username = sc.nextLine();
+        System.out.print("Enter Password> ");
+        String password = sc.nextLine();
+        System.out.print("Enter Partner Name> ");
+        String partnerName = sc.nextLine();
+        
+        Set<ConstraintViolation<Partner>> constraintViolations = validator.validate(new Partner(username, password, partnerName));
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                Partner partner = partnerSessionBean.createPartner(username, password, partnerName);
+                System.out.println(String.format("Successfully created partner %s! (Userame: %s)\n", partner.getPartnerName(), partner.getUsername()));
+            } catch (InvalidPartnerException | UnknownPersistenceException | InputDataValidationException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        } else {
+            showInputDataValidationErrorsForPartner(constraintViolations);
+        }
     }
     
     public void doViewAllPartners() {
+        Scanner scanner = new Scanner(System.in);
         
+        List<Partner> partners = partnerSessionBean.retrieveAllPartners();
+        System.out.printf("%8s%20s%20s%20s\n", "User ID", "Username", "Password", "Partner Name");
+
+        for(Partner e : partners) {
+            System.out.printf("%8s%20s%20s%20s\n", e.getUserId().toString(), e.getUsername(), e.getPassword(), e.getPartnerName());
+        }
+
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
     
     private void showInputDataValidationErrorsForEmployee(Set<ConstraintViolation<Employee>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForPartner(Set<ConstraintViolation<Partner>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
             
         for(ConstraintViolation constraintViolation:constraintViolations) {
