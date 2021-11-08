@@ -8,6 +8,7 @@ package horsmanagementclient;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import entity.Employee;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
@@ -132,7 +133,17 @@ public class SystemAdministrationModule {
     }
     
     public void doViewAllEmployees() {
-      
+      Scanner scanner = new Scanner(System.in);
+        
+        List<Employee> employees = employeeSessionBean.retrieveAllEmployees();
+        System.out.printf("%8s%20s%20s%20s\n", "User ID", "Username", "Password", "Staff Role");
+
+        for(Employee e : employees) {
+            System.out.printf("%8s%20s%20s%20s\n", e.getUserId().toString(), e.getUsername(), e.getPassword(), e.getStaffRole().toString());
+        }
+        
+        System.out.print("Press any key to continue...> ");
+        scanner.nextLine();
     }
     
     public void doCreateNewPartner() {
