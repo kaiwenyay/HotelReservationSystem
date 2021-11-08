@@ -35,6 +35,10 @@ import util.enumeration.RoomStatus;
     @NamedQuery(
             name = "retrieveAllRooms",
             query = "SELECT r FROM Room r"
+    ),
+    @NamedQuery(
+            name = "retrieveRoomsByRoomTypeAndStatus",
+            query = "SELECT r FROM Room r WHERE r.roomType LIKE :inRoomType AND r.roomStatus LIKE :inRoomStatus"
     )
 })
 public class Room implements Serializable {
@@ -170,5 +174,10 @@ public class Room implements Serializable {
     
     public void disassociate() {
         this.roomType.removeRoom(this);  
+    }
+    
+    public void allocateRoom() {
+        setRoomStatus(RoomStatus.NOT_AVAILABLE);
+        roomType.decreaseCurrentAvailableRooms();
     }
 }

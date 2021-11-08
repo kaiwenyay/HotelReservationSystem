@@ -133,7 +133,7 @@ public class PartnerSessionBeanTest {
     @Test
     public void test09RetrieveAllPartners() throws Exception {
         List<Partner> result = partnerSessionBean.retrieveAllPartners();
-        assertEquals(1, result.size());
+        assertEquals(6, result.size());
     }
     
     private static PartnerSessionBeanRemote lookupSessionBean() {

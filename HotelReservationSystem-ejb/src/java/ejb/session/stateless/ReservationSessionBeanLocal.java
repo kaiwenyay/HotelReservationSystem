@@ -29,5 +29,22 @@ public interface ReservationSessionBeanLocal {
     
     public List<Reservation> retrieveReservationsByPeriod(LocalDate checkInDate, LocalDate checkOutDate);
     
-    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, ReservationStatus reservationStatus, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+    public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate);
+    
+    public List<Reservation> retrieveReservationsByCheckInDate(
+            LocalDate checkInDate, 
+            boolean fetchReservationItems, 
+            boolean fetchUser, 
+            boolean fetchItemRoomType 
+    );
+    
+    public Reservation createReservation(
+            BigDecimal totalAmount, 
+            LocalDate checkInDate, 
+            LocalDate checkOutDate, 
+            LocalDateTime reservationDateTime, 
+            ReservationStatus reservationStatus, 
+            List<ReservationItem> reservationItems, 
+            User user
+    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
 }

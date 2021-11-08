@@ -7,12 +7,16 @@ package ejb.session.stateless;
 
 import entity.Reservation;
 import entity.ReservationItem;
+import entity.Room;
+import entity.RoomType;
 import entity.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
+import javax.ejb.Schedule;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -21,9 +25,12 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.AllocationExceptionType;
 import util.enumeration.ReservationStatus;
+import util.enumeration.RoomStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
+import util.exception.InvalidRoomException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -32,6 +39,9 @@ import util.exception.UnknownPersistenceException;
  */
 @Stateless
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
+
+    @EJB
+    private RoomSessionBeanLocal roomSessionBean;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -56,10 +66,35 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     
     @Override
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate) {
-        List<Reservation> employees = em.createNamedQuery("retrieveReservationByCheckInDate", Reservation.class)
+        List<Reservation> reservations = em.createNamedQuery("retrieveReservationByCheckInDate", Reservation.class)
                 .setParameter("inCheckInDate", checkInDate)
                 .getResultList();
-        return employees;
+        return reservations;
+    }
+    
+    @Override
+    public List<Reservation> retrieveReservationsByCheckInDate(
+            LocalDate checkInDate, 
+            boolean fetchReservationItems, 
+            boolean fetchUser, 
+            boolean fetchItemRoomType
+    ) {
+        List<Reservation> reservations = retrieveReservationsByCheckInDate(checkInDate);
+        if (! fetchReservationItems && ! fetchUser && ! fetchItemRoomType) {
+            return reservations;
+        }
+        for (Reservation r : reservations) {
+            if (fetchReservationItems) {
+                r.getReservationItems().size();
+            }
+            if (fetchUser) {
+                r.getUser();
+            }
+            if (fetchItemRoomType) {
+                r.getReservationItems().forEach(x -> x.getReservedRoomType());
+            }
+        }
+        return reservations;
     }
     
     @Override
@@ -125,4 +160,35 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         
         return msg;
     }
+    
+    @Schedule(hour = "2", minute = "0", info = "allocateRooms")  
+    public void allocateRooms() throws InvalidRoomException {
+        List<Reservation> reservations = retrieveReservationsByCheckInDate(LocalDate.now(), true, false, true);
+        reservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
+        for (Reservation r : reservations) {
+
+            List<ReservationItem> items = r.getReservationItems();
+            for (ReservationItem i : items) {
+                RoomType roomType = i.getReservedRoomType();
+                if (roomType.getCurrentAvailableRooms() > 0) {
+                    Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                    room.allocateRoom();
+                    i.setAllocatedRoom(room);
+                } else {
+                    roomType = roomType.getNextHigherRoomType();
+                    if (roomType != null && roomType.getCurrentAvailableRooms() > 0) {
+                        Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                        room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
+                        room.allocateRoom();
+                        i.setAllocatedRoom(room);
+                        i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
+                    } else {
+                        i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
+                    }
+                }
+            }
+            r.setReservationStatus(ReservationStatus.ALLOCATED);
+        }
+    }
+    
 }

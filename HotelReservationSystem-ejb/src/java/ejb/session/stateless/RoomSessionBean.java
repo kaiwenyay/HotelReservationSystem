@@ -66,6 +66,21 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
+    public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException {
+        Room room;
+        try {
+            room = em.createNamedQuery("retrieveRoomsByRoomTypeAndStatus", Room.class)
+                    .setParameter("inRoomType", roomType)
+                    .setParameter("inRoomStatus", RoomStatus.AVAILABLE)
+                    .setMaxResults(1)
+                    .getSingleResult();
+        } catch (NoResultException e) {
+            throw new InvalidRoomException("Room with room number %s does not exist.");
+        }
+        return room;
+    }
+    
+    @Override
     public Room createRoom(String roomNumber, RoomStatus roomStatus, RoomType roomType) throws InvalidRoomException, UnknownPersistenceException, InputDataValidationException {
         Room room = new Room(roomNumber, roomStatus, roomType);
         Set<ConstraintViolation<Room>>constraintViolations = validator.validate(room);

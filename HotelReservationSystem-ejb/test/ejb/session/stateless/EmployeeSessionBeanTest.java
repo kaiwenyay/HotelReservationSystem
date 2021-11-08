@@ -59,29 +59,27 @@ public class EmployeeSessionBeanTest {
      */
     @Test
     public void test01CreateEmployee() throws InvalidEmployeeException, UnknownPersistenceException, InputDataValidationException {
-        String username = "sysadmin";
+        String username = "test";
         String password = "password";
         StaffRole staffRole = StaffRole.ADMIN;
         Employee result = employeeSessionBean.createEmployee(username, password, staffRole);
-        assertEquals(1l, result.getUserId().longValue());
+        assertEquals(username, result.getUsername());
     }
     
     @Test(expected = InvalidEmployeeException.class)
     public void test02CreateEmployee() throws InvalidEmployeeException, UnknownPersistenceException, InputDataValidationException {
-        String username = "sysadmin";
+        String username = "test";
         String password = "password";
         StaffRole staffRole = StaffRole.ADMIN;
         Employee result = employeeSessionBean.createEmployee(username, password, staffRole);
-        assertEquals(1l, result.getUserId().longValue());
     }
     
     @Test(expected = InputDataValidationException.class)
     public void test03CreateEmployee() throws InvalidEmployeeException, UnknownPersistenceException, InputDataValidationException {
-        String username = "test";
+        String username = "test2";
         String password = "password";
         StaffRole staffRole = null;
         Employee result = employeeSessionBean.createEmployee(username, password, staffRole);
-        assertEquals(1l, result.getUserId().longValue());
     }
     
     /**
@@ -89,7 +87,7 @@ public class EmployeeSessionBeanTest {
      */
     @Test
     public void test04RetrieveEmployeeByUsername() throws InvalidEmployeeException {
-        String username = "sysadmin";
+        String username = "test";
         Employee result = employeeSessionBean.retrieveEmployeeByUsername(username);
         assertEquals(username, result.getUsername());
     }
@@ -106,7 +104,7 @@ public class EmployeeSessionBeanTest {
      */
     @Test
     public void test06EmployeeLogin() throws InvalidEmployeeException, InvalidCredentialsException {
-        String username = "sysadmin";
+        String username = "test";
         String password = "password";
         Employee result = employeeSessionBean.employeeLogin(username, password);
         assertEquals(username, result.getUsername());
@@ -122,7 +120,7 @@ public class EmployeeSessionBeanTest {
     
     @Test(expected = InvalidCredentialsException.class)
     public void test08EmployeeLogin() throws InvalidEmployeeException, InvalidCredentialsException {
-        String username = "sysadmin";
+        String username = "test";
         String password = "pw";
         Employee result = employeeSessionBean.employeeLogin(username, password);
         assertEquals(username, result.getUsername());
@@ -134,7 +132,7 @@ public class EmployeeSessionBeanTest {
     @Test
     public void test09RetrieveAllEmployees() throws Exception {
         List<Employee> result = employeeSessionBean.retrieveAllEmployees();
-        assertEquals(1, result.size());
+        assertEquals(5, result.size());
     }
     
     private static EmployeeSessionBeanRemote lookupSessionBean() {

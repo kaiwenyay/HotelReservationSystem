@@ -22,6 +22,8 @@ import util.exception.UnknownPersistenceException;
 public interface RoomSessionBeanLocal {
 
     public Room retrieveRoomById(Long roomId) throws InvalidRoomException;
+    
+    public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException;
 
     public List<Room> retrieveAllRooms();
     

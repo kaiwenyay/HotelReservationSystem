@@ -25,10 +25,25 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface ReservationSessionBeanRemote {
 
-    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, ReservationStatus reservationStatus, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+    public Reservation createReservation(
+            BigDecimal totalAmount, 
+            LocalDate checkInDate, 
+            LocalDate checkOutDate, 
+            LocalDateTime reservationDateTime, 
+            ReservationStatus reservationStatus, 
+            List<ReservationItem> reservationItems, 
+            User user
+    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
 
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate);
 
     public List<Reservation> retrieveReservationsByUser(String username);
+
+    public List<Reservation> retrieveReservationsByCheckInDate(
+            LocalDate checkInDate, 
+            boolean fetchReservationItems, 
+            boolean fetchUser, 
+            boolean fetchItemRoomType
+    );
     
 }

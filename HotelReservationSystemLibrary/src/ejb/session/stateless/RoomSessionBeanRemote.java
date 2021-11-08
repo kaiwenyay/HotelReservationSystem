@@ -31,5 +31,7 @@ public interface RoomSessionBeanRemote {
     public void deleteRoom(Long roomId) throws InvalidRoomException;
 
     public List<Room> retrieveAllRooms(boolean fetchRoomType);
+
+    public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException;
     
 }

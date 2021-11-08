@@ -264,22 +264,6 @@ public class RoomType implements Serializable {
         this.nextLowerRoomType = nextLowerRoomType;
     }
     
-    public void addRoom(Room room) {
-        if (! rooms.contains(room)) {
-            rooms.add(room);
-            currentAvailableRooms++;
-            totalRooms++;
-        }
-    }
-    
-    public void removeRoom(Room room) {
-        if (rooms.contains(room)) {
-            rooms.remove(room);
-            currentAvailableRooms--;
-            totalRooms--;
-        }
-    }
-
     /**
      * @return the disabled
      */
@@ -294,23 +278,6 @@ public class RoomType implements Serializable {
         this.disabled = disabled;
     }
     
-    public void disassociateHigherAndLower() {
-        if (this.nextLowerRoomType != null && this.nextHigherRoomType != null) {
-            
-            this.nextLowerRoomType.setNextHigherRoomType(this.nextHigherRoomType);
-            this.nextHigherRoomType.setNextLowerRoomType(this.nextLowerRoomType);
-            
-        } else if (this.nextLowerRoomType == null && this.nextHigherRoomType != null) {
-            
-            this.nextHigherRoomType.setNextLowerRoomType(null);
-            
-        } else if (this.nextLowerRoomType != null && this.nextHigherRoomType == null) {
-            
-            this.nextLowerRoomType.setNextHigherRoomType(null);
-            
-        }
-    }
-
     /**
      * @return the roomRates
      */
@@ -323,18 +290,6 @@ public class RoomType implements Serializable {
      */
     public void setRoomRates(List<RoomRate> roomRates) {
         this.roomRates = roomRates;
-    }
-    
-    public void addRoomRate(RoomRate roomRate) {
-        if (! roomRates.contains(roomRate)) {
-            roomRates.add(roomRate);
-        }
-    }
-    
-    public void removeRoomRate(RoomRate roomRate) {
-        if (roomRates.contains(roomRate)) {
-            roomRates.remove(roomRate);
-        }   
     }
 
     /**
@@ -368,4 +323,56 @@ public class RoomType implements Serializable {
     public void decreaseTotalRooms() {
         totalRooms--;
     }
+    
+    public void decreaseCurrentAvailableRooms() {
+        currentAvailableRooms--;
+    }
+    
+    public void addRoom(Room room) {
+        if (! rooms.contains(room)) {
+            rooms.add(room);
+            currentAvailableRooms++;
+            totalRooms++;
+        }
+    }
+    
+    public void removeRoom(Room room) {
+        if (rooms.contains(room)) {
+            rooms.remove(room);
+            currentAvailableRooms--;
+            totalRooms--;
+        }
+    }
+    
+    
+    public void addRoomRate(RoomRate roomRate) {
+        if (! roomRates.contains(roomRate)) {
+            roomRates.add(roomRate);
+        }
+    }
+    
+    public void removeRoomRate(RoomRate roomRate) {
+        if (roomRates.contains(roomRate)) {
+            roomRates.remove(roomRate);
+        }   
+    }
+    
+    public void disassociateHigherAndLower() {
+        if (this.nextLowerRoomType != null && this.nextHigherRoomType != null) {
+            
+            this.nextLowerRoomType.setNextHigherRoomType(this.nextHigherRoomType);
+            this.nextHigherRoomType.setNextLowerRoomType(this.nextLowerRoomType);
+            
+        } else if (this.nextLowerRoomType == null && this.nextHigherRoomType != null) {
+            
+            this.nextHigherRoomType.setNextLowerRoomType(null);
+            
+        } else if (this.nextLowerRoomType != null && this.nextHigherRoomType == null) {
+            
+            this.nextLowerRoomType.setNextHigherRoomType(null);
+            
+        }
+    }
+
+
 }
