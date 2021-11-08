@@ -232,25 +232,25 @@ public class HotelOperationModule {
         RoomType nextHigherRoomType;
         RoomType nextLowerRoomType;
         
-        System.out.print("Enter Name (blank if no change)> ");
+        System.out.print("Enter Name (blank if no change): ");
         input = sc.nextLine().trim();
         if(input.length() > 0) {
             roomType.setName(input);
         }
         
-        System.out.print("Enter Description (blank if no change)> ");
+        System.out.print("Enter Description (blank if no change): ");
         input = sc.nextLine().trim();
         if(input.length() > 0) {
             roomType.setDescription(input);
         }
         
-        System.out.print("Enter Size (negative number if no change)> ");
+        System.out.print("Enter Size (negative number if no change): ");
         integerInput = sc.nextInt();
         if(integerInput >= 0) {
             roomType.setSize(integerInput);
         }
         
-        System.out.print("Enter Bed Capacity (negative number if no change)> ");
+        System.out.print("Enter Bed Capacity (negative number if no change): ");
         integerInput = sc.nextInt();
         if(integerInput >= 0) {
             roomType.setBedCapacity(integerInput);
@@ -258,10 +258,20 @@ public class HotelOperationModule {
         
         sc.nextLine();
         
-        System.out.print("Enter Amenities (blank if no change)> ");
+        System.out.print("Enter Amenities (blank if no change): ");
         input = sc.nextLine();
         if (input.length() > 0) {
             roomType.setAmenities(input);
+        }
+        
+        sc.nextLine();
+        
+        if (roomType.isDisabled()) {
+            System.out.print("Re-enable Room Type? Y/N: ");
+            input = sc.nextLine();
+            if (input.toLowerCase().equals("y")) {
+                roomType.setDisabled(false);
+            } 
         }
         
         while (true) {
@@ -313,7 +323,27 @@ public class HotelOperationModule {
     }
     
     private void doDeleteRoomType(RoomType roomType) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner scanner = new Scanner(System.in);     
+        String input;
+        
+        System.out.printf("Confirm Room Type %s (ID: %s) (Enter 'Y' to Delete)> ", roomType.getName(), roomType.getRoomTypeId());
+        input = scanner.nextLine().trim();
+        
+        if(input.toLowerCase().equals("y")) {
+            try {
+                boolean deleted = roomTypeSessionBean.deleteRoomType(roomType.getRoomTypeId());
+                if (deleted) {
+                    System.out.println("Room Type deleted successfully!\n");
+                } else {
+                    System.out.println("Room Type still in use. Room Type NOT deleted, disabled instead.");
+                }
+            } 
+            catch (InvalidRoomTypeException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        } else {
+            System.out.println("Room Type NOT deleted!\n");
+        }
     }
     
     private void doViewAllRoomTypes() {

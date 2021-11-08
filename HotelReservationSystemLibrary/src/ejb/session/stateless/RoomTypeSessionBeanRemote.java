@@ -39,6 +39,6 @@ public interface RoomTypeSessionBeanRemote {
 
     public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException;
 
-    public void deleteRoomType(Long productId) throws InvalidRoomTypeException;
+    public boolean deleteRoomType(Long productId) throws InvalidRoomTypeException;
     
 }

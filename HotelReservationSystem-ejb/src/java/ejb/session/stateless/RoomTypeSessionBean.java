@@ -181,14 +181,16 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public void deleteRoomType(Long roomTypeId) throws InvalidRoomTypeException {
+    public boolean deleteRoomType(Long roomTypeId) throws InvalidRoomTypeException {
         RoomType roomTypeToRemove = retrieveRoomTypeById(roomTypeId);
         List<Room> rooms = roomTypeToRemove.getRooms();
         if (rooms.isEmpty()) {
             roomTypeToRemove.disassociateHigherAndLower();
             em.remove(roomTypeToRemove);
+            return true;
         } else {
            roomTypeToRemove.setDisabled(true); 
+           return false;
         }
     }
     
