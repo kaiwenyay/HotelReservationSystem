@@ -70,16 +70,30 @@ public class DataInitSessionBean {
         RoomType deluxeRoom = null;
         if (em.find(RoomType.class, 1l) == null) {
             try {
-                List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-                grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null);
-                juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite.getRoomTypeId(), null);
+                String amenities = "Toilet, TV";
+                grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities);
+                juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities);
+                familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities);
+                premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities);
+                deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities);
+                
                 grandSuite.setNextLowerRoomType(juniorSuite);
-                familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite.getRoomTypeId(), null);
+                roomTypeSessionBean.updateRoomType(grandSuite);
+                
                 juniorSuite.setNextLowerRoomType(familyRoom);
-                premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom.getRoomTypeId(), null);
+                juniorSuite.setNextHigherRoomType(grandSuite);
+                roomTypeSessionBean.updateRoomType(juniorSuite);
+                
                 familyRoom.setNextLowerRoomType(premierRoom);
-                deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom.getRoomTypeId(), null);
+                familyRoom.setNextHigherRoomType(juniorSuite);
+                roomTypeSessionBean.updateRoomType(familyRoom);
+                
                 premierRoom.setNextLowerRoomType(deluxeRoom);
+                premierRoom.setNextHigherRoomType(familyRoom);
+                roomTypeSessionBean.updateRoomType(premierRoom);
+                
+                deluxeRoom.setNextHigherRoomType(premierRoom);
+                roomTypeSessionBean.updateRoomType(deluxeRoom);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());
             }

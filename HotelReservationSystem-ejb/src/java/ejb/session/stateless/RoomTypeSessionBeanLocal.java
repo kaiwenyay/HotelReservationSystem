@@ -12,6 +12,7 @@ import javax.ejb.Local;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -25,10 +26,10 @@ public interface RoomTypeSessionBeanLocal {
             String description, 
             Integer size, 
             Integer bedCapacity, 
-            List<String> amenities, 
-            Long nextHigherRoomId, 
-            Long nextLowerRoomId
+            String amenities
     ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
+    
+    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException;
 
     public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException;
     

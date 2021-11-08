@@ -68,8 +68,8 @@ public class RoomType implements Serializable {
     
     @Column(nullable = false)
     @NotNull
-    @Size(min = 1, max = 20)
-    private List<String> amenities;
+    @Size(min = 1, max = 128)
+    private String amenities;
     
     @Column(nullable = false)
     @NotNull
@@ -105,7 +105,7 @@ public class RoomType implements Serializable {
         this.disabled = false;
     }
 
-    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities) {
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, String amenities) {
         this();
         
         this.name = name;
@@ -115,7 +115,7 @@ public class RoomType implements Serializable {
         this.amenities = amenities;
     }
 
-    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) {
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, String amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) {
         this();
         
         this.name = name;
@@ -219,14 +219,14 @@ public class RoomType implements Serializable {
     /**
      * @return the amenities
      */
-    public List<String> getAmenities() {
+    public String getAmenities() {
         return amenities;
     }
 
     /**
      * @param amenities the amenities to set
      */
-    public void setAmenities(List<String> amenities) {
+    public void setAmenities(String amenities) {
         this.amenities = amenities;
     }
 

@@ -65,6 +65,28 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         }               
     }
     
+    @Override
+    public RoomType retrieveRoomTypeById(Long roomTypeId, boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) throws InvalidRoomTypeException {
+        RoomType roomType = em.find(RoomType.class, roomTypeId);     
+        if(roomType != null) {
+            if (fetchNextHigherRoomType) {
+                roomType.getNextHigherRoomType();
+            }
+            if (fetchNextLowerRoomType) {
+                roomType.getNextLowerRoomType();
+            }
+            if (fetchRooms) {
+                roomType.getRooms().size();
+            }
+            if (fetchRoomRates) {
+                roomType.getRoomRates().size();
+            }
+            return roomType;
+        } else {
+            throw new InvalidRoomTypeException("Room Type " + roomTypeId + " does not exist!");
+        }               
+    }
+    
     // Doesn't yet account for creating a new room type whose ranking is inbetween two existing room types
     @Override
     public RoomType createRoomType(
@@ -72,34 +94,16 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             String description, 
             Integer size, 
             Integer bedCapacity, 
-            List<String> amenities, 
-            Long nextHigherRoomTypeId, 
-            Long nextLowerRoomTypeId
+            String amenities
     ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
         
-        RoomType nextHigherRoomType = null;
-        if (nextHigherRoomTypeId != null && nextHigherRoomTypeId != 0) {
-            nextHigherRoomType = retrieveRoomTypeById(nextHigherRoomTypeId);
-        }
-        RoomType nextLowerRoomType = null;
-        if (nextLowerRoomTypeId != null && nextLowerRoomTypeId != 0) {
-            nextLowerRoomType = retrieveRoomTypeById(nextLowerRoomTypeId);
-        }
+        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities);
         
-        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType);
         Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
         if (constraintViolations.isEmpty()) {
             try {
-                if (nextHigherRoomType != null && nextLowerRoomType != null) {
-                    if (nextHigherRoomType.getNextLowerRoomType() != nextLowerRoomType || nextLowerRoomType.getNextHigherRoomType() != nextHigherRoomType) {
-                        throw new InputDataValidationException("Next lower room type and next higher room type are not consecutive");
-                    }
-                } else if (nextHigherRoomType != null) {
-                    nextHigherRoomType.setNextLowerRoomType(roomType);
-                } else if (nextLowerRoomType != null) {
-                    nextLowerRoomType.setNextHigherRoomType(roomType);
-                }
+                
                 em.persist(roomType);
                 em.flush();
                 
@@ -155,6 +159,14 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 if (roomTypeToUpdate.getName().equals(roomType.getName())) {
                     em.merge(roomType);
                     em.flush();
+                    if (roomType.getNextHigherRoomType() != null) {
+                        RoomType nextHigherRoomType = retrieveRoomTypeById(roomType.getNextHigherRoomType().getRoomTypeId());
+                        nextHigherRoomType.setNextLowerRoomType(roomType);
+                    }
+                    if (roomType.getNextLowerRoomType() != null) {
+                        RoomType nextLowerRoomType = retrieveRoomTypeById(roomType.getNextLowerRoomType().getRoomTypeId());
+                        nextLowerRoomType.setNextHigherRoomType(roomType);
+                    }
                 } else {
                     throw new UpdateRoomTypeException("Name of Room Type to be updated does not match the existing record");
                 }

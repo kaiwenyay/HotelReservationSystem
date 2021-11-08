@@ -24,15 +24,15 @@ public interface RoomTypeSessionBeanRemote {
     public RoomType retrieveRoomTypeByName(String name) throws InvalidRoomTypeException;
 
     public RoomType retrieveRoomTypeById(Long roomTypeId) throws InvalidRoomTypeException;
+    
+    public RoomType retrieveRoomTypeById(Long roomTypeId, boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) throws InvalidRoomTypeException;
 
     public RoomType createRoomType(
              String name, 
              String description, 
              Integer size, 
              Integer bedCapacity, 
-             List<String> amenities, 
-             Long nextHigherRoomTypeId, 
-             Long nextLowerRoomTypeId
+             String amenities
      ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 
     public List<RoomType> retrieveAllRoomTypes(boolean fetchRooms, boolean fetchRoomRates);
