@@ -16,6 +16,7 @@ import javax.ejb.Local;
 import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
+import util.exception.InvalidRoomException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -46,5 +47,5 @@ public interface ReservationSessionBeanLocal {
             ReservationStatus reservationStatus, 
             List<ReservationItem> reservationItems, 
             User user
-    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException, InvalidRoomException;
 }

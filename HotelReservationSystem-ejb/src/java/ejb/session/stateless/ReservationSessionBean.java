@@ -98,7 +98,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
-    public Reservation createReservation(BigDecimal totalAmount, LocalDate checkInDate, LocalDate checkOutDate, LocalDateTime reservationDateTime, ReservationStatus reservationStatus, List<ReservationItem> reservationItems, User user) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
+    public Reservation createReservation(
+            BigDecimal totalAmount, 
+            LocalDate checkInDate, 
+            LocalDate checkOutDate, 
+            LocalDateTime reservationDateTime, 
+            ReservationStatus reservationStatus, 
+            List<ReservationItem> reservationItems, 
+            User user
+    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException, InvalidRoomException {
+        
         Reservation reservation = new Reservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, reservationStatus, reservationItems, user);
         Set<ConstraintViolation<Reservation>> reservationConstraintViolations = validator.validate(reservation);
         
@@ -128,6 +137,10 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             }
         } else {
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(reservationConstraintViolations));
+        }
+        
+        if (checkInDate == LocalDate.now() && reservationDateTime.getHour() > 1) {
+            allocateRoom(reservation);
         }
         
         return reservation;
@@ -189,6 +202,30 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             }
             r.setReservationStatus(ReservationStatus.ALLOCATED);
         }
+    }
+    
+    public void allocateRoom(Reservation reservation) throws InvalidRoomException {
+        List<ReservationItem> items = reservation.getReservationItems();
+        for (ReservationItem i : items) {
+            RoomType roomType = i.getReservedRoomType();
+            if (roomType.getCurrentAvailableRooms() > 0) {
+                Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                room.allocateRoom();
+                i.setAllocatedRoom(room);
+            } else {
+                roomType = roomType.getNextHigherRoomType();
+                if (roomType != null && roomType.getCurrentAvailableRooms() > 0) {
+                    Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                    room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
+                    room.allocateRoom();
+                    i.setAllocatedRoom(room);
+                    i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
+                } else {
+                    i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
+                }
+            }
+        }
+        reservation.setReservationStatus(ReservationStatus.ALLOCATED);
     }
     
 }

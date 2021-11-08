@@ -16,6 +16,7 @@ import javax.ejb.Remote;
 import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
+import util.exception.InvalidRoomException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -33,7 +34,7 @@ public interface ReservationSessionBeanRemote {
             ReservationStatus reservationStatus, 
             List<ReservationItem> reservationItems, 
             User user
-    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+    ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException, InvalidRoomException;
 
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate);
 
