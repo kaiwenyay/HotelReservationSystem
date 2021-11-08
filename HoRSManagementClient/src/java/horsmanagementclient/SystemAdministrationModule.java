@@ -90,9 +90,9 @@ public class SystemAdministrationModule {
     public void doCreateNewEmployee() {
         Scanner sc = new Scanner(System.in);
         
-        System.out.print("Enter Username> ");
+        System.out.print("Enter Username: ");
         String username = sc.nextLine();
-        System.out.print("Enter Password> ");
+        System.out.print("Enter Password: ");
         String password = sc.nextLine();
         
         Integer response = 0;
@@ -151,11 +151,11 @@ public class SystemAdministrationModule {
     public void doCreateNewPartner() {
         Scanner sc = new Scanner(System.in);
         
-        System.out.print("Enter Username> ");
+        System.out.print("Enter Username: ");
         String username = sc.nextLine();
-        System.out.print("Enter Password> ");
+        System.out.print("Enter Password: ");
         String password = sc.nextLine();
-        System.out.print("Enter Partner Name> ");
+        System.out.print("Enter Partner Name: ");
         String partnerName = sc.nextLine();
         
         Set<ConstraintViolation<Partner>> constraintViolations = validator.validate(new Partner(username, password, partnerName));

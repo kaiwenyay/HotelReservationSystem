@@ -67,18 +67,40 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     
     // Doesn't yet account for creating a new room type whose ranking is inbetween two existing room types
     @Override
-    public RoomType createRoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType, RoomRate roomRate) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
-        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType, roomRate);
+    public RoomType createRoomType(
+            String name, 
+            String description, 
+            Integer size, 
+            Integer bedCapacity, 
+            List<String> amenities, 
+            Long nextHigherRoomTypeId, 
+            Long nextLowerRoomTypeId
+    ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
+        
+        RoomType nextHigherRoomType = null;
+        if (nextHigherRoomTypeId != null && nextHigherRoomTypeId != 0) {
+            nextHigherRoomType = retrieveRoomTypeById(nextHigherRoomTypeId);
+        }
+        RoomType nextLowerRoomType = null;
+        if (nextLowerRoomTypeId != null && nextLowerRoomTypeId != 0) {
+            nextLowerRoomType = retrieveRoomTypeById(nextLowerRoomTypeId);
+        }
+        
+        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType);
         Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
         if (constraintViolations.isEmpty()) {
             try {
-                
-                em.persist(roomType);
-                // Ignore roomRate for testing purposes
-                if (roomRate != null) {
-                    roomRate.setRoomType(roomType);
+                if (nextHigherRoomType != null && nextLowerRoomType != null) {
+                    if (nextHigherRoomType.getNextLowerRoomType() != nextLowerRoomType || nextLowerRoomType.getNextHigherRoomType() != nextHigherRoomType) {
+                        throw new InputDataValidationException("Next lower room type and next higher room type are not consecutive");
+                    }
+                } else if (nextHigherRoomType != null) {
+                    nextHigherRoomType.setNextLowerRoomType(roomType);
+                } else if (nextLowerRoomType != null) {
+                    nextLowerRoomType.setNextHigherRoomType(roomType);
                 }
+                em.persist(roomType);
                 em.flush();
                 
             } catch (PersistenceException e) {

@@ -22,19 +22,18 @@ import util.exception.UpdateRoomTypeException;
 public interface RoomTypeSessionBeanRemote {
 
     public RoomType retrieveRoomTypeByName(String name) throws InvalidRoomTypeException;
-    
+
     public RoomType retrieveRoomTypeById(Long roomTypeId) throws InvalidRoomTypeException;
 
     public RoomType createRoomType(
-            String name, 
-            String description, 
-            Integer size, 
-            Integer bedCapacity, 
-            List<String> amenities, 
-            RoomType nextHigherRoomType, 
-            RoomType nextLowerRoomType,
-            RoomRate roomRate
-    ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
+             String name, 
+             String description, 
+             Integer size, 
+             Integer bedCapacity, 
+             List<String> amenities, 
+             Long nextHigherRoomTypeId, 
+             Long nextLowerRoomTypeId
+     ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 
     public List<RoomType> retrieveAllRoomTypes(boolean fetchRooms, boolean fetchRoomRates);
 

@@ -68,18 +68,17 @@ public class DataInitSessionBean {
         RoomType familyRoom = null;
         RoomType premierRoom = null;
         RoomType deluxeRoom = null;
-        
         if (em.find(RoomType.class, 1l) == null) {
             try {
                 List<String> amenities = Arrays.asList(new String[]{"Toilet"});
-                grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null, null);
-                juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite, null, null);
+                grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities, null, null);
+                juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities, grandSuite.getRoomTypeId(), null);
                 grandSuite.setNextLowerRoomType(juniorSuite);
-                familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite, null, null);
+                familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities, juniorSuite.getRoomTypeId(), null);
                 juniorSuite.setNextLowerRoomType(familyRoom);
-                premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom, null, null);
+                premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities, familyRoom.getRoomTypeId(), null);
                 familyRoom.setNextLowerRoomType(premierRoom);
-                deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom, null, null);
+                deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities, premierRoom.getRoomTypeId(), null);
                 premierRoom.setNextLowerRoomType(deluxeRoom);
             } catch (Exception e) {
                 System.out.println("Error: " + e.getMessage());

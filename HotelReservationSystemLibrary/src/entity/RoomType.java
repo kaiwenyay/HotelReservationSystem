@@ -89,7 +89,6 @@ public class RoomType implements Serializable {
     private List<Room> rooms;
     
     @OneToMany(mappedBy = "roomType")
-    @JoinColumn(nullable = false)
     private List<RoomRate> roomRates;
     
     @OneToOne(fetch = FetchType.LAZY)
@@ -106,7 +105,17 @@ public class RoomType implements Serializable {
         this.disabled = false;
     }
 
-    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType, RoomRate roomRate) {
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities) {
+        this();
+        
+        this.name = name;
+        this.description = description;
+        this.size = size;
+        this.bedCapacity = bedCapacity;
+        this.amenities = amenities;
+    }
+
+    public RoomType(String name, String description, Integer size, Integer bedCapacity, List<String> amenities, RoomType nextHigherRoomType, RoomType nextLowerRoomType) {
         this();
         
         this.name = name;
@@ -116,7 +125,6 @@ public class RoomType implements Serializable {
         this.amenities = amenities;
         this.nextHigherRoomType = nextHigherRoomType;
         this.nextLowerRoomType = nextLowerRoomType;
-        this.roomRates.add(roomRate);
     }
     
     public Long getRoomTypeId() {
@@ -355,6 +363,16 @@ public class RoomType implements Serializable {
         if (roomRates.contains(roomRate)) {
             roomRates.remove(roomRate);
         }   
+    }
+    
+    public void associateHigher(RoomType roomType) {
+        roomType.setNextLowerRoomType(this);
+        setNextHigherRoomType(roomType);
+    }
+    
+    public void associateLower(RoomType roomType) {
+        roomType.setNextHigherRoomType(this);
+        setNextLowerRoomType(roomType);
     }
     
     public void disassociateHigherAndLower() {

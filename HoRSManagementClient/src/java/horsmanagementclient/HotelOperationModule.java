@@ -5,7 +5,25 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.RoomRateSessionBeanRemote;
+import ejb.session.stateless.RoomSessionBeanRemote;
+import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Employee;
+import entity.RoomType;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+import util.enumeration.InvalidStaffRoleException;
+import util.enumeration.StaffRole;
+import util.exception.InputDataValidationException;
+import util.exception.InvalidRoomException;
+import util.exception.InvalidRoomTypeException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,13 +31,258 @@ import entity.Employee;
  */
 public class HotelOperationModule {
     
+    private final ValidatorFactory validatorFactory;
+    private final Validator validator;
+    
     private Employee currentEmployee; 
+    
+    private RoomSessionBeanRemote roomSessionBean;
+    
+    private RoomTypeSessionBeanRemote roomTypeSessionBean;
+    
+    private RoomRateSessionBeanRemote roomRateSessionBean;
+    
+    public HotelOperationModule() {
+        validatorFactory = Validation.buildDefaultValidatorFactory();
+        validator = validatorFactory.getValidator();
+    }
 
-    public HotelOperationModule(Employee currentEmployee) {
+    public HotelOperationModule(Employee currentEmployee, RoomSessionBeanRemote roomSessionBean, RoomTypeSessionBeanRemote roomTypeSessionBean, RoomRateSessionBeanRemote roomRateSessionBean) {
+        this();
+        
         this.currentEmployee = currentEmployee;
+        this.roomSessionBean = roomSessionBean;
+        this.roomTypeSessionBean = roomTypeSessionBean;
+        this.roomRateSessionBean = roomRateSessionBean;
+    }
+
+    public void menu() throws InvalidStaffRoleException {
+        StaffRole staffRole = currentEmployee.getStaffRole();
+        if (staffRole == StaffRole.ADMIN || staffRole == StaffRole.GUEST_RELATIONS) {
+            throw new InvalidStaffRoleException("You don't have OPERATIONS or SALES rights to access the hotel operation module.");
+        }
+        
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        
+        OUTER:
+        while (true) {
+            System.out.println("*** HoRS Management Client: Hotel Operation ***\n");
+            System.out.println("1: Create New Room Type");
+            System.out.println("2: View Room Type Details");
+            System.out.println("3: Update Room Type");
+            System.out.println("4: Delete Room Type");
+            System.out.println("5. View All Room Types");
+            System.out.println("-----------------------");
+            System.out.println("6: Create New Room");
+            System.out.println("7: Update Room");
+            System.out.println("8: Delete Room");
+            System.out.println("9. View All Rooms");
+            System.out.println("10. View Room Allocation Exception Report");
+            System.out.println("-----------------------");
+            System.out.println("11: Create New Room Rate");
+            System.out.println("12: View Room Rate Details");
+            System.out.println("13: Update Room Rate");
+            System.out.println("14: Delete Room Rate");
+            System.out.println("15. View All Room Rates");
+            System.out.println("16: Back\n");
+            System.out.print(">"); 
+            response = sc.nextInt();
+            
+            switch (response) {
+                case 1:
+                    doCreateNewRoomType();
+                    break;
+                case 2:
+                    doViewRoomTypeDetails();
+                    break;
+                case 3:
+                    doUpdateRoomType();
+                    break;
+                case 4:
+                    doDeleteRoomType();
+                    break;
+                case 5:
+                    doViewAllRoomTypes();
+                    break;
+                case 6:
+                    doCreateNewRoom();
+                    break;
+                case 7:
+                    doUpdateRoom();
+                    break;
+                case 8:
+                    doDeleteRoom();
+                    break;
+                case 9:
+                    doViewAllRooms();
+                    break;
+                case 10:
+                    doViewRoomAllocationExceptionReport();
+                    break;
+                case 11:
+                    doCreateNewRoomRate();
+                    break;
+                case 12:
+                    doViewRoomRateDetails();
+                    break;
+                case 13:
+                    doUpdateRoomRate();
+                    break;
+                case 14:
+                    doDeleteRoomRate();
+                    break;
+                case 15:
+                    doViewAllRoomRates();
+                    break;
+                case 16:
+                    break OUTER;
+                default:
+                    System.out.println("Invalid option.");
+                    break;
+            }
+        }
+    }
+
+    private void doCreateNewRoomType() {
+        Scanner sc = new Scanner(System.in);
+        
+        System.out.print("Enter Name> ");
+        String name = sc.nextLine();
+        System.out.print("Enter Description> ");
+        String description = sc.nextLine();
+        System.out.print("Enter Size: ");
+        Integer size = sc.nextInt();
+        System.out.print("Enter Bed Capacity: ");
+        Integer bedCapacity = sc.nextInt();
+        
+        List<String> amenities = new ArrayList<>();
+        String response;
+        
+        while (true) {
+            System.out.println("Enter amenities (One at a time. Enter 'exit' once finished): ");
+            response = sc.nextLine();
+            if (response.toLowerCase().equals("exit")) {
+                break;
+            } else {
+                amenities.add(response);
+            }
+        }
+        
+        RoomType nextHigherRoomType;
+        RoomType nextLowerRoomType;
+        System.out.println("Enter Next Higher Room Type ID (Enter '0' if none): ");
+        Long nextHigherRoomTypeId = sc.nextLong();
+        System.out.println("Enter Next Lower Room Type ID (Enter '0' if none): ") ;
+        Long nextLowerRoomTypeId = sc.nextLong();
+        
+//        while (true) {
+//            System.out.println("Enter Next Higher Room Type ID (Enter '0' if none): ") ;
+//            nextHigherRoomTypeId = sc.nextLong();
+//            if (nextHigherRoomTypeId == 0) {
+//                nextHigherRoomType = null;
+//                break;
+//            }
+//            try {
+//                nextHigherRoomType = roomTypeSessionBean.retrieveRoomTypeById(nextHigherRoomTypeId);
+//                break;
+//            } catch (InvalidRoomTypeException e) {
+//                System.out.println("Invalid room type ID");
+//            }
+//        }
+//        
+//        while (true) {
+//            System.out.println("Enter Next Lower Room Type ID (Enter '0' if none): ") ;
+//            nextLowerRoomTypeId = sc.nextLong();
+//            if (nextLowerRoomTypeId == 0) {
+//                nextLowerRoomType = null;
+//                break;
+//            }
+//            try {
+//                nextLowerRoomType = roomTypeSessionBean.retrieveRoomTypeById(nextLowerRoomTypeId);
+//                break;
+//            } catch (InvalidRoomTypeException e) {
+//                System.out.println("Invalid room type ID");
+//            }
+//        }
+        
+        Set<ConstraintViolation<RoomType>> constraintViolations = validator.validate(new RoomType(name, description, size, bedCapacity, amenities));
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                RoomType roomType = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, nextHigherRoomTypeId, nextLowerRoomTypeId);
+                System.out.println(String.format("Successfully created room type %s!\n", roomType.getName()));
+            } catch (InvalidRoomTypeException | UnknownPersistenceException | InputDataValidationException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        } else {
+            showInputDataValidationErrorsForRoomType(constraintViolations);
+        }
     }
     
-    public void menu() {
-        
+    private void doViewRoomTypeDetails() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doViewAllRoomTypes() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doDeleteRoomType() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doUpdateRoomType() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private void doCreateNewRoom() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doUpdateRoom() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doDeleteRoom() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doViewAllRooms() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doViewRoomAllocationExceptionReport() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doCreateNewRoomRate() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doViewRoomRateDetails() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doUpdateRoomRate() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doDeleteRoomRate() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void doViewAllRoomRates() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private void showInputDataValidationErrorsForRoomType(Set<ConstraintViolation<RoomType>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 }

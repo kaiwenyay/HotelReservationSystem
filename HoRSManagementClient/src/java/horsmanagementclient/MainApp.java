@@ -7,6 +7,9 @@ package horsmanagementclient;
 
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
+import ejb.session.stateless.RoomRateSessionBeanRemote;
+import ejb.session.stateless.RoomSessionBeanRemote;
+import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Employee;
 import java.util.Scanner;
 import util.enumeration.InvalidStaffRoleException;
@@ -18,25 +21,34 @@ import util.exception.InvalidEmployeeException;
  * @author kwpwn
  */
 public class MainApp {
-    
-    private Employee currentEmployee;
-    
+ 
     private EmployeeSessionBeanRemote employeeSessionBean;
     
     private PartnerSessionBeanRemote partnerSessionBean;
+    
+    private RoomSessionBeanRemote roomSessionBean;
+    
+    private RoomTypeSessionBeanRemote roomTypeSessionBean;
+    
+    private RoomRateSessionBeanRemote roomRateSessionBean;
     
     private SystemAdministrationModule systemAdministrationModule;
     
     private HotelOperationModule hotelOperationModule;
     
     private FrontOfficeModule frontOfficeModule;
+        
+    private Employee currentEmployee;
     
     MainApp() {
     }
-    
-    MainApp(EmployeeSessionBeanRemote employeeSessionBean, PartnerSessionBeanRemote partnerSessionBean) {
+
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, PartnerSessionBeanRemote partnerSessionBean, RoomSessionBeanRemote roomSessionBean, RoomTypeSessionBeanRemote roomTypeSessionBean, RoomRateSessionBeanRemote roomRateSessionBean) {
         this.employeeSessionBean = employeeSessionBean;
         this.partnerSessionBean = partnerSessionBean;
+        this.roomSessionBean = roomSessionBean;
+        this.roomTypeSessionBean = roomTypeSessionBean;
+        this.roomRateSessionBean = roomRateSessionBean;
     }
     
     public void runApp() {
@@ -54,7 +66,7 @@ public class MainApp {
                 try {
                     doLogin();
                     systemAdministrationModule = new SystemAdministrationModule(currentEmployee, employeeSessionBean, partnerSessionBean);
-                    hotelOperationModule = new HotelOperationModule(currentEmployee);
+                    hotelOperationModule = new HotelOperationModule(currentEmployee, roomSessionBean, roomTypeSessionBean, roomRateSessionBean);
                     frontOfficeModule = new FrontOfficeModule(currentEmployee);
                     mainMenu();
                 } catch (InvalidEmployeeException | InvalidCredentialsException e) {
