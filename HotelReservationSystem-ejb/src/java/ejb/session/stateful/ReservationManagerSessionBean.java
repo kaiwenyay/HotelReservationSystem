@@ -42,9 +42,6 @@ import util.exception.UnknownPersistenceException;
 public class ReservationManagerSessionBean implements ReservationManagerSessionBeanRemote, ReservationManagerSessionBeanLocal {
 
     @EJB
-    private RoomTypeSessionBeanLocal roomTypeSessionBean1;
-
-    @EJB
     private UserSessionBeanLocal userSessionBean;
 
     @EJB
