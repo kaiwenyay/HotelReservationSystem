@@ -136,7 +136,14 @@ public class Room implements Serializable {
      * @param roomStatus the roomStatus to set
      */
     public void setRoomStatus(RoomStatus roomStatus) {
-        this.roomStatus = roomStatus;
+        if (roomStatus != this.roomStatus) {
+            if (this.roomStatus == RoomStatus.AVAILABLE && roomStatus == RoomStatus.NOT_AVAILABLE) {
+                this.roomType.decreaseCurrentAvailableRooms();
+            } else if (this.roomStatus == RoomStatus.NOT_AVAILABLE && roomStatus == RoomStatus.AVAILABLE) {
+                this.roomType.increaseCurrentAvailableRooms();
+            }
+            this.roomStatus = roomStatus;
+        }
     }
 
     /**
@@ -150,9 +157,17 @@ public class Room implements Serializable {
      * @param roomType the roomType to set
      */
     public void setRoomType(RoomType roomType) {
+        if (this.roomType != null && roomType.getRoomTypeId().longValue() != this.roomType.getRoomTypeId().longValue()) {
+           this.roomType.removeRoom(this);
+        }
         this.roomType = roomType;
+        if (this.roomStatus == RoomStatus.AVAILABLE) {
+            roomType.addRoom(this);
+        } else {
+            roomType.removeRoom(this);
+        }
     }
-
+    
     /**
      * @return the disabled
      */
@@ -173,8 +188,9 @@ public class Room implements Serializable {
     }
     
     public void disassociate() {
-        this.roomType.removeRoom(this);  
+        this.roomType.removeRoom(this); 
     }
+    
     
     public void allocateRoom() {
         setRoomStatus(RoomStatus.NOT_AVAILABLE);

@@ -25,6 +25,7 @@ import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
+import util.exception.UpdateRoomException;
 import util.exception.UpdateRoomTypeException;
 
 /**
@@ -379,8 +380,6 @@ public class HotelOperationModule {
                     roomType.getBedCapacity().toString(), 
                     roomType.getAmenities(),
                     roomType.isDisabled(),
-                    roomType.getTotalRooms(),
-                    roomType.getCurrentAvailableRooms(),
                     roomType.getNextHigherRoomType(),
                     roomType.getNextLowerRoomType(),
                     roomType.getRoomRates().toString()
@@ -405,7 +404,7 @@ public class HotelOperationModule {
         RoomStatus roomStatus = null;
         
         while (roomStatus == null) {
-            System.out.println("Please select the room's status.");
+            System.out.println("Select the room's status.");
             System.out.println("1. Available");
             System.out.println("2. Not Available");
             System.out.print(">");
@@ -427,6 +426,7 @@ public class HotelOperationModule {
             roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
         } catch (InvalidRoomTypeException e) {
             System.out.println("Error: " + e.toString());
+            return;
         }
         Set<ConstraintViolation<Room>> constraintViolations = validator.validate(new Room(roomNumber, roomStatus, roomType));
         
@@ -441,9 +441,89 @@ public class HotelOperationModule {
             showInputDataValidationErrorsForRoom(constraintViolations);
         }
     }
-
+    
+    // Right now, updating status and room type at the same time causes huge headaches
+    // because we have to update the totalRooms variable as well. So, until I gitgud, 
+    // I'm just gonna stop users from updating both at the same time.
     private void doUpdateRoom() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        System.out.println("*** IMPORTANT: DO NOT UPDATE BOTH ROOM STATUS AND ROOM TYPE SIMULTANEOUSLY. ONLY CHOOSE ONE TO UPDATE PER OPERATION *** ");
+        
+        Scanner sc = new Scanner(System.in);   
+        System.out.print("Enter Room ID: ");
+        Long roomId = sc.nextLong();
+        Room room;
+        try {
+            room = roomSessionBean.retrieveRoomById(roomId, true, true);
+        } catch (InvalidRoomException e) {
+            System.out.println("Error: " + e.toString());
+            return;
+        }
+        
+        String input;
+        Integer integerInput;
+        Long longInput;
+        
+        sc.nextLine();
+        
+        System.out.print("Enter Room Number (blank if no change): ");
+        input = sc.nextLine().trim();
+        if(input.length() > 0) {
+            room.setRoomNumber(input);
+        }
+        
+        System.out.println("*** IMPORTANT: DO NOT UPDATE BOTH ROOM STATUS AND ROOM TYPE SIMULTANEOUSLY. ONLY CHOOSE ONE TO UPDATE PER OPERATION *** ");
+        boolean changed = false;
+        
+        while(true) {
+            System.out.println("Select the room's status");
+            System.out.println("0. No Change");
+            System.out.println("1. Available");
+            System.out.println("2. Not Available");
+            System.out.print(">");
+            integerInput = sc.nextInt();
+            
+            if(integerInput >= 1 && integerInput <= 2) {
+                room.setRoomStatus(RoomStatus.values()[integerInput - 1]);
+                changed = true;
+                break;
+            } else if (integerInput == 0) {
+                break;
+            } else {
+                System.out.println("Invalid option, please try again!\n");
+            }
+        }
+        
+        System.out.print("Enter Room Type ID (0 if no change): ");
+        longInput = sc.nextLong();
+        
+        if(longInput > 0) {
+            if (changed) {
+                System.out.println("Please do not update both status and room type together.");
+                return;
+            }
+            try {
+                RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(longInput, false, false, true, false);
+                room.setRoomType(roomType);
+            } catch (InvalidRoomTypeException e) {
+                System.out.println("Error: " + e.toString());
+            }
+            
+        }
+        
+        Set<ConstraintViolation<Room>> constraintViolations = validator.validate(room);
+        
+        if(constraintViolations.isEmpty()) {
+            try {
+                roomSessionBean.updateRoom(room);
+                System.out.println(String.format("Room %s updated successfully!\n", room.getRoomNumber()));
+            } catch (InvalidRoomTypeException | InvalidRoomException | UpdateRoomException | InputDataValidationException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        }
+        else {
+            showInputDataValidationErrorsForRoom(constraintViolations);
+        }
     }
 
     private void doDeleteRoom() {

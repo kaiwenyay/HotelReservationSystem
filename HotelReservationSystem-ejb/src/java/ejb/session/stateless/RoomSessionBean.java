@@ -70,6 +70,21 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         }               
     }
     
+    public Room retrieveRoomById(Long roomId, boolean fetchRoomType, boolean fetchRoomTypeRooms) throws InvalidRoomException {
+        Room room = em.find(Room.class, roomId);     
+        if(room != null) {
+            if (fetchRoomType) {
+                room.getRoomType();
+            }
+            if (fetchRoomTypeRooms) {
+                room.getRoomType().getRooms().size();
+            }
+            return room;
+        } else {
+            throw new InvalidRoomException("Room Type " + roomId + " does not exist!");
+        }               
+    }
+    
     @Override
     public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException {
         Room room;
@@ -80,7 +95,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
                     .setMaxResults(1)
                     .getSingleResult();
         } catch (NoResultException e) {
-            throw new InvalidRoomException("Room with room number %s does not exist.");
+            throw new InvalidRoomException(String.format("No rooms for Room Type %s available at this moment.", roomType.getName()));
         }
         return room;
     }
@@ -88,13 +103,13 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     @Override
     public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException {
         RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, false, false, true, false);
-        Room room = new Room(roomNumber, roomStatus, roomType);
+        Room room = new Room(roomNumber, roomStatus, null);
         Set<ConstraintViolation<Room>>constraintViolations = validator.validate(room);
         
         if (constraintViolations.isEmpty()) {
             try {
                 
-                room.associate(roomType);
+                room.setRoomType(roomType);
                 em.persist(room);
                 em.flush();
                 
@@ -135,17 +150,26 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public Room updateRoom(Room room) throws InvalidRoomException, UpdateRoomException, InputDataValidationException {
+    public Room updateRoom(Room room) throws InvalidRoomTypeException, InvalidRoomException, UpdateRoomException, InputDataValidationException {
         
         if(room != null && room.getRoomId()!= null) {
             Set<ConstraintViolation<Room>>constraintViolations = validator.validate(room);
         
             if(constraintViolations.isEmpty()) {
                 Room roomToUpdate = retrieveRoomById(room.getRoomId());
+                RoomType roomTypeToUpdate = roomTypeSessionBean.retrieveRoomTypeById(room.getRoomType().getRoomTypeId(), false, false, true, false);
 
                 if (roomToUpdate.getRoomNumber().equals(room.getRoomNumber())) {
-                    em.merge(room);
-                    em.flush();
+                    roomToUpdate.setRoomNumber(room.getRoomNumber());
+                    if (roomToUpdate.getRoomStatus() != room.getRoomStatus() && roomToUpdate.getRoomType().getRoomTypeId().longValue() != room.getRoomType().getRoomTypeId().longValue()) {
+                        throw new InputDataValidationException("Cannot update status and room type simultaneously.");
+                    }
+                    if (roomToUpdate.getRoomStatus() != room.getRoomStatus()) {
+                        roomToUpdate.setRoomStatus(room.getRoomStatus());
+                    }
+                    if (roomToUpdate.getRoomType().getRoomTypeId().longValue() != room.getRoomType().getRoomTypeId().longValue()) {
+                        roomToUpdate.setRoomType(roomTypeToUpdate);
+                    }
                 } else {
                     throw new UpdateRoomException("Room number to be updated does not match the existing record");
                 }

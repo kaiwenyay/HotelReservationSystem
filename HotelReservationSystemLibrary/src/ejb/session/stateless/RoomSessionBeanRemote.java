@@ -27,12 +27,14 @@ public interface RoomSessionBeanRemote {
 
     public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException;
 
-    public Room updateRoom(Room room) throws InvalidRoomException, UpdateRoomException, InputDataValidationException;
+    public Room updateRoom(Room room) throws InvalidRoomTypeException, InvalidRoomException, UpdateRoomException, InputDataValidationException;
 
     public void deleteRoom(Long roomId) throws InvalidRoomException;
 
     public List<Room> retrieveAllRooms(boolean fetchRoomType);
 
     public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException;
+
+    public Room retrieveRoomById(Long roomId, boolean fetchRoomType, boolean fetchRoomTypeRooms) throws InvalidRoomException;
     
 }

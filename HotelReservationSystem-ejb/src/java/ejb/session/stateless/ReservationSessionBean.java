@@ -183,18 +183,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             List<ReservationItem> items = r.getReservationItems();
             for (ReservationItem i : items) {
                 RoomType roomType = i.getReservedRoomType();
-                if (roomType.getCurrentAvailableRooms() > 0) {
+                try {
                     Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                     room.allocateRoom();
                     i.setAllocatedRoom(room);
-                } else {
+                } catch (InvalidRoomException e) {
                     roomType = roomType.getNextHigherRoomType();
-                    if (roomType != null && roomType.getCurrentAvailableRooms() > 0) {
-                        Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                        room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                        room.allocateRoom();
-                        i.setAllocatedRoom(room);
-                        i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
+                    if (roomType != null) {
+                        try {
+                            Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                            room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
+                            room.allocateRoom();
+                            i.setAllocatedRoom(room);
+                            i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
+                        } catch (InvalidRoomException ex) {
+                            i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
+                        }
                     } else {
                         i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
                     }
@@ -208,18 +212,22 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         List<ReservationItem> items = reservation.getReservationItems();
         for (ReservationItem i : items) {
             RoomType roomType = i.getReservedRoomType();
-            if (roomType.getCurrentAvailableRooms() > 0) {
+            try {
                 Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                 room.allocateRoom();
                 i.setAllocatedRoom(room);
-            } else {
+            } catch (InvalidRoomException e) {
                 roomType = roomType.getNextHigherRoomType();
-                if (roomType != null && roomType.getCurrentAvailableRooms() > 0) {
-                    Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                    room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                    room.allocateRoom();
-                    i.setAllocatedRoom(room);
-                    i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
+                if (roomType != null) {
+                    try {
+                        Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                        room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
+                        room.allocateRoom();
+                        i.setAllocatedRoom(room);
+                        i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
+                    } catch (InvalidRoomException ex) {
+                        i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
+                    }
                 } else {
                     i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
                 }

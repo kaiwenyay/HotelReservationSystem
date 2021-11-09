@@ -304,58 +304,36 @@ public class RoomType implements Serializable {
     public void setRoomRates(List<RoomRate> roomRates) {
         this.roomRates = roomRates;
     }
-
-    /**
-     * @return the inventory
-     */
-    public Integer getCurrentAvailableRooms() {
-        return currentAvailableRooms;
-    }
-
-    /**
-     * @param currentAvailableRooms the inventory to set
-     */
-    public void setCurrentAvailableRooms(Integer currentAvailableRooms) {
-        this.currentAvailableRooms = currentAvailableRooms;
-    }
-
-    /**
-     * @return the totalRooms
-     */
-    public Integer getTotalRooms() {
-        return totalRooms;
-    }
-
-    /**
-     * @param totalRooms the totalRooms to set
-     */
-    public void setTotalRooms(Integer totalRooms) {
-        this.totalRooms = totalRooms;
-    }
     
     public void decreaseTotalRooms() {
-        totalRooms--;
+        setTotalRooms((Integer) (getTotalRooms() - 1));
+    }
+    
+    public void increaseCurrentAvailableRooms() {
+        setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() + 1));
     }
     
     public void decreaseCurrentAvailableRooms() {
-        currentAvailableRooms--;
+        setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() - 1));
     }
     
     public void addRoom(Room room) {
         if (! rooms.contains(room)) {
             rooms.add(room);
-            totalRooms++;
-            if (room.getRoomStatus() == RoomStatus.AVAILABLE) {
-                currentAvailableRooms++;
-            }
+            setTotalRooms((Integer) (getTotalRooms() + 1));
+        }
+        if (room.getRoomStatus() == RoomStatus.AVAILABLE) {
+            setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() + 1));
         }
     }
     
     public void removeRoom(Room room) {
         if (rooms.contains(room)) {
             rooms.remove(room);
-            currentAvailableRooms--;
-            totalRooms--;
+            setTotalRooms((Integer) (getTotalRooms() - 1));
+        }
+        if (room.getRoomStatus() == RoomStatus.AVAILABLE) {
+            setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() - 1));
         }
     }
     
@@ -397,6 +375,34 @@ public class RoomType implements Serializable {
             this.nextLowerRoomType.setNextHigherRoomType(null);
             
         }
+    }
+
+    /**
+     * @return the totalRooms
+     */
+    public Integer getTotalRooms() {
+        return totalRooms;
+    }
+
+    /**
+     * @param totalRooms the totalRooms to set
+     */
+    public void setTotalRooms(Integer totalRooms) {
+        this.totalRooms = totalRooms;
+    }
+
+    /**
+     * @return the currentAvailableRooms
+     */
+    public Integer getCurrentAvailableRooms() {
+        return currentAvailableRooms;
+    }
+
+    /**
+     * @param currentAvailableRooms the currentAvailableRooms to set
+     */
+    public void setCurrentAvailableRooms(Integer currentAvailableRooms) {
+        this.currentAvailableRooms = currentAvailableRooms;
     }
 
 
