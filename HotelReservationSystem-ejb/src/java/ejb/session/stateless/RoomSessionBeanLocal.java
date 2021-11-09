@@ -12,6 +12,7 @@ import javax.ejb.Local;
 import util.enumeration.RoomStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -27,6 +28,6 @@ public interface RoomSessionBeanLocal {
 
     public List<Room> retrieveAllRooms();
     
-    public Room createRoom(String roomNumber, RoomStatus roomStatus, RoomType roomType) throws InvalidRoomException, UnknownPersistenceException, InputDataValidationException;
+    public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException;
     
 }

@@ -152,7 +152,7 @@ public class DataInitSessionBean {
                                 roomType = grandSuite;
                                 break;                           
                         }
-                        roomSessionBean.createRoom("0" + i + "0" + j, RoomStatus.AVAILABLE, roomType);
+                        roomSessionBean.createRoom("0" + i + "0" + j, RoomStatus.AVAILABLE, roomType.getRoomTypeId());
                     }
                 }
             } catch (Exception e) {

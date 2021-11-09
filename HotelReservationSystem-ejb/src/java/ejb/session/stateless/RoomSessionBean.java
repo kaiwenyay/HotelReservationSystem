@@ -9,6 +9,7 @@ import entity.Room;
 import entity.RoomType;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -21,6 +22,7 @@ import javax.validation.ValidatorFactory;
 import util.enumeration.RoomStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomException;
 
@@ -30,6 +32,9 @@ import util.exception.UpdateRoomException;
  */
 @Stateless
 public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLocal {
+
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBean;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -81,7 +86,8 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public Room createRoom(String roomNumber, RoomStatus roomStatus, RoomType roomType) throws InvalidRoomException, UnknownPersistenceException, InputDataValidationException {
+    public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException {
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, false, false, true, false);
         Room room = new Room(roomNumber, roomStatus, roomType);
         Set<ConstraintViolation<Room>>constraintViolations = validator.validate(room);
         

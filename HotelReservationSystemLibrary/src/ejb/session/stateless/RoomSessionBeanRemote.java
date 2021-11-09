@@ -12,6 +12,7 @@ import javax.ejb.Remote;
 import util.enumeration.RoomStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomException;
 
@@ -24,7 +25,7 @@ public interface RoomSessionBeanRemote {
 
     public Room retrieveRoomByName(String roomNumber) throws InvalidRoomException;
 
-    public Room createRoom(String roomNumber, RoomStatus roomStatus, RoomType roomType) throws InvalidRoomException, UnknownPersistenceException, InputDataValidationException;
+    public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException;
 
     public Room updateRoom(Room room) throws InvalidRoomException, UpdateRoomException, InputDataValidationException;
 

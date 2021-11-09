@@ -14,7 +14,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
@@ -23,6 +22,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
+import util.enumeration.RoomStatus;
 
 /**
  *
@@ -344,8 +344,10 @@ public class RoomType implements Serializable {
     public void addRoom(Room room) {
         if (! rooms.contains(room)) {
             rooms.add(room);
-            currentAvailableRooms++;
             totalRooms++;
+            if (room.getRoomStatus() == RoomStatus.AVAILABLE) {
+                currentAvailableRooms++;
+            }
         }
     }
     

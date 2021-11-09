@@ -33,6 +33,8 @@ public interface RoomTypeSessionBeanLocal {
 
     public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException;
     
+    public RoomType retrieveRoomTypeById(Long roomTypeId, boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) throws InvalidRoomTypeException;
+    
     public RoomType retrieveRoomTypeByName(String name) throws InvalidRoomTypeException;
     
     public List<RoomType> retrieveAllRoomTypes();

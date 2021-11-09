@@ -9,6 +9,7 @@ import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Employee;
+import entity.Room;
 import entity.RoomType;
 import java.util.List;
 import java.util.Scanner;
@@ -18,8 +19,10 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.InvalidStaffRoleException;
+import util.enumeration.RoomStatus;
 import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomTypeException;
@@ -389,7 +392,54 @@ public class HotelOperationModule {
     }
    
     private void doCreateNewRoom() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        StaffRole staffRole = currentEmployee.getStaffRole();
+        if (staffRole == StaffRole.SALES || staffRole == StaffRole.GUEST_RELATIONS) {
+            System.out.println("You don't have ADMIN or OPERATIONS rights to perform this operation.");
+            return;
+        }
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        
+        System.out.print("Enter Room Number: ");
+        String roomNumber = sc.nextLine();
+        RoomStatus roomStatus = null;
+        
+        while (roomStatus == null) {
+            System.out.println("Please select the room's status.");
+            System.out.println("1. Available");
+            System.out.println("2. Not Available");
+            System.out.print(">");
+            response = sc.nextInt();
+
+            if (response == 1) {
+                roomStatus = RoomStatus.AVAILABLE;
+            } else if (response == 2) {
+                roomStatus = RoomStatus.NOT_AVAILABLE;
+            } else {
+                System.out.println("Invalid option.");
+            }
+        }
+        
+        System.out.print("Enter Room Type ID: ");
+        Long roomTypeId = sc.nextLong();
+        RoomType roomType = null;
+        try {
+            roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
+        } catch (InvalidRoomTypeException e) {
+            System.out.println("Error: " + e.toString());
+        }
+        Set<ConstraintViolation<Room>> constraintViolations = validator.validate(new Room(roomNumber, roomStatus, roomType));
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                Room room = roomSessionBean.createRoom(roomNumber, roomStatus, roomTypeId);
+                System.out.println(String.format("Successfully created room %s!\n", room.getRoomNumber()));
+            } catch (InvalidRoomTypeException | InvalidRoomException | UnknownPersistenceException | InputDataValidationException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        } else {
+            showInputDataValidationErrorsForRoom(constraintViolations);
+        }
     }
 
     private void doUpdateRoom() {
@@ -429,6 +479,16 @@ public class HotelOperationModule {
     }
     
     private void showInputDataValidationErrorsForRoomType(Set<ConstraintViolation<RoomType>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForRoom(Set<ConstraintViolation<Room>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
             
         for(ConstraintViolation constraintViolation:constraintViolations) {
