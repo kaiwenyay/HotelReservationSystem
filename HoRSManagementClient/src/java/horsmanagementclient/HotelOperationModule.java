@@ -32,6 +32,7 @@ import util.exception.InvalidRoomRateException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomException;
+import util.exception.UpdateRoomRateException;
 import util.exception.UpdateRoomTypeException;
 
 /**
@@ -186,7 +187,7 @@ public class HotelOperationModule {
         Long roomTypeId = sc.nextLong();
         
         try {
-            RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
+            RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, true, true, false, true);
             System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     "ID", 
                     "Name", 
@@ -227,9 +228,7 @@ public class HotelOperationModule {
             } else if(response == 2) {
                 doDeleteRoomType(roomType);
             }
-        }
-        catch(InvalidRoomTypeException e)
-        {
+        } catch(InvalidRoomTypeException e) {
             System.out.println("Error: " + e.toString());
         }
     }
@@ -276,14 +275,6 @@ public class HotelOperationModule {
         }
         
         sc.nextLine();
-        
-        if (roomType.isDisabled()) {
-            System.out.print("Re-enable Room Type? Y/N: ");
-            input = sc.nextLine();
-            if (input.toLowerCase().equals("y")) {
-                roomType.setDisabled(false);
-            } 
-        }
         
         while (true) {
             System.out.print("Enter Next Higher Room Type ID (0 if no change)> ");
@@ -620,7 +611,7 @@ public class HotelOperationModule {
         }
         
         System.out.print("Enter Rate Per Night: ");
-        BigDecimal ratePerNight = new BigDecimal(sc.nextLong());
+        BigDecimal ratePerNight = new BigDecimal(sc.nextDouble());
         sc.nextLine();
         
         LocalDate validFrom = null;
@@ -648,14 +639,148 @@ public class HotelOperationModule {
     }
 
     private void doViewRoomRateDetails() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        StaffRole staffRole = currentEmployee.getStaffRole();
+        if (staffRole == StaffRole.OPERATIONS || staffRole == StaffRole.GUEST_RELATIONS) {
+            System.out.println("You don't have ADMIN or SALES rights to perform this operation.");
+            return;
+        }
+        
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        
+        System.out.print("Enter Room Type ID: ");
+        Long roomRateId = sc.nextLong();
+        
+        try {
+            RoomRate roomRate = roomRateSessionBean.retrieveRoomRateById(roomRateId, true);
+            System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+                    "ID", 
+                    "Name", 
+                    "Room Type",
+                    "Rate Type", 
+                    "Rate Per Night", 
+                    "Disabled",
+                    "Valid From", 
+                    "Valid To"
+            );
+            System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+                    roomRate.getRoomRateId().toString(), 
+                    roomRate.getName(), 
+                    roomRate.getRoomType(), 
+                    roomRate.getRateType().toString(), 
+                    roomRate.getRatePerNight().toString(), 
+                    roomRate.isDisabled(),
+                    roomRate.getValidFrom(),
+                    roomRate.getValidTo()
+            );         
+            System.out.println("------------------------");
+            System.out.println("1: Update Room Rate");
+            System.out.println("2: Delete Room Rate");
+            System.out.println("3: Back\n");
+            System.out.print("> ");
+            response = sc.nextInt();
+
+            if(response == 1) {
+                doUpdateRoomRate(roomRate);
+            } else if(response == 2) {
+                doDeleteRoomRate(roomRate);
+            }
+        }
+        catch(InvalidRoomRateException e)
+        {
+            System.out.println("Error: " + e.toString());
+        }
     }
 
-    private void doUpdateRoomRate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private void doUpdateRoomRate(RoomRate roomRate) {
+        Scanner sc = new Scanner(System.in);        
+        String input;
+        Integer integerInput;
+        Double doubleInput;
+        
+        String name;
+        Long roomTypeId;
+        RateType rateType = null;
+        BigDecimal ratePerNight;
+        LocalDate validFrom;
+        LocalDate validTo;
+        
+        System.out.print("Enter Name (blank if no change): ");
+        name = sc.nextLine().trim();
+        if(name.length() == 0) {
+            name = roomRate.getName();
+        }
+        
+        System.out.print("Enter Room Type Id (0 if no change): ");
+        roomTypeId = sc.nextLong();
+        if (roomTypeId == 0) {
+            roomTypeId = roomRate.getRoomType().getRoomTypeId();
+        }
+        
+        while(true) {
+            System.out.println("Select the rate type: ");
+            System.out.println("0. No Change");
+            System.out.println("1. Published");
+            System.out.println("2. Normal");
+            System.out.println("3. Peak");
+            System.out.println("4. Promotion");
+            System.out.print(">");
+            integerInput = sc.nextInt();
+            
+            if(integerInput >= 1 && integerInput <= 4) {
+                rateType = RateType.values()[integerInput - 1];
+                break;
+            } else if (integerInput == 0) {
+                rateType = roomRate.getRateType();
+                break;
+            } else {
+                System.out.println("Invalid option, please try again!\n");
+            }
+        }
+        
+        System.out.print("Enter Rate Per Night (0 if no change): ");
+        doubleInput = sc.nextDouble();
+        if(doubleInput > 0) {
+            ratePerNight = new BigDecimal(doubleInput);
+        } else {
+            ratePerNight = roomRate.getRatePerNight();
+        }
+        
+        sc.nextLine();
+        
+        System.out.print("Enter Validity Period Start Date (YYYY-MM-DD) (blank if no change): ");
+        input = sc.nextLine();
+        if(input.length() > 0) {
+            validFrom = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
+        } else {
+            validFrom = roomRate.getValidFrom();
+        }
+        
+        System.out.print("Enter Validity Period End Date (YYYY-MM-DD) (blank if no change): ");
+        input = sc.nextLine();
+        if(input.length() > 0) {
+            validTo = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
+        } else {
+            validTo = roomRate.getValidTo();
+        }
+        
+        Set<ConstraintViolation<RoomRate>> constraintViolations = validator.validate(new RoomRate(name, rateType, ratePerNight, validFrom, validTo));
+        
+        if(constraintViolations.isEmpty()) {
+            try {
+                roomRateSessionBean.updateRoomRate(roomRate.getRoomRateId(), name, roomTypeId, rateType, ratePerNight, validFrom, validTo);
+                System.out.println("Room Rate updated successfully!\n");
+            }
+            catch (InvalidRoomTypeException | InvalidRoomRateException | UpdateRoomRateException | InputDataValidationException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        }
+        else {
+            showInputDataValidationErrorsForRoomRate(constraintViolations);
+        }
     }
 
-    private void doDeleteRoomRate() {
+    private void doDeleteRoomRate(RoomRate roomRate) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

@@ -218,6 +218,9 @@ public class RoomRate implements Serializable {
      * @param roomType the roomType to set
      */
     public void setRoomType(RoomType roomType) {
+        if (this.roomType != null) {
+            this.roomType.removeRoomRate(this);
+        }
         this.roomType = roomType;
         roomType.addRoomRate(this);
     }

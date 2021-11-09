@@ -60,10 +60,24 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             throw new InvalidRoomRateException(String.format("Room rate with name %s does not exist.", name));
         }
     }
+    
     @Override
     public RoomRate retrieveRoomRateById(Long roomRateId) throws InvalidRoomRateException {
         RoomRate roomRate = em.find(RoomRate.class, roomRateId);     
         if(roomRate != null) {
+            return roomRate;
+        } else {
+            throw new InvalidRoomRateException("Room Rate " + roomRateId + " does not exist!");
+        }               
+    }
+    
+    @Override
+    public RoomRate retrieveRoomRateById(Long roomRateId, boolean fetchRoomType) throws InvalidRoomRateException {
+        RoomRate roomRate = em.find(RoomRate.class, roomRateId);     
+        if(roomRate != null) {
+            if (fetchRoomType) {
+                roomRate.getRoomType();
+            }
             return roomRate;
         } else {
             throw new InvalidRoomRateException("Room Rate " + roomRateId + " does not exist!");
@@ -129,17 +143,35 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public RoomRate updateRoomRate(RoomRate roomRate) throws InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException {
+    public RoomRate updateRoomRate(
+            Long roomRateId,
+            String name,
+            Long roomTypeId,
+            RateType rateType,
+            BigDecimal ratePerNight,
+            LocalDate validFrom,
+            LocalDate validTo
+    ) throws InvalidRoomTypeException, InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException {
         
-        if(roomRate != null && roomRate.getRoomRateId()!= null) {
+        RoomRate roomRateToUpdate;
+        
+        if(roomRateId != null) {
+            RoomRate roomRate = new RoomRate(name, rateType, ratePerNight, validFrom, validTo);
+            
             Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);
         
             if(constraintViolations.isEmpty()) {
-                RoomRate roomRateToUpdate = retrieveRoomRateById(roomRate.getRoomRateId());
+                roomRateToUpdate = retrieveRoomRateById(roomRateId);
+                RoomType newRoomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
 
-                if (roomRateToUpdate.getName().equals(roomRate.getName())) {
-                    em.merge(roomRate);
-                    em.flush();
+//                if (roomRateToUpdate.getName().equals(roomRate.getName())) {
+                if (true) {
+                    roomRateToUpdate.setName(name);
+                    roomRateToUpdate.setRoomType(newRoomType);
+                    roomRateToUpdate.setRateType(rateType);
+                    roomRateToUpdate.setRatePerNight(ratePerNight);
+                    roomRateToUpdate.setValidFrom(validFrom);
+                    roomRateToUpdate.setValidTo(validTo);
                 } else {
                     throw new UpdateRoomRateException("Room Rate name to be updated does not match the existing record");
                 }
@@ -150,7 +182,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             throw new InvalidRoomRateException("Room Rate ID not provided for product to be updated");
         }
         
-        return roomRate;
+        return roomRateToUpdate;
     }
     
     @Override

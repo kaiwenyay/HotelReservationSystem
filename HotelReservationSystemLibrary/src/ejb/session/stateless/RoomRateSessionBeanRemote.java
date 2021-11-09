@@ -40,8 +40,18 @@ public interface RoomRateSessionBeanRemote {
 
     public List<RoomRate> retrieveAllRoomRates(boolean fetchRoomType);
     
-    public RoomRate updateRoomRate(RoomRate roomRate) throws InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException;
+    public RoomRate updateRoomRate(
+            Long roomRateId,
+            String name,
+            Long roomTypeId,
+            RateType rateType,
+            BigDecimal ratePerNight,
+            LocalDate validFrom,
+            LocalDate validTo
+    ) throws InvalidRoomTypeException, InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException;
     
     public void deleteRoomRate(Long roomRateId) throws InvalidRoomRateException;
+
+    public RoomRate retrieveRoomRateById(Long roomRateId, boolean fetchRoomType) throws InvalidRoomRateException;
     
 }
