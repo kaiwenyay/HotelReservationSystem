@@ -5,10 +5,14 @@
  */
 package horsmanagementclient;
 
+import ejb.session.stateless.AllocationExceptionReportSessionBeanRemote;
 import ejb.session.stateless.RoomRateSessionBeanRemote;
 import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
+import entity.AllocationExceptionReport;
 import entity.Employee;
+import entity.Reservation;
+import entity.ReservationItem;
 import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
@@ -27,6 +31,7 @@ import util.enumeration.RateType;
 import util.enumeration.RoomStatus;
 import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidReportException;
 import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomRateException;
 import util.exception.InvalidRoomTypeException;
@@ -52,18 +57,21 @@ public class HotelOperationModule {
     
     private RoomRateSessionBeanRemote roomRateSessionBean;
     
+    private AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBean;
+    
     public HotelOperationModule() {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
 
-    public HotelOperationModule(Employee currentEmployee, RoomSessionBeanRemote roomSessionBean, RoomTypeSessionBeanRemote roomTypeSessionBean, RoomRateSessionBeanRemote roomRateSessionBean) {
+    public HotelOperationModule(Employee currentEmployee, RoomSessionBeanRemote roomSessionBean, RoomTypeSessionBeanRemote roomTypeSessionBean, RoomRateSessionBeanRemote roomRateSessionBean, AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBean) {
         this();
         
         this.currentEmployee = currentEmployee;
         this.roomSessionBean = roomSessionBean;
         this.roomTypeSessionBean = roomTypeSessionBean;
         this.roomRateSessionBean = roomRateSessionBean;
+        this.allocationExceptionReportSessionBean = allocationExceptionReportSessionBean;
     }
 
     public void menu() throws InvalidStaffRoleException {
@@ -573,7 +581,39 @@ public class HotelOperationModule {
     }
 
     private void doViewRoomAllocationExceptionReport() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        AllocationExceptionReport report;
+        try {
+            report = allocationExceptionReportSessionBean.retrieveReport(LocalDate.now(), true, true, true, true);
+        } catch (InvalidReportException e) {
+            System.out.println("Error: " + e.toString());
+            return;
+        }
+        
+        List<Reservation> reservations = report.getReservations();
+        
+        System.out.println(String.format("*** Allocation Exception Report for %s ***", LocalDate.now()));
+        
+        System.out.printf("%8s%20s%20s%15s%20s\n", 
+                    "Reservation ID", 
+                    "Item", 
+                    "Exception Type", 
+                    "Reserved Room Type", 
+                    "Allocated Room"
+            );
+        
+        for (Reservation r : reservations) {
+            List<ReservationItem> items = r.getReservationItems();
+            for (ReservationItem i : items) {
+                System.out.printf("%8s%20s%20s%15s%20s\n", 
+                    r.getReservationId(),
+                    i.getReservationItemId(),
+                    i.getAllocationExceptionType(),
+                    i.getReservedRoomType(), 
+                    i.getAllocatedRoom()
+                );
+            }
+        }
+        
     }
 
     private void doCreateNewRoomRate() {

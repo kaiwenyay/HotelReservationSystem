@@ -92,7 +92,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         try {
             room = em.createNamedQuery("retrieveRoomsByRoomTypeAndStatus", Room.class)
                     .setParameter("inRoomTypeId", roomType.getRoomTypeId())
-//                    .setParameter("inRoomStatus", RoomStatus.AVAILABLE)
+                    .setParameter("inRoomStatus", RoomStatus.AVAILABLE)
                     .setMaxResults(1)
                     .getSingleResult();
         } catch (NoResultException e) {
@@ -100,21 +100,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         }
         return room;
     }
-    
-//    @Override
-//    public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException {
-//        try{
-//        Room room = em.createNamedQuery("retrieveRoomsByRoomTypeAndStatus", Room.class)
-//                    .setParameter("inRoomTypeId", roomType.getRoomTypeId())
-//                    //.setParameter("inRoomStatusString", "AVAILABLE")
-//                    .setMaxResults(1)
-//                    .getSingleResult();
-//        return room;
-//        } catch (NoResultException e) {
-//            throw new InvalidRoomException(String.format("No rooms for Room Type %s available at this moment.", roomType.getName()));
-//        }
-//        
-//    }
     
     @Override
     public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException {

@@ -31,7 +31,7 @@ public class ReservationItem implements Serializable {
 
     private static final long serialVersionUID = 1L;
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long reservationItemId;
     
     @Column(nullable = false, precision = 8, scale = 2)
@@ -51,6 +51,7 @@ public class ReservationItem implements Serializable {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)
     private RoomType reservedRoomType;
+    
 
     public ReservationItem() {
         allocationExceptionType = AllocationExceptionType.NO_EXCEPTION;

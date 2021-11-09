@@ -6,6 +6,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateful.ReservationManagerSessionBeanRemote;
+import ejb.session.stateless.AllocationExceptionReportSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
@@ -19,6 +20,9 @@ import javax.ejb.EJB;
  * @author kwpwn
  */
 public class Main {
+
+    @EJB
+    private static AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBean;
 
     @EJB
     private static EmployeeSessionBeanRemote employeeSessionBean;
@@ -51,7 +55,8 @@ public class Main {
                 roomTypeSessionBean, 
                 roomRateSessionBean, 
                 reservationSessionBean, 
-                reservationManagerSessionBean
+                reservationManagerSessionBean,
+                allocationExceptionReportSessionBean
         );
         mainApp.runApp();
     }

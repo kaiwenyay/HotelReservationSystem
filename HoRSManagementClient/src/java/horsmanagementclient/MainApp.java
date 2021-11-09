@@ -6,6 +6,7 @@
 package horsmanagementclient;
 
 import ejb.session.stateful.ReservationManagerSessionBeanRemote;
+import ejb.session.stateless.AllocationExceptionReportSessionBeanRemote;
 import ejb.session.stateless.EmployeeSessionBeanRemote;
 import ejb.session.stateless.PartnerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
@@ -38,6 +39,8 @@ public class MainApp {
 
     private ReservationManagerSessionBeanRemote reservationManagerSessionBean;
     
+    private AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBean;
+    
     private SystemAdministrationModule systemAdministrationModule;
     
     private HotelOperationModule hotelOperationModule;
@@ -49,7 +52,7 @@ public class MainApp {
     MainApp() {
     }
 
-    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, PartnerSessionBeanRemote partnerSessionBean, RoomSessionBeanRemote roomSessionBean, RoomTypeSessionBeanRemote roomTypeSessionBean, RoomRateSessionBeanRemote roomRateSessionBean, ReservationSessionBeanRemote reservationSessionBean, ReservationManagerSessionBeanRemote reservationManagerSessionBean) {
+    public MainApp(EmployeeSessionBeanRemote employeeSessionBean, PartnerSessionBeanRemote partnerSessionBean, RoomSessionBeanRemote roomSessionBean, RoomTypeSessionBeanRemote roomTypeSessionBean, RoomRateSessionBeanRemote roomRateSessionBean, ReservationSessionBeanRemote reservationSessionBean, ReservationManagerSessionBeanRemote reservationManagerSessionBean, AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBean) {
         this.employeeSessionBean = employeeSessionBean;
         this.partnerSessionBean = partnerSessionBean;
         this.roomSessionBean = roomSessionBean;
@@ -57,7 +60,10 @@ public class MainApp {
         this.roomRateSessionBean = roomRateSessionBean;
         this.reservationSessionBean = reservationSessionBean;
         this.reservationManagerSessionBean = reservationManagerSessionBean;
+        this.allocationExceptionReportSessionBean = allocationExceptionReportSessionBean;
     }
+
+    
 
     public void runApp() {
         Scanner sc = new Scanner(System.in);
@@ -74,7 +80,7 @@ public class MainApp {
                 try {
                     doLogin();
                     systemAdministrationModule = new SystemAdministrationModule(currentEmployee, employeeSessionBean, partnerSessionBean);
-                    hotelOperationModule = new HotelOperationModule(currentEmployee, roomSessionBean, roomTypeSessionBean, roomRateSessionBean);
+                    hotelOperationModule = new HotelOperationModule(currentEmployee, roomSessionBean, roomTypeSessionBean, roomRateSessionBean, allocationExceptionReportSessionBean);
                     frontOfficeModule = new FrontOfficeModule(currentEmployee, reservationSessionBean, reservationManagerSessionBean);
                     mainMenu();
                 } catch (InvalidEmployeeException | InvalidCredentialsException e) {
