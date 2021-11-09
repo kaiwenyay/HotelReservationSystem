@@ -37,5 +37,5 @@ public interface RoomTypeSessionBeanLocal {
     
     public List<RoomType> retrieveAllRoomTypes();
     
-    public List<RoomType> retrieveAllRoomTypes(boolean fetchRooms, boolean fetchRoomRates);
+    public List<RoomType> retrieveAllRoomTypes(boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates);
 }

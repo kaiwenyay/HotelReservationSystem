@@ -155,9 +155,14 @@ public class RoomType implements Serializable {
         return true;
     }
 
+//    @Override
+//    public String toString() {
+//        return "entity.RoomType[ id=" + roomTypeId + " ]";
+//    }
+    
     @Override
     public String toString() {
-        return "entity.RoomType[ id=" + roomTypeId + " ]";
+        return name + " (ID: " + roomTypeId + ")";
     }
 
     /**

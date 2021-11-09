@@ -135,14 +135,25 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public List<RoomType> retrieveAllRoomTypes(boolean fetchRooms, boolean fetchRoomRates) {
+    public List<RoomType> retrieveAllRoomTypes(boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) {
         List<RoomType> roomTypes = em.createNamedQuery("retrieveAllRoomTypes", RoomType.class)
                 .getResultList();
-        if (fetchRooms) {
-            roomTypes.forEach(x -> x.getRooms().size());
+        if (! fetchNextHigherRoomType && ! fetchNextLowerRoomType && ! fetchRooms && ! fetchRoomRates) {
+            return roomTypes;
         }
-        if (fetchRoomRates) {
-            roomTypes.forEach(x -> x.getRoomRates().size());
+        for (RoomType rt : roomTypes) {
+            if (fetchNextHigherRoomType) {
+                rt.getNextHigherRoomType();
+            }
+            if (fetchNextLowerRoomType) {
+                rt.getNextLowerRoomType();
+            }
+            if (fetchRooms) {
+                rt.getRooms().size();
+            }
+            if (fetchRoomRates) {
+                rt.getRoomRates().size();
+            }
         }
         return roomTypes;
     }

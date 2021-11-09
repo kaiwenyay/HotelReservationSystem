@@ -71,7 +71,7 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
     }
 
     public List<RoomType> searchRoom(LocalDate checkInDate, LocalDate checkOutDate) {
-        List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(false, true);
+        List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(false, false, false, true);
         if (checkInDate.equals(LocalDate.now())) {
             return roomTypes;
         }

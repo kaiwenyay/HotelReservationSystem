@@ -10,6 +10,7 @@ import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Employee;
 import entity.RoomType;
+import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 import javax.validation.ConstraintViolation;
@@ -196,7 +197,7 @@ public class HotelOperationModule {
                     roomType.getDescription(), 
                     roomType.getSize().toString(), 
                     roomType.getBedCapacity().toString(), 
-                    roomType.getAmenities().toString(),
+                    roomType.getAmenities(),
                     roomType.isDisabled(),
                     roomType.getTotalRooms(),
                     roomType.getCurrentAvailableRooms(),
@@ -347,7 +348,44 @@ public class HotelOperationModule {
     }
     
     private void doViewAllRoomTypes() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner sc= new Scanner(System.in);
+        
+        List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(true, true, false, true);
+        System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%20s%30s%30s%40s\n", 
+                    "ID", 
+                    "Name", 
+                    "Description", 
+                    "Size", 
+                    "Bed Capacity", 
+                    "Amenities", 
+                    "Disabled", 
+                    "Total Rooms", 
+                    "Curr Avail Rooms", 
+                    "Higher Room Type", 
+                    "Lower Room Type", 
+                    "Room Rates"
+            );
+
+        for(RoomType roomType : roomTypes) {
+            
+            System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%20s%30s%30s%40s\n", 
+                    roomType.getRoomTypeId().toString(), 
+                    roomType.getName(), 
+                    roomType.getDescription(), 
+                    roomType.getSize().toString(), 
+                    roomType.getBedCapacity().toString(), 
+                    roomType.getAmenities(),
+                    roomType.isDisabled(),
+                    roomType.getTotalRooms(),
+                    roomType.getCurrentAvailableRooms(),
+                    roomType.getNextHigherRoomType(),
+                    roomType.getNextLowerRoomType(),
+                    roomType.getRoomRates().toString()
+            );
+        }
+
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
     }
    
     private void doCreateNewRoom() {

@@ -35,7 +35,7 @@ public interface RoomTypeSessionBeanRemote {
              String amenities
      ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 
-    public List<RoomType> retrieveAllRoomTypes(boolean fetchRooms, boolean fetchRoomRates);
+    public List<RoomType> retrieveAllRoomTypes(boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates);
 
     public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException;
 

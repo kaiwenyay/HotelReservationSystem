@@ -128,9 +128,14 @@ public class RoomRate implements Serializable {
         return true;
     }
 
+//    @Override
+//    public String toString() {
+//        return "entity.RoomRate[ id=" + roomRateId + " ]";
+//    }
+    
     @Override
     public String toString() {
-        return "entity.RoomRate[ id=" + roomRateId + " ]";
+        return name + " (ID: " + roomRateId + ")";
     }
 
     /**
