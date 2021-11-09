@@ -62,11 +62,11 @@ public class Reservation implements Serializable {
     @Digits(integer = 6, fraction = 2)
     private BigDecimal totalAmount;
     
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(nullable = false, columnDefinition = "DATE")
     @NotNull
     private LocalDate checkInDate;
     
-    @Column(nullable = false, columnDefinition = "TIMESTAMP")
+    @Column(nullable = false, columnDefinition = "DATE")
     @NotNull
     @Future
     private LocalDate checkOutDate;

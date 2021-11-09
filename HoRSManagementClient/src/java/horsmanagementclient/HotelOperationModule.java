@@ -775,7 +775,26 @@ public class HotelOperationModule {
     }
 
     private void doDeleteRoomRate(RoomRate roomRate) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        Scanner sc = new Scanner(System.in);
+        System.out.printf("Confirm Room %s (ID: %s) (Enter 'Y' to Delete)> ", roomRate.getName(), roomRate.getRoomRateId());
+        String input = sc.nextLine().trim();
+        
+        if(input.toLowerCase().equals("y")) {
+            try {
+                boolean deleted = roomRateSessionBean.deleteRoomRate(roomRate.getRoomRateId());
+                if (deleted) {
+                    System.out.println(String.format("Room Rate %s deleted successfully!\n", roomRate.getName()));
+                } else {
+                    System.out.println(String.format("Room %s still in use. Room  NOT deleted, disabled instead.", roomRate.getName()));
+                }
+            } 
+            catch (InvalidRoomRateException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        } else {
+            System.out.println("Room Type NOT deleted!\n");
+        }
     }
 
     private void doViewAllRoomRates() {

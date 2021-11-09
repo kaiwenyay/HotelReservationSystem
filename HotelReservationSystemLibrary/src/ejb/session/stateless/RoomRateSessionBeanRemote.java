@@ -50,7 +50,7 @@ public interface RoomRateSessionBeanRemote {
             LocalDate validTo
     ) throws InvalidRoomTypeException, InvalidRoomRateException, UpdateRoomRateException, InputDataValidationException;
     
-    public void deleteRoomRate(Long roomRateId) throws InvalidRoomRateException;
+    public boolean deleteRoomRate(Long roomRateId) throws InvalidRoomRateException;
 
     public RoomRate retrieveRoomRateById(Long roomRateId, boolean fetchRoomType) throws InvalidRoomRateException;
     

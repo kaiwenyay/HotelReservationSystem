@@ -164,8 +164,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                 roomRateToUpdate = retrieveRoomRateById(roomRateId);
                 RoomType newRoomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
 
-//                if (roomRateToUpdate.getName().equals(roomRate.getName())) {
-                if (true) {
+                if (roomRateToUpdate.getName().equals(roomRate.getName())) {
                     roomRateToUpdate.setName(name);
                     roomRateToUpdate.setRoomType(newRoomType);
                     roomRateToUpdate.setRateType(rateType);
@@ -186,16 +185,19 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     }
     
     @Override
-    public void deleteRoomRate(Long roomRateId) throws InvalidRoomRateException {
+    public boolean deleteRoomRate(Long roomRateId) throws InvalidRoomRateException {
         RoomRate roomRateToRemove = retrieveRoomRateById(roomRateId);
         RoomType roomType = roomRateToRemove.getRoomType();
+        LocalDate validFrom = roomRateToRemove.getValidFrom();
         LocalDate validTo = roomRateToRemove.getValidTo();
         LocalDate dateNow = LocalDate.now();
-        if (validTo != null && dateNow.isAfter(validTo)) {
+        if ((validTo != null && dateNow.isAfter(validTo)) ||  (validFrom != null && validFrom.isAfter(dateNow) && validTo.isAfter(dateNow))) {
             roomType.removeRoomRate(roomRateToRemove);
             em.remove(roomRateToRemove);
+            return true;
         } else {
             roomRateToRemove.setDisabled(true); 
+            return false;
         }
     }
     

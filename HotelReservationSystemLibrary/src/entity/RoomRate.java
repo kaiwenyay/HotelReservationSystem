@@ -68,11 +68,11 @@ public class RoomRate implements Serializable {
     @NotNull
     private boolean disabled;
     
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "DATE")
     @Future
     private LocalDate validFrom;
     
-    @Column(columnDefinition = "TIMESTAMP")
+    @Column(columnDefinition = "DATE")
     @Future
     private LocalDate validTo;
     
