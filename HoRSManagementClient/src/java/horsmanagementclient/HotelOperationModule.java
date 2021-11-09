@@ -798,7 +798,36 @@ public class HotelOperationModule {
     }
 
     private void doViewAllRoomRates() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner sc = new Scanner(System.in);
+        
+        List<RoomRate> roomRates = roomRateSessionBean.retrieveAllRoomRates(true);
+        System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+                "ID", 
+                "Name", 
+                "Room Type",
+                "Rate Type", 
+                "Rate Per Night", 
+                "Disabled",
+                "Valid From", 
+                "Valid To"
+        ); 
+
+        for(RoomRate roomRate : roomRates) {
+            
+            System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+                roomRate.getRoomRateId().toString(), 
+                roomRate.getName(), 
+                roomRate.getRoomType(), 
+                roomRate.getRateType().toString(), 
+                roomRate.getRatePerNight().toString(), 
+                roomRate.isDisabled(),
+                roomRate.getValidFrom(),
+                roomRate.getValidTo()
+        );
+        }
+
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
     }
     
     private void showInputDataValidationErrorsForRoomType(Set<ConstraintViolation<RoomType>> constraintViolations) {
