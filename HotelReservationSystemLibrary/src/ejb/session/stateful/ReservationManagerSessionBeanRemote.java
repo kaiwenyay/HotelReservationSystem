@@ -5,7 +5,18 @@
  */
 package ejb.session.stateful;
 
+import entity.Reservation;
+import entity.RoomType;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.List;
 import javax.ejb.Remote;
+import util.exception.InputDataValidationException;
+import util.exception.InvalidReservationException;
+import util.exception.InvalidRoomException;
+import util.exception.InvalidRoomTypeException;
+import util.exception.InvalidUserException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +24,11 @@ import javax.ejb.Remote;
  */
 @Remote
 public interface ReservationManagerSessionBeanRemote {
+
+    public List<RoomType> searchRoom(LocalDate checkInDate, LocalDate checkOutDate);
+
+    public void addReservationItem(BigDecimal subTotal, String roomTypeName) throws InvalidRoomTypeException, InputDataValidationException;
+
+    public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
     
 }

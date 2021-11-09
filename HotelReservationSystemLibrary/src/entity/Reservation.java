@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -73,7 +74,6 @@ public class Reservation implements Serializable {
     
     @Column(nullable = false, columnDefinition = "TIMESTAMP")
     @NotNull
-    @Future
     private LocalDateTime reservationDateTime;
     
     @Column(nullable = false)
@@ -81,7 +81,7 @@ public class Reservation implements Serializable {
     @NotNull
     private ReservationStatus reservationStatus;
     
-    @OneToMany
+    @OneToMany(cascade = CascadeType.PERSIST)
     @JoinColumn(nullable = false)
     private List<ReservationItem> reservationItems;
     

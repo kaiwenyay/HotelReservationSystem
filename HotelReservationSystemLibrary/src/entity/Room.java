@@ -38,8 +38,8 @@ import util.enumeration.RoomStatus;
     ),
     @NamedQuery(
             name = "retrieveRoomsByRoomTypeAndStatus",
-            query = "SELECT r FROM Room r WHERE r.roomType LIKE :inRoomType AND r.roomStatus LIKE :inRoomStatus"
-    )
+            query = "SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId"
+        )
 })
 public class Room implements Serializable {
 
@@ -60,6 +60,10 @@ public class Room implements Serializable {
     
     @Column(nullable = false)
     @NotNull
+    private String enumQueryString;
+    
+    @Column(nullable = false)
+    @NotNull
     private boolean disabled;
     
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -76,6 +80,7 @@ public class Room implements Serializable {
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
         this.roomType = roomType;
+        this.enumQueryString = roomStatus.toString();
     }
 
     public Long getRoomId() {
@@ -194,6 +199,6 @@ public class Room implements Serializable {
     
     public void allocateRoom() {
         setRoomStatus(RoomStatus.NOT_AVAILABLE);
-        roomType.decreaseCurrentAvailableRooms();
+//        roomType.decreaseCurrentAvailableRooms();
     }
 }

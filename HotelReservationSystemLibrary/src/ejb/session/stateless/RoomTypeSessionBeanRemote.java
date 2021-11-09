@@ -5,11 +5,13 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Remote;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomTypeException;

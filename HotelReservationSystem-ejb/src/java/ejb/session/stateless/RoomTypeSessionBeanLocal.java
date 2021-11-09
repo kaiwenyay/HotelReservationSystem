@@ -5,11 +5,13 @@
  */
 package ejb.session.stateless;
 
+import entity.Room;
 import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import javax.ejb.Local;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomTypeException;
@@ -38,6 +40,6 @@ public interface RoomTypeSessionBeanLocal {
     public RoomType retrieveRoomTypeByName(String name) throws InvalidRoomTypeException;
     
     public List<RoomType> retrieveAllRoomTypes();
-    
+            
     public List<RoomType> retrieveAllRoomTypes(boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates);
 }

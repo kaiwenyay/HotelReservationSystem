@@ -53,7 +53,7 @@ public class SystemAdministrationModule {
 
     public void menu() throws InvalidStaffRoleException {
         if (currentEmployee.getStaffRole() != StaffRole.ADMIN) {
-            throw new InvalidStaffRoleException("You don't have MANAGER rights to access the system administration module.");
+            throw new InvalidStaffRoleException("You don't have ADMIN rights to access the system administration module.");
         }
         
         Scanner sc = new Scanner(System.in);

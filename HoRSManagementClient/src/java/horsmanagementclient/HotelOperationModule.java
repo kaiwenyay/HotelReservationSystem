@@ -377,6 +377,8 @@ public class HotelOperationModule {
                     roomType.getBedCapacity().toString(), 
                     roomType.getAmenities(),
                     roomType.isDisabled(),
+                    roomType.getTotalRooms(),
+                    roomType.getCurrentAvailableRooms(),
                     roomType.getNextHigherRoomType(),
                     roomType.getNextLowerRoomType(),
                     roomType.getRoomRates().toString()

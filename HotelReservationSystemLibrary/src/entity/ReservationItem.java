@@ -57,6 +57,8 @@ public class ReservationItem implements Serializable {
     }
 
     public ReservationItem(BigDecimal subTotal, RoomType reservedRoomType) {
+        this();
+        
         this.subTotal = subTotal;
         this.reservedRoomType = reservedRoomType;
     }

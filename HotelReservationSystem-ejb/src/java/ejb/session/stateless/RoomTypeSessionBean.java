@@ -20,6 +20,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomTypeException;
@@ -41,6 +42,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
     }
+
     
     @Override
     public RoomType retrieveRoomTypeByName(String name) throws InvalidRoomTypeException {

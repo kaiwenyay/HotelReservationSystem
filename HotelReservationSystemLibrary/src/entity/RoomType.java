@@ -38,6 +38,7 @@ import util.enumeration.RoomStatus;
             name = "retrieveAllRoomTypes",
             query = "SELECT rt FROM RoomType rt"
     )
+    
 })
 public class RoomType implements Serializable {
 

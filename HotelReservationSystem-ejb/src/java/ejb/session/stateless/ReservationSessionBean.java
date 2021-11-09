@@ -41,6 +41,9 @@ import util.exception.UnknownPersistenceException;
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
 
     @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBean;
+
+    @EJB
     private RoomSessionBeanLocal roomSessionBean;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
@@ -116,11 +119,13 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 
                 em.persist(reservation);
                 user.addReservation(reservation);
-                em.flush();
+
                 
                 for (ReservationItem i : reservationItems) {
                     em.persist(i);
                 }
+                
+                em.flush();
                 
             } catch (PersistenceException e) {
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
@@ -139,9 +144,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(reservationConstraintViolations));
         }
         
-        if (checkInDate == LocalDate.now() && reservationDateTime.getHour() > 1) {
+//        if (checkInDate == LocalDate.now() && reservationDateTime.getHour() > 1) {
             allocateRoom(reservation);
-        }
+//        }
         
         return reservation;
     }
@@ -214,7 +219,10 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             RoomType roomType = i.getReservedRoomType();
             try {
                 Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
+                System.out.println(room);
                 room.allocateRoom();
+                System.out.println(roomType.getCurrentAvailableRooms());
+                roomType.decreaseCurrentAvailableRooms();;
                 i.setAllocatedRoom(room);
             } catch (InvalidRoomException e) {
                 roomType = roomType.getNextHigherRoomType();
@@ -226,6 +234,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                         i.setAllocatedRoom(room);
                         i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                     } catch (InvalidRoomException ex) {
+                        System.out.println("here");
                         i.setAllocationExceptionType(AllocationExceptionType.TYPE_TWO);
                     }
                 } else {

@@ -26,6 +26,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.AllocationExceptionType;
 import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
@@ -67,7 +68,7 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
     
     private void initialiseState() {
         reservationItems = new ArrayList<>();
-        totalAmount = new BigDecimal("0.00");
+        totalAmount = new BigDecimal(0.00);
     }
 
     public List<RoomType> searchRoom(LocalDate checkInDate, LocalDate checkOutDate) {
@@ -80,7 +81,9 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
         for (Reservation r : clashingReservations) {
             List<ReservationItem> items = r.getReservationItems();
             for (ReservationItem i : items) {
-                i.getReservedRoomType().decreaseTotalRooms();
+                if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {
+                    i.getReservedRoomType().decreaseTotalRooms();
+                }
             }
         }
         return roomTypes;
@@ -94,7 +97,7 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
         }
         reservationItems.add(reservationItem);
-        totalAmount.add(reservationItem.getSubTotal());
+        totalAmount = totalAmount.add(reservationItem.getSubTotal());
     }
     
     public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
