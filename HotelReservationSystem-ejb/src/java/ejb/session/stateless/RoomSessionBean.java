@@ -184,14 +184,16 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     }
     
     @Override
-    public void deleteRoom(Long roomId) throws InvalidRoomException {
+    public boolean deleteRoom(Long roomId) throws InvalidRoomException {
         Room roomToRemove = retrieveRoomById(roomId);
         RoomStatus roomStatus = roomToRemove.getRoomStatus();
         roomToRemove.disassociate();
         if (roomStatus == RoomStatus.AVAILABLE) {
             em.remove(roomToRemove);
+            return true;
         } else {
            roomToRemove.setDisabled(true); 
+           return false;
         }
     }
     

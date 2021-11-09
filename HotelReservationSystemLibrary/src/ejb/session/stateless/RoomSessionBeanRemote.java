@@ -29,7 +29,7 @@ public interface RoomSessionBeanRemote {
 
     public Room updateRoom(Room room) throws InvalidRoomTypeException, InvalidRoomException, UpdateRoomException, InputDataValidationException;
 
-    public void deleteRoom(Long roomId) throws InvalidRoomException;
+    public boolean deleteRoom(Long roomId) throws InvalidRoomException;
 
     public List<Room> retrieveAllRooms(boolean fetchRoomType);
 
