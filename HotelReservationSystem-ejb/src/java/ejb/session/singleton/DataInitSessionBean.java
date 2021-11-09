@@ -101,28 +101,28 @@ public class DataInitSessionBean {
         if (em.find(RoomRate.class, 1l) == null) {
             try {
                 
-                RoomRate deluxeRoomPublished = roomRateSessionBean.createRoomRate("Deluxe Room Published", deluxeRoom, RateType.PUBLISHED, new BigDecimal(100), null, null);
-                RoomRate deluxeRoomNormal = roomRateSessionBean.createRoomRate("Deluxe Room Normal", deluxeRoom, RateType.NORMAL, new BigDecimal(50), null, null);
+                RoomRate deluxeRoomPublished = roomRateSessionBean.createRoomRate("Deluxe Room Published", deluxeRoom.getRoomTypeId(), RateType.PUBLISHED, new BigDecimal(100), null, null);
+                RoomRate deluxeRoomNormal = roomRateSessionBean.createRoomRate("Deluxe Room Normal", deluxeRoom.getRoomTypeId(), RateType.NORMAL, new BigDecimal(50), null, null);
                 deluxeRoom.addRoomRate(deluxeRoomPublished);
                 deluxeRoom.addRoomRate(deluxeRoomNormal);
 
-                RoomRate premierRoomPublished = roomRateSessionBean.createRoomRate("Premier Room Published", premierRoom, RateType.PUBLISHED, new BigDecimal(200), null, null);
-                RoomRate premierRoomNormal = roomRateSessionBean.createRoomRate("Premier Room Normal", premierRoom, RateType.NORMAL, new BigDecimal(100), null, null);
+                RoomRate premierRoomPublished = roomRateSessionBean.createRoomRate("Premier Room Published", premierRoom.getRoomTypeId(), RateType.PUBLISHED, new BigDecimal(200), null, null);
+                RoomRate premierRoomNormal = roomRateSessionBean.createRoomRate("Premier Room Normal", premierRoom.getRoomTypeId(), RateType.NORMAL, new BigDecimal(100), null, null);
                 premierRoom.addRoomRate(premierRoomPublished);
                 premierRoom.addRoomRate(premierRoomNormal);
 
-                RoomRate familyRoomPublished = roomRateSessionBean.createRoomRate("Family Room Published", familyRoom, RateType.PUBLISHED, new BigDecimal(300), null, null);
-                RoomRate familyRoomNormal = roomRateSessionBean.createRoomRate("Family Room Normal", familyRoom, RateType.NORMAL, new BigDecimal(150), null, null);
+                RoomRate familyRoomPublished = roomRateSessionBean.createRoomRate("Family Room Published", familyRoom.getRoomTypeId(), RateType.PUBLISHED, new BigDecimal(300), null, null);
+                RoomRate familyRoomNormal = roomRateSessionBean.createRoomRate("Family Room Normal", familyRoom.getRoomTypeId(), RateType.NORMAL, new BigDecimal(150), null, null);
                 familyRoom.addRoomRate(familyRoomPublished);
                 familyRoom.addRoomRate(familyRoomNormal);
 
-                RoomRate juniorSuitePublished = roomRateSessionBean.createRoomRate("Junior Suite Published", juniorSuite, RateType.PUBLISHED, new BigDecimal(400), null, null);
-                RoomRate juniorSuiteNormal = roomRateSessionBean.createRoomRate("Junior Suite Normal", juniorSuite, RateType.NORMAL, new BigDecimal(200), null, null);
+                RoomRate juniorSuitePublished = roomRateSessionBean.createRoomRate("Junior Suite Published", juniorSuite.getRoomTypeId(), RateType.PUBLISHED, new BigDecimal(400), null, null);
+                RoomRate juniorSuiteNormal = roomRateSessionBean.createRoomRate("Junior Suite Normal", juniorSuite.getRoomTypeId(), RateType.NORMAL, new BigDecimal(200), null, null);
                 juniorSuite.addRoomRate(juniorSuitePublished);
                 juniorSuite.addRoomRate(juniorSuiteNormal);
 
-                RoomRate grandSuitePublished = roomRateSessionBean.createRoomRate("Grand Suite Published", grandSuite, RateType.PUBLISHED, new BigDecimal(500), null, null);
-                RoomRate grandSuiteNormal = roomRateSessionBean.createRoomRate("Grand Suite Normal", grandSuite, RateType.NORMAL, new BigDecimal(250), null, null);
+                RoomRate grandSuitePublished = roomRateSessionBean.createRoomRate("Grand Suite Published", grandSuite.getRoomTypeId(), RateType.PUBLISHED, new BigDecimal(500), null, null);
+                RoomRate grandSuiteNormal = roomRateSessionBean.createRoomRate("Grand Suite Normal", grandSuite.getRoomTypeId(), RateType.NORMAL, new BigDecimal(250), null, null);
                 grandSuite.addRoomRate(grandSuitePublished);
                 grandSuite.addRoomRate(grandSuiteNormal);
 

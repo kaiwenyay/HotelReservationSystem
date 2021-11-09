@@ -14,6 +14,7 @@ import javax.ejb.Remote;
 import util.enumeration.RateType;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomRateException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomRateException;
 
@@ -30,12 +31,12 @@ public interface RoomRateSessionBeanRemote {
 
     public RoomRate createRoomRate(
             String name, 
-            RoomType roomType, 
+            Long roomTypeId, 
             RateType rateType, 
             BigDecimal ratePerNight, 
             LocalDate validityFrom, 
             LocalDate validityTo
-    ) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
+    ) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
 
     public List<RoomRate> retrieveAllRoomRates(boolean fetchRoomType);
     

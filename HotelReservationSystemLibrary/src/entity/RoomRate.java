@@ -80,17 +80,16 @@ public class RoomRate implements Serializable {
     @JoinColumn(nullable = false)
     private RoomType roomType;
 
-    public RoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight) {
+    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight) {
         this();
         
         this.name = name;
-        this.roomType = roomType;
         this.rateType = rateType;
         this.ratePerNight = ratePerNight;
     }
 
-    public RoomRate(String name, RoomType roomType, RateType rateType, BigDecimal ratePerNight, LocalDate validFrom, LocalDate validTo) {
-        this(name, roomType, rateType, ratePerNight);
+    public RoomRate(String name, RateType rateType, BigDecimal ratePerNight, LocalDate validFrom, LocalDate validTo) {
+        this(name, rateType, ratePerNight);
                 
         this.validFrom = validFrom;
         this.validTo = validTo;
@@ -220,6 +219,7 @@ public class RoomRate implements Serializable {
      */
     public void setRoomType(RoomType roomType) {
         this.roomType = roomType;
+        roomType.addRoomRate(this);
     }
 
     /**

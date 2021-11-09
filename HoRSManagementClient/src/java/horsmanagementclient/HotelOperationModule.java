@@ -10,7 +10,11 @@ import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Employee;
 import entity.Room;
+import entity.RoomRate;
 import entity.RoomType;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
@@ -19,10 +23,12 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.InvalidStaffRoleException;
+import util.enumeration.RateType;
 import util.enumeration.RoomStatus;
 import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomException;
+import util.exception.InvalidRoomRateException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomException;
@@ -578,7 +584,67 @@ public class HotelOperationModule {
     }
 
     private void doCreateNewRoomRate() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        StaffRole staffRole = currentEmployee.getStaffRole();
+        if (staffRole == StaffRole.OPERATIONS || staffRole == StaffRole.GUEST_RELATIONS) {
+            System.out.println("You don't have ADMIN or SALES rights to perform this operation.");
+            return;
+        }
+        Scanner sc = new Scanner(System.in);
+        Integer response = 0;
+        
+        System.out.print("Enter Name: ");
+        String name = sc.nextLine();
+        System.out.print("Enter Room Type Id: ");
+        Long roomTypeId = sc.nextLong();
+        RateType rateType = null;
+        while (rateType == null) {
+            System.out.println("Select the rate type.");
+            System.out.println("1. Published");
+            System.out.println("2. Normal");
+            System.out.println("3. Peak");
+            System.out.println("4. Promotion");
+            System.out.print(">");
+            response = sc.nextInt();
+
+            if (response == 1) {
+                rateType = RateType.PUBLISHED;
+            } else if (response == 2) {
+                rateType = RateType.NORMAL;
+            } else if (response == 3) {
+                rateType = RateType.PEAK;
+            } else if (response == 4) {
+                rateType = RateType.PROMOTION;
+            } else {
+                System.out.println("Invalid option.");
+            }
+        }
+        
+        System.out.print("Enter Rate Per Night: ");
+        BigDecimal ratePerNight = new BigDecimal(sc.nextLong());
+        sc.nextLine();
+        
+        LocalDate validFrom = null;
+        LocalDate validTo = null;
+        
+        if (rateType == RateType.PEAK || rateType == RateType.PROMOTION) {
+            System.out.print("Enter validity period start date (YYYY-MM-DD) : ");
+            validFrom = LocalDate.parse(sc.nextLine(), DateTimeFormatter.ISO_DATE);
+            System.out.print("Enter validity period end date (YYYY-MM-DD) : ");
+            validTo = LocalDate.parse(sc.nextLine(), DateTimeFormatter.ISO_DATE);
+        }
+        
+        Set<ConstraintViolation<RoomRate>> constraintViolations = validator.validate(new RoomRate(name, rateType, ratePerNight, validFrom, validTo));
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                RoomRate roomRate = roomRateSessionBean.createRoomRate(name, roomTypeId, rateType, ratePerNight, validFrom, validTo);
+                System.out.println(String.format("Successfully created room type %s!\n", roomRate.getName()));
+            } catch (InvalidRoomTypeException | InvalidRoomRateException | UnknownPersistenceException | InputDataValidationException e) {
+                System.out.println("Error: " + e.toString());
+            }
+        } else {
+            showInputDataValidationErrorsForRoomRate(constraintViolations);
+        }
     }
 
     private void doViewRoomRateDetails() {
@@ -608,6 +674,16 @@ public class HotelOperationModule {
     }
     
     private void showInputDataValidationErrorsForRoom(Set<ConstraintViolation<Room>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+            
+        for(ConstraintViolation constraintViolation:constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
+    }
+    
+    private void showInputDataValidationErrorsForRoomRate(Set<ConstraintViolation<RoomRate>> constraintViolations) {
         System.out.println("\nInput data validation error!:");
             
         for(ConstraintViolation constraintViolation:constraintViolations) {

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -23,6 +24,7 @@ import javax.validation.ValidatorFactory;
 import util.enumeration.RateType;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomRateException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 import util.exception.UpdateRoomRateException;
 
@@ -32,6 +34,9 @@ import util.exception.UpdateRoomRateException;
  */
 @Stateless
 public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateSessionBeanLocal {
+
+    @EJB
+    private RoomTypeSessionBeanLocal roomTypeSessionBean;
 
     @PersistenceContext(unitName = "HotelReservationSystem-ejbPU")
     private EntityManager em;
@@ -68,24 +73,23 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     @Override
     public RoomRate createRoomRate(
             String name, 
-            RoomType roomType, 
+            Long roomTypeId, 
             RateType rateType, 
             BigDecimal ratePerNight, 
             LocalDate validityFrom, 
             LocalDate validityTo
-    ) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
+    ) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
         
-        RoomRate roomRate = new RoomRate(name, roomType, rateType, ratePerNight, validityFrom, validityTo);
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, false, false, false, true);
+        
+        RoomRate roomRate = new RoomRate(name, rateType, ratePerNight, validityFrom, validityTo);
         Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);
         
         if (constraintViolations.isEmpty()) {
             try {
                 
                 em.persist(roomRate);
-                // Ignore roomType for testing purposes
-                if (roomType != null) {
-                    roomType.addRoomRate(roomRate);
-                } 
+                roomRate.setRoomType(roomType);
                 em.flush();
                 
             } catch (PersistenceException e) {

@@ -14,6 +14,7 @@ import javax.ejb.Local;
 import util.enumeration.RateType;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomRateException;
+import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
 
 /**
@@ -27,11 +28,11 @@ public interface RoomRateSessionBeanLocal {
     
     public RoomRate createRoomRate(
             String name, 
-            RoomType roomType, 
+            Long roomTypeId, 
             RateType rateType, 
             BigDecimal ratePerNight, 
             LocalDate validityFrom, 
             LocalDate validityTo
-    ) throws InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
+    ) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
     
 }
