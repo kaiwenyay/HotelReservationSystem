@@ -698,20 +698,14 @@ public class HotelOperationModule {
         Integer integerInput;
         Double doubleInput;
         
-        String name;
+        String name = roomRate.getName();
         Long roomTypeId;
         RateType rateType = null;
         BigDecimal ratePerNight;
         LocalDate validFrom;
         LocalDate validTo;
         
-        System.out.print("Enter Name (blank if no change): ");
-        name = sc.nextLine().trim();
-        if(name.length() == 0) {
-            name = roomRate.getName();
-        }
-        
-        System.out.print("Enter Room Type Id (0 if no change): ");
+        System.out.print("Enter New Room Type Id (0 if no change): ");
         roomTypeId = sc.nextLong();
         if (roomTypeId == 0) {
             roomTypeId = roomRate.getRoomType().getRoomTypeId();
