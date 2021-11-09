@@ -560,7 +560,17 @@ public class HotelOperationModule {
     }
 
     private void doViewAllRooms() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner sc= new Scanner(System.in);
+        
+        List<Room> rooms = roomSessionBean.retrieveAllRooms(true);
+        System.out.printf("%8s%20s%20s%30s\n", "Room ID", "Room Number", "Room Status", "Room Type");
+
+        for(Room r : rooms) {
+            System.out.printf("%8s%20s%20s%30s\n", r.getRoomId().toString(), r.getRoomNumber(), r.getRoomStatus().toString(), r.getRoomType().toString());
+        }
+
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
     }
 
     private void doViewRoomAllocationExceptionReport() {
