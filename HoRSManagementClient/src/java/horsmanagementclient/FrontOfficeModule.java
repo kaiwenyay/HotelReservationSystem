@@ -9,6 +9,7 @@ import ejb.session.stateful.ReservationManagerSessionBeanRemote;
 import ejb.session.stateless.ReservationSessionBeanRemote;
 import entity.Employee;
 import entity.Reservation;
+import entity.ReservationItem;
 import entity.RoomRate;
 import entity.RoomType;
 import java.math.BigDecimal;
@@ -20,6 +21,7 @@ import java.util.Scanner;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.AllocationExceptionType;
 import util.enumeration.InvalidStaffRoleException;
 import util.enumeration.RateType;
 import util.enumeration.StaffRole;
@@ -288,17 +290,56 @@ public class FrontOfficeModule {
         }
     }
     private void doCheckInGuest() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter Reservation ID: ");
+        Long reservationId = sc.nextLong();
+        Reservation reservation;
+        try {
+            reservation = reservationSessionBean.retrieveReservationById(reservationId, false, true, true, true);
+        } catch (InvalidReservationException e) {
+            System.out.println("An error occured while retrieving the reservation: " + e.getMessage());
+            return;
+        }
+        List<ReservationItem> items = reservation.getReservationItems();
+        for (ReservationItem i : items) {
+            if (i.getAllocationExceptionType() == AllocationExceptionType.NO_EXCEPTION) {
+                System.out.println(String.format("Item %s: Booked 1 %s, successfully allocated room %s.",
+                        i.getReservationItemId(), 
+                        i.getReservedRoomType().getName(), 
+                        i.getAllocatedRoom().getRoomNumber()
+                ));
+            } else if (i.getAllocationExceptionType() == AllocationExceptionType.TYPE_ONE) {
+                System.out.println(String.format("Item %s: Originally booked 1 %s, due to a lack of vacant %ss, "
+                        + "we have upgraded your room type at no additional cost and allocated you room %s.",
+                        i.getReservationItemId(),
+                        i.getReservedRoomType().getName(), 
+                        i.getReservedRoomType().getName(),
+                        i.getAllocatedRoom().getRoomNumber()
+                ));
+            } else {
+                System.out.println(String.format("Item %s: Unfortunately, we are overbooked and we could not allocated you any rooms.", i.getReservationItemId()));
+            }
+        }
+        System.out.println();
+        System.out.println("Enjoy your stay!\n");
     }
 
     private void doCheckOutGuest() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter reservation ID: ");
+        System.out.print("Enter Reservation ID: ");
         Long reservationId = sc.nextLong();
+        Reservation reservation;
         try {
-            reservationSessionBean.checkOutGuest(reservationId);
-        } catch (InvalidRoomException | InvalidReservationException e) {
-            System.out.println("Error : " + e.toString());
+            reservation = reservationSessionBean.retrieveReservationById(reservationId, false, true, true, true);
+        } catch (InvalidReservationException e) {
+            System.out.println("An error occured while retrieving the reservation: " + e.getMessage());
+            return;
         }
+        List<ReservationItem> items = reservation.getReservationItems();
+        for (ReservationItem i : items) {
+            System.out.println(String.format("Successfully checked out of room %s", i.getAllocatedRoom().getRoomNumber()));
+        }
+        System.out.println();
+        System.out.println("Thank you for staying with us. Have a nice day!\n");
     }
 }

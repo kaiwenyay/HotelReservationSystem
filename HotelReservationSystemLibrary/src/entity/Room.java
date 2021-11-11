@@ -38,7 +38,7 @@ import util.enumeration.RoomStatus;
     ),
     @NamedQuery(
             name = "retrieveRoomsByRoomTypeAndStatus",
-            query = "SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId AND r.roomStatus = :inRoomStatus"
+            query = "SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId AND r.roomStatus = :inRoomStatus AND NOT r.disabled"
         )
 })
 public class Room implements Serializable {

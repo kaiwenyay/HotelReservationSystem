@@ -70,6 +70,39 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
+    public Reservation retrieveReservationById(
+            Long reservationId, 
+            boolean fetchUser, 
+            boolean fetchItems, 
+            boolean fetchItemRoomType, 
+            boolean fetchItemRoom
+    ) throws InvalidReservationException {
+        
+        Reservation reservation = em.find(Reservation.class, reservationId);     
+        if(reservation != null) {
+            if (fetchUser) {
+                reservation.getUser();
+            }
+            if (fetchItems) {
+                List<ReservationItem> items = reservation.getReservationItems();
+                if (fetchItemRoom || fetchItemRoomType) {
+                    for (ReservationItem i : items) {
+                        if (fetchItemRoom) {
+                            i.getAllocatedRoom();
+                        }
+                        if (fetchItemRoomType) {
+                            i.getReservedRoomType();
+                        }
+                    }
+                }
+            }
+            return reservation;
+        } else {
+            throw new InvalidReservationException("Reservation " + reservationId + " does not exist!");
+        }               
+    }
+    
+    @Override
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate) {
         List<Reservation> reservations = em.createNamedQuery("retrieveReservationsByCheckInDate", Reservation.class)
                 .setParameter("inCheckInDate", checkInDate)
@@ -334,16 +367,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             }
         }
         reservation.setReservationStatus(ReservationStatus.ALLOCATED);
-    }
-    
-    public void checkOutGuest(Long reservationId) throws InvalidRoomException, InvalidReservationException {
-        Reservation reservation = retrieveReservationById(reservationId);
-        List<ReservationItem> items = reservation.getReservationItems();
-        for (ReservationItem i : items) {
-            if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {
-                i.getAllocatedRoom().setRoomStatus(RoomStatus.AVAILABLE);
-            }
-        }
     }
     
 }
