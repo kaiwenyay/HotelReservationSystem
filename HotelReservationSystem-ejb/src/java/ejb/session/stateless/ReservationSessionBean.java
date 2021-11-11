@@ -60,13 +60,13 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         if(reservation != null) {
             return reservation;
         } else {
-            throw new InvalidReservationException("Rservation " + reservationId + " does not exist!");
+            throw new InvalidReservationException("Reservation " + reservationId + " does not exist!");
         }               
     }
     
     @Override
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate) {
-        List<Reservation> reservations = em.createNamedQuery("retrieveReservationByCheckInDate", Reservation.class)
+        List<Reservation> reservations = em.createNamedQuery("retrieveReservationsByCheckInDate", Reservation.class)
                 .setParameter("inCheckInDate", checkInDate)
                 .getResultList();
         return reservations;
@@ -141,10 +141,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(reservationConstraintViolations));
         }
         
-        System.out.println(checkInDate);
-        System.out.println(reservationDateTime.getHour());
         if (checkInDate.equals(LocalDate.now()) && reservationDateTime.getHour() > 1) {
-            System.out.println("here");
             allocateRoom(reservation);
         }
         
@@ -190,8 +187,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 RoomType roomType = i.getReservedRoomType();
                 try {
                     Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                    room.allocateRoom();
-                    roomType.decreaseCurrentAvailableRooms();
+                    room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                     i.setAllocatedRoom(room);
                 } catch (InvalidRoomException e) {
                     roomType = roomType.getNextHigherRoomType();
@@ -199,7 +195,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                         try {
                             Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                             room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                            roomType.decreaseCurrentAvailableRooms();
                             i.setAllocatedRoom(room);
                             i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                         } catch (InvalidRoomException ex) {
@@ -214,7 +209,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
     }
     
-    public void allocateRooms(LocalDate date) throws InvalidRoomException {
+    public void manualAllocateRooms(LocalDate date) throws InvalidRoomException {
         List<Reservation> reservations = retrieveReservationsByCheckInDate(date, true, false, true);
         reservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
         for (Reservation r : reservations) {
@@ -224,8 +219,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                 RoomType roomType = i.getReservedRoomType();
                 try {
                     Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                    room.allocateRoom();
-                    roomType.decreaseCurrentAvailableRooms();
+                    room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                     i.setAllocatedRoom(room);
                 } catch (InvalidRoomException e) {
                     roomType = roomType.getNextHigherRoomType();
@@ -233,7 +227,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                         try {
                             Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                             room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                            roomType.decreaseCurrentAvailableRooms();
                             i.setAllocatedRoom(room);
                             i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                         } catch (InvalidRoomException ex) {
@@ -254,8 +247,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             RoomType roomType = i.getReservedRoomType();
             try {
                 Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                room.allocateRoom();
-                roomType.decreaseCurrentAvailableRooms();
+                room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                 i.setAllocatedRoom(room);
             } catch (InvalidRoomException e) {
                 roomType = roomType.getNextHigherRoomType();
@@ -263,7 +255,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     try {
                         Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                         room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                        roomType.decreaseCurrentAvailableRooms();
                         i.setAllocatedRoom(room);
                         i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                     } catch (InvalidRoomException ex) {
@@ -275,6 +266,16 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             }
         }
         reservation.setReservationStatus(ReservationStatus.ALLOCATED);
+    }
+    
+    public void checkOutGuest(Long reservationId) throws InvalidRoomException, InvalidReservationException {
+        Reservation reservation = retrieveReservationById(reservationId);
+        List<ReservationItem> items = reservation.getReservationItems();
+        for (ReservationItem i : items) {
+            if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {
+                i.getAllocatedRoom().setRoomStatus(RoomStatus.AVAILABLE);
+            }
+        }
     }
     
 }

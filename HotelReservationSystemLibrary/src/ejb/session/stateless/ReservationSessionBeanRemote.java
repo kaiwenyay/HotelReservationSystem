@@ -46,5 +46,11 @@ public interface ReservationSessionBeanRemote {
             boolean fetchUser, 
             boolean fetchItemRoomType
     );
+
+    public void allocateRoom(Reservation reservation) throws InvalidRoomException;
+
+    public void manualAllocateRooms(LocalDate date) throws InvalidRoomException;
+
+    public void checkOutGuest(Long reservationId) throws InvalidRoomException, InvalidReservationException;
     
 }

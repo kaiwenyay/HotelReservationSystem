@@ -195,10 +195,4 @@ public class Room implements Serializable {
     public void disassociate() {
         this.roomType.removeRoom(this); 
     }
-    
-    
-    public void allocateRoom() {
-        setRoomStatus(RoomStatus.NOT_AVAILABLE);
-//        roomType.decreaseCurrentAvailableRooms();
-    }
 }

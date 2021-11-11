@@ -88,7 +88,6 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     @Override
     public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException {
         Room room;
-        System.out.println("here");
         try {
             room = em.createNamedQuery("retrieveRoomsByRoomTypeAndStatus", Room.class)
                     .setParameter("inRoomTypeId", roomType.getRoomTypeId())

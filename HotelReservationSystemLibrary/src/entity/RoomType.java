@@ -307,7 +307,9 @@ public class RoomType implements Serializable {
     }
     
     public void decreaseTotalRooms() {
-        setTotalRooms((Integer) (getTotalRooms() - 1));
+        if (totalRooms > 0) {
+            setTotalRooms((Integer) (getTotalRooms() - 1));
+        }
     }
     
     public void increaseCurrentAvailableRooms() {
