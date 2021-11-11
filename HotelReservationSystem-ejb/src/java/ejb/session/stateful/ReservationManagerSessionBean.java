@@ -76,6 +76,9 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
         List<Reservation> clashingReservations = reservationSessionBean.retrieveReservationsByPeriod(checkInDate, checkOutDate);
         roomTypes.forEach(x -> em.detach(x));
         for (Reservation r : clashingReservations) {
+            if (r.getCheckOutDate().equals(checkInDate) || r.getCheckInDate().equals(checkOutDate)) {
+                continue;
+            }
             List<ReservationItem> items = r.getReservationItems();
             for (ReservationItem i : items) {
                 if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {

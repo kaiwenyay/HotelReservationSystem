@@ -105,14 +105,19 @@ public class FrontOfficeModule {
     private void doWalkInSearchRoom() {
         Scanner sc = new Scanner(System.in);
         String input;
+        LocalDate checkInDate;
         LocalDate checkOutDate;
         Integer response = 0;
+        
+        System.out.print("Enter check-in date (YYYY-MM-DD): ");
+        input = sc.nextLine();
+        checkInDate = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
         
         System.out.print("Enter check-out date (YYYY-MM-DD): ");
         input = sc.nextLine();
         checkOutDate = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
         
-        List<RoomType> availableRoomTypes = reservationManagerSessionBean.searchRooms(LocalDate.now(), checkOutDate);
+        List<RoomType> availableRoomTypes = reservationManagerSessionBean.searchRooms(checkInDate, checkOutDate);
         
         System.out.println("Please select your desired room type.");
         for (int i = 0; i < availableRoomTypes.size(); i++) {
@@ -139,12 +144,12 @@ public class FrontOfficeModule {
         System.out.print(String.format("You have chosen to reserve %s rooms of type %s. Type 'Y' to continue: ", response, selected.getName()));
         input = sc.nextLine();
         if (input.toLowerCase().equals("y")) {
-            Long nights = ChronoUnit.DAYS.between(LocalDate.now(), checkOutDate);
-            doWalkInReserveRoom(response, nights, selected, checkOutDate);
+            Long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+            doWalkInReserveRoom(response, nights, selected, checkInDate, checkOutDate);
         } 
     }
     
-    private void doWalkInReserveRoom(Integer quantity, Long nights, RoomType roomType, LocalDate checkOutDate) {
+    private void doWalkInReserveRoom(Integer quantity, Long nights, RoomType roomType, LocalDate checkInDate, LocalDate checkOutDate) {
         Scanner sc = new Scanner(System.in);
         
         List<RoomRate> roomRates = roomType.getRoomRates();
@@ -172,14 +177,12 @@ public class FrontOfficeModule {
             }
             Reservation reservation;
             try {
-                reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), LocalDate.now(), checkOutDate);
+                reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), checkInDate, checkOutDate);
+                System.out.println(String.format("Reservation successful! Your reservation ID is %s.\n", reservation.getReservationId()));
             } catch (InvalidRoomException | InvalidUserException | InvalidReservationException | UnknownPersistenceException | InputDataValidationException e) {
                 System.out.println("Error: " + e.toString());
-                return;
             }
-
-        }
-        System.out.println("Reservation successful!\n");
+        }  
     }
     
     private void doSearchRoom() {

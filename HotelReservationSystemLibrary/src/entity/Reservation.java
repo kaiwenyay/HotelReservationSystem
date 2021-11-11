@@ -48,6 +48,10 @@ import util.enumeration.ReservationStatus;
     @NamedQuery(
             name = "retrieveReservationsByPeriod",
             query = "SELECT r FROM Reservation r WHERE :inCheckInDate BETWEEN r.checkInDate AND r.checkOutDate OR :inCheckOutDate BETWEEN r.checkInDate AND r.checkOutDate"
+    ),
+    @NamedQuery(
+            name = "retrieveReservationsByCheckOutDate",
+            query = "SELECT r FROM Reservation r WHERE r.checkOutDate LIKE :inCheckOutDate"
     )
 })
 public class Reservation implements Serializable {
