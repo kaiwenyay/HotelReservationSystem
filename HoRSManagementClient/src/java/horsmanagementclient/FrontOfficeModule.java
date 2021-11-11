@@ -119,7 +119,7 @@ public class FrontOfficeModule {
         System.out.println("Please select your desired room type.");
         for (int i = 0; i < availableRoomTypes.size(); i++) {
             RoomType roomType = availableRoomTypes.get(i);
-            System.out.println(String.format("%s. %s : %s vacancies", i + 1, roomType.getName(), roomType.getCurrentAvailableRooms()));
+            System.out.println(String.format("%s. %s : %s vacancies", i + 1, roomType.getName(), roomType.getTotalRooms()));
         }
         System.out.print(">");
         response = sc.nextInt();
@@ -132,7 +132,7 @@ public class FrontOfficeModule {
         RoomType selected = availableRoomTypes.get(response - 1);
         System.out.print("Enter the number of rooms you would like to reserve: ");
         response = sc.nextInt();
-        if (selected.getCurrentAvailableRooms() < response) {
+        if (selected.getTotalRooms() < response) {
             System.out.println(String.format("%s has insufficient vacancies.", selected.getName()));
             return;
         }
@@ -217,7 +217,7 @@ public class FrontOfficeModule {
         RoomType selected = availableRoomTypes.get(response - 1);
         System.out.print("Enter the number of rooms you would like to reserve: ");
         response = sc.nextInt();
-        if (selected.getCurrentAvailableRooms() < response) {
+        if (selected.getTotalRooms() < response) {
             System.out.println(String.format("%s has insufficient vacancies.", selected.getName()));
             return;
         }
@@ -282,7 +282,7 @@ public class FrontOfficeModule {
         LocalDate checkinDate = LocalDate.parse(sc.nextLine(), DateTimeFormatter.ISO_DATE);
         try {
             reservationSessionBean.manualAllocateRooms(checkinDate);
-        } catch (InvalidRoomException e) {
+        } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }
     }

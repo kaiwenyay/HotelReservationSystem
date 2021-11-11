@@ -111,9 +111,14 @@ public class Room implements Serializable {
         return true;
     }
 
+//    @Override
+//    public String toString() {
+//        return "entity.Room[ id=" + roomId + " ]";
+//    }
+    
     @Override
     public String toString() {
-        return "entity.Room[ id=" + roomId + " ]";
+        return String.format("%s (ID: %s)", roomNumber, roomId);
     }
 
     /**
@@ -141,14 +146,14 @@ public class Room implements Serializable {
      * @param roomStatus the roomStatus to set
      */
     public void setRoomStatus(RoomStatus roomStatus) {
-        if (roomStatus != this.roomStatus) {
-            if (this.roomStatus == RoomStatus.AVAILABLE && roomStatus == RoomStatus.NOT_AVAILABLE) {
-                this.roomType.decreaseCurrentAvailableRooms();
-            } else if (this.roomStatus == RoomStatus.NOT_AVAILABLE && roomStatus == RoomStatus.AVAILABLE) {
-                this.roomType.increaseCurrentAvailableRooms();
-            }
+//        if (roomStatus != this.roomStatus) {
+//            if (this.roomStatus == RoomStatus.AVAILABLE && roomStatus == RoomStatus.NOT_AVAILABLE) {
+//                this.roomType.decreaseCurrentAvailableRooms();
+//            } else if (this.roomStatus == RoomStatus.NOT_AVAILABLE && roomStatus == RoomStatus.AVAILABLE) {
+//                this.roomType.increaseCurrentAvailableRooms();
+//            }
             this.roomStatus = roomStatus;
-        }
+//        }
     }
 
     /**

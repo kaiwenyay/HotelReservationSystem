@@ -26,6 +26,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import util.enumeration.AllocationExceptionType;
 import util.enumeration.InvalidStaffRoleException;
 import util.enumeration.RateType;
 import util.enumeration.RoomStatus;
@@ -196,7 +197,7 @@ public class HotelOperationModule {
         
         try {
             RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, true, true, false, true);
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     "ID", 
                     "Name", 
                     "Description", 
@@ -204,13 +205,12 @@ public class HotelOperationModule {
                     "Bed Capacity", 
                     "Amenities", 
                     "Disabled", 
-                    "Total Rooms", 
-                    "Curr Avail Rooms", 
+                    "Total Rooms",  
                     "Higher Room Type", 
                     "Lower Room Type", 
                     "Room Rates"
             );
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
+            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     roomType.getRoomTypeId().toString(), 
                     roomType.getName(), 
                     roomType.getDescription(), 
@@ -219,7 +219,6 @@ public class HotelOperationModule {
                     roomType.getAmenities(),
                     roomType.isDisabled(),
                     roomType.getTotalRooms(),
-                    roomType.getCurrentAvailableRooms(),
                     roomType.getNextHigherRoomType(),
                     roomType.getNextLowerRoomType(),
                     roomType.getRoomRates().toString()
@@ -360,7 +359,7 @@ public class HotelOperationModule {
         Scanner sc= new Scanner(System.in);
         
         List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(true, true, false, true);
-        System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%20s%30s%30s%40s\n", 
+        System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%30s%30s%40s\n", 
                     "ID", 
                     "Name", 
                     "Description", 
@@ -377,7 +376,7 @@ public class HotelOperationModule {
 
         for(RoomType roomType : roomTypes) {
             
-            System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%20s%30s%30s%40s\n", 
+            System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%30s%30s%40s\n", 
                     roomType.getRoomTypeId().toString(), 
                     roomType.getName(), 
                     roomType.getDescription(), 
@@ -386,7 +385,6 @@ public class HotelOperationModule {
                     roomType.getAmenities(),
                     roomType.isDisabled(),
                     roomType.getTotalRooms(),
-                    roomType.getCurrentAvailableRooms(),
                     roomType.getNextHigherRoomType(),
                     roomType.getNextLowerRoomType(),
                     roomType.getRoomRates().toString()
@@ -593,7 +591,7 @@ public class HotelOperationModule {
         
         System.out.println(String.format("*** Allocation Exception Report for %s ***", LocalDate.now()));
         
-        System.out.printf("%8s%20s%20s%15s%20s\n", 
+        System.out.printf("%8s%15s%25s%25s%25s\n", 
                     "Reservation ID", 
                     "Item", 
                     "Exception Type", 
@@ -604,13 +602,15 @@ public class HotelOperationModule {
         for (Reservation r : reservations) {
             List<ReservationItem> items = r.getReservationItems();
             for (ReservationItem i : items) {
-                System.out.printf("%8s%20s%20s%15s%20s\n", 
-                    r.getReservationId(),
-                    i.getReservationItemId(),
-                    i.getAllocationExceptionType(),
-                    i.getReservedRoomType(), 
-                    i.getAllocatedRoom()
-                );
+                if (i.getAllocationExceptionType() != AllocationExceptionType.NO_EXCEPTION) {
+                    System.out.printf("%13s%15s%25s%25s%25s\n", 
+                        r.getReservationId(),
+                        i.getReservationItemId(),
+                        i.getAllocationExceptionType(),
+                        i.getReservedRoomType(), 
+                        i.getAllocatedRoom()
+                    );
+                }
             }
         }
         

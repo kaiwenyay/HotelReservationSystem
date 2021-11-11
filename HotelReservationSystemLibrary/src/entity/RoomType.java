@@ -22,7 +22,6 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
-import util.enumeration.RoomStatus;
 
 /**
  *
@@ -81,11 +80,6 @@ public class RoomType implements Serializable {
     @Min(0)
     private Integer totalRooms;
     
-    @Column(nullable = false)
-    @NotNull
-    @Min(0)
-    private Integer currentAvailableRooms;
-    
     @OneToMany(mappedBy = "roomType")
     private List<Room> rooms;
     
@@ -100,7 +94,6 @@ public class RoomType implements Serializable {
 
     public RoomType() {
         this.totalRooms = 0;
-        this.currentAvailableRooms = 0;
         this.rooms = new ArrayList<>();
         this.roomRates = new ArrayList<>();
         this.disabled = false;
@@ -311,23 +304,13 @@ public class RoomType implements Serializable {
             setTotalRooms((Integer) (getTotalRooms() - 1));
         }
     }
-    
-    public void increaseCurrentAvailableRooms() {
-        setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() + 1));
-    }
-    
-    public void decreaseCurrentAvailableRooms() {
-        setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() - 1));
-    }
-    
+
     public void addRoom(Room room) {
         if (! rooms.contains(room)) {
             rooms.add(room);
             setTotalRooms((Integer) (getTotalRooms() + 1));
         }
-        if (room.getRoomStatus() == RoomStatus.AVAILABLE) {
-            setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() + 1));
-        }
+       
     }
     
     public void removeRoom(Room room) {
@@ -335,9 +318,7 @@ public class RoomType implements Serializable {
             rooms.remove(room);
             setTotalRooms((Integer) (getTotalRooms() - 1));
         }
-        if (room.getRoomStatus() == RoomStatus.AVAILABLE) {
-            setCurrentAvailableRooms((Integer) (getCurrentAvailableRooms() - 1));
-        }
+
     }
     
     
@@ -393,20 +374,5 @@ public class RoomType implements Serializable {
     public void setTotalRooms(Integer totalRooms) {
         this.totalRooms = totalRooms;
     }
-
-    /**
-     * @return the currentAvailableRooms
-     */
-    public Integer getCurrentAvailableRooms() {
-        return currentAvailableRooms;
-    }
-
-    /**
-     * @param currentAvailableRooms the currentAvailableRooms to set
-     */
-    public void setCurrentAvailableRooms(Integer currentAvailableRooms) {
-        this.currentAvailableRooms = currentAvailableRooms;
-    }
-
 
 }

@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.AllocationExceptionReport;
 import entity.Reservation;
 import entity.ReservationItem;
 import entity.Room;
@@ -29,6 +30,7 @@ import util.enumeration.AllocationExceptionType;
 import util.enumeration.ReservationStatus;
 import util.enumeration.RoomStatus;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidReportException;
 import util.exception.InvalidReservationException;
 import util.exception.InvalidRoomException;
 import util.exception.UnknownPersistenceException;
@@ -39,6 +41,9 @@ import util.exception.UnknownPersistenceException;
  */
 @Stateless
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
+
+    @EJB
+    private AllocationExceptionReportSessionBeanLocal allocationExceptionReportSessionBean;
 
     @EJB
     private RoomSessionBeanLocal roomSessionBean;
@@ -177,7 +182,8 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Schedule(hour = "2", minute = "0", info = "allocateRooms")  
-    public void allocateRooms() throws InvalidRoomException {
+    public void allocateRooms() throws InvalidRoomException, InvalidReportException, UnknownPersistenceException, InputDataValidationException {
+        AllocationExceptionReport report = allocationExceptionReportSessionBean.createReport(LocalDate.now());
         List<Reservation> reservations = retrieveReservationsByCheckInDate(LocalDate.now(), true, false, true);
         reservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
         for (Reservation r : reservations) {
@@ -190,6 +196,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                     i.setAllocatedRoom(room);
                 } catch (InvalidRoomException e) {
+                    report.addReservation(r);
                     roomType = roomType.getNextHigherRoomType();
                     if (roomType != null) {
                         try {
@@ -209,7 +216,9 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
     }
     
-    public void manualAllocateRooms(LocalDate date) throws InvalidRoomException {
+    @Override
+    public void manualAllocateRooms(LocalDate date) throws InvalidRoomException, InvalidReportException, UnknownPersistenceException, InputDataValidationException {
+        AllocationExceptionReport report = allocationExceptionReportSessionBean.createReport(LocalDate.now());
         List<Reservation> reservations = retrieveReservationsByCheckInDate(date, true, false, true);
         reservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
         for (Reservation r : reservations) {
@@ -222,6 +231,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                     i.setAllocatedRoom(room);
                 } catch (InvalidRoomException e) {
+                    report.addReservation(r);
                     roomType = roomType.getNextHigherRoomType();
                     if (roomType != null) {
                         try {
