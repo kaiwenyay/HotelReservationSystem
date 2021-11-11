@@ -31,7 +31,7 @@ public interface RoomTypeSessionBeanLocal {
             String amenities
     ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
     
-    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException;
+    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException, UnknownPersistenceException;
 
     public RoomType retrieveRoomTypeById(Long productId) throws InvalidRoomTypeException;
     

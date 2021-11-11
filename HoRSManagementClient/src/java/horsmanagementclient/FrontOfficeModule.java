@@ -157,7 +157,7 @@ public class FrontOfficeModule {
         List<RoomRate> roomRates = roomType.getRoomRates();
         RoomRate roomRate = null;
         for (RoomRate r: roomRates) {
-            if (r.getRateType() == RateType.PUBLISHED) {
+            if (r.getRateType() == RateType.PUBLISHED && ! r.isDisabled()) {
                 roomRate = r;
                 break;
             }
@@ -240,13 +240,13 @@ public class FrontOfficeModule {
         List<RoomRate> roomRates = roomType.getRoomRates();
         RoomRate roomRate = null;
         for (RoomRate r: roomRates) {
-            if (r.getRateType() == RateType.PROMOTION) {
+            if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
                 roomRate = r;
-            } else if (r.getRateType() == RateType.PEAK) {
+            } else if (r.getRateType() == RateType.PEAK && ! r.isDisabled()) {
                 if (roomRate == null) {
                     roomRate = r;
                 }
-            } else if (r.getRateType() == RateType.NORMAL) {
+            } else if (r.getRateType() == RateType.NORMAL && ! r.isDisabled()) {
                 if (roomRate == null) {
                     roomRate = r;
                 }

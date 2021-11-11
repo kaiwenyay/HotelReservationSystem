@@ -102,7 +102,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
     
     @Override
     public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException {
-        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, false, false, true, false);
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
         Room room = new Room(roomNumber, roomStatus, null);
         Set<ConstraintViolation<Room>>constraintViolations = validator.validate(room);
         
@@ -157,7 +157,7 @@ public class RoomSessionBean implements RoomSessionBeanRemote, RoomSessionBeanLo
         
             if(constraintViolations.isEmpty()) {
                 Room roomToUpdate = retrieveRoomById(room.getRoomId());
-                RoomType roomTypeToUpdate = roomTypeSessionBean.retrieveRoomTypeById(room.getRoomType().getRoomTypeId(), false, false, true, false);
+                RoomType roomTypeToUpdate = roomTypeSessionBean.retrieveRoomTypeById(room.getRoomType().getRoomTypeId());
 
                 if (roomToUpdate.getRoomNumber().equals(room.getRoomNumber())) {
                     roomToUpdate.setRoomNumber(room.getRoomNumber());

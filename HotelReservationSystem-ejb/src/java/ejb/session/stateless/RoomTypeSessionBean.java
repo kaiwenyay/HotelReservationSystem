@@ -15,13 +15,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
-import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -165,15 +165,30 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, InputDataValidationException {
+    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, InputDataValidationException, UnknownPersistenceException {
         
         if(roomType != null && roomType.getRoomTypeId()!= null) {
             Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
             if(constraintViolations.isEmpty()) {
-
-                em.merge(roomType);
+                try {
+                
+                em.persist(roomType);
                 em.flush();
+                
+                } catch (PersistenceException e) {
+                    if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+
+                        if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                            throw new InvalidRoomTypeException(String.format("Room type with name %s already exists.", roomType.getName()));
+                        } else {
+                            throw new UnknownPersistenceException(e.getMessage());
+                        }
+
+                    } else {
+                        throw new UnknownPersistenceException(e.getMessage());
+                    }
+                }
                 if (roomType.getNextHigherRoomType() != null) {
                     RoomType nextHigherRoomType = retrieveRoomTypeById(roomType.getNextHigherRoomType().getRoomTypeId());
                     nextHigherRoomType.setNextLowerRoomType(roomType);

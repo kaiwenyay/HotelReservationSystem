@@ -281,8 +281,6 @@ public class HotelOperationModule {
             roomType.setBedCapacity(integerInput);
         }
         
-        sc.nextLine();
-        
         System.out.print("Enter Amenities (blank if no change): ");
         input = sc.nextLine();
         if (input.length() > 0) {
@@ -293,7 +291,7 @@ public class HotelOperationModule {
         
         while (true) {
             
-            System.out.print("Enter Next Higher Room Type ID (0 if no change)> ");
+            System.out.print("Enter Next Higher Room Type ID (0 if no change): ");
             nextHigherRoomTypeId = sc.nextLong();
             
             if (nextHigherRoomTypeId > 0) {
@@ -314,7 +312,7 @@ public class HotelOperationModule {
         }
         
         while (true) {        
-            System.out.print("Enter Next Lower Room Type ID (0 if no change)> ");
+            System.out.print("Enter Next Lower Room Type ID (0 if no change): ");
             nextLowerRoomTypeId = sc.nextLong();    
             if (nextLowerRoomTypeId > 0) {        
                 try {
@@ -338,7 +336,9 @@ public class HotelOperationModule {
             } catch (InputDataValidationException e) {
                 System.out.println(e.getMessage() + "\n");
             } catch (InvalidRoomTypeException e) {
-                System.out.println("An error has occured while creating the room type: " + e.getMessage());
+                System.out.println("An error has occured while updating the room type: " + e.getMessage());
+            } catch (UnknownPersistenceException e) {
+                System.out.println("An unknown error has occured while updating the room type: " + e.getMessage());
             }
         }
         else {
@@ -350,7 +350,7 @@ public class HotelOperationModule {
         Scanner scanner = new Scanner(System.in);     
         String input;
         
-        System.out.printf("Confirm Room Type %s (ID: %s) (Enter 'Y' to Delete)> ", roomType.getName(), roomType.getRoomTypeId());
+        System.out.printf("Confirm Room Type %s (ID: %s) (Enter 'Y' to Delete): ", roomType.getName(), roomType.getRoomTypeId());
         input = scanner.nextLine().trim();
         
         if(input.toLowerCase().equals("y")) {
@@ -697,8 +697,12 @@ public class HotelOperationModule {
             try {
                 RoomRate roomRate = roomRateSessionBean.createRoomRate(name, roomTypeId, rateType, ratePerNight, validFrom, validTo);
                 System.out.println(String.format("Successfully created room type %s!\n", roomRate.getName()));
-            } catch (InvalidRoomTypeException | InvalidRoomRateException | UnknownPersistenceException | InputDataValidationException e) {
-                System.out.println("Error: " + e.toString());
+            } catch (InputDataValidationException e) {
+                System.out.println(e.getMessage() + "\n");
+            } catch (InvalidRoomRateException | InvalidRoomTypeException e) {
+                System.out.println("An error has occured while creating the room rate: " + e.getMessage());
+            } catch (UnknownPersistenceException e) {
+                System.out.println("An unknown error has occured while updating the room type: " + e.getMessage());
             }
         } else {
             showInputDataValidationErrorsForRoomRate(constraintViolations);
