@@ -48,12 +48,12 @@ public class RoomType implements Serializable {
     
     @Column(nullable = false, unique = true, length = 24)
     @NotNull
-    @Size(min = 1, max = 24)
+    @Size(min = 2, max = 24)
     private String name;
     
     @Column(nullable = false, length = 128)
     @NotNull
-    @Size(min = 1, max = 128)
+    @Size(min = 2, max = 128)
     private String description;
     
     @Column(nullable = false)
@@ -68,7 +68,7 @@ public class RoomType implements Serializable {
     
     @Column(nullable = false)
     @NotNull
-    @Size(min = 1, max = 128)
+    @Size(min = 2, max = 128)
     private String amenities;
     
     @Column(nullable = false)

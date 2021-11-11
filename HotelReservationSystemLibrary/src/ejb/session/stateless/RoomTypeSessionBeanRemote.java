@@ -27,7 +27,13 @@ public interface RoomTypeSessionBeanRemote {
 
     public RoomType retrieveRoomTypeById(Long roomTypeId) throws InvalidRoomTypeException;
     
-    public RoomType retrieveRoomTypeById(Long roomTypeId, boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) throws InvalidRoomTypeException;
+    public RoomType retrieveRoomTypeById(
+            Long roomTypeId, 
+            boolean fetchNextHigherRoomType, 
+            boolean fetchNextLowerRoomType, 
+            boolean fetchRooms, 
+            boolean fetchRoomRates
+    ) throws InvalidRoomTypeException;
 
     public RoomType createRoomType(
              String name, 
@@ -39,7 +45,7 @@ public interface RoomTypeSessionBeanRemote {
 
     public List<RoomType> retrieveAllRoomTypes(boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates);
 
-    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException;
+    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, InputDataValidationException;
 
     public boolean deleteRoomType(Long productId) throws InvalidRoomTypeException;
     

@@ -60,10 +60,6 @@ public class Room implements Serializable {
     
     @Column(nullable = false)
     @NotNull
-    private String enumQueryString;
-    
-    @Column(nullable = false)
-    @NotNull
     private boolean disabled;
     
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -80,7 +76,6 @@ public class Room implements Serializable {
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
         this.roomType = roomType;
-        this.enumQueryString = roomStatus.toString();
     }
 
     public Long getRoomId() {

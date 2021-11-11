@@ -92,7 +92,7 @@ public class AllocationExceptionReportSessionBean implements AllocationException
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     
                     if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                        throw new InvalidReportException("Error.");
+                        throw new InvalidReportException(String.format("Allocation exception report for %s already exists.", day));
                     } else {
                         throw new UnknownPersistenceException(e.getMessage());
                     }

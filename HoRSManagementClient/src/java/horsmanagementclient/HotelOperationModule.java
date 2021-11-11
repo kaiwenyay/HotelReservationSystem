@@ -148,22 +148,26 @@ public class HotelOperationModule {
     }
 
     private void doCreateNewRoomType() {
+        
         StaffRole staffRole = currentEmployee.getStaffRole();
         if (staffRole == StaffRole.SALES || staffRole == StaffRole.GUEST_RELATIONS) {
             System.out.println("You don't have ADMIN or OPERATIONS rights to perform this operation.");
             return;
         }
+        
         Scanner sc = new Scanner(System.in);
         
         System.out.print("Enter Name> ");
         String name = sc.nextLine();
-        System.out.print("Enter Description> ");
+        System.out.print("Enter Description: ");
         String description = sc.nextLine();
         System.out.print("Enter Size: ");
         Integer size = sc.nextInt();
         System.out.print("Enter Bed Capacity: ");
         Integer bedCapacity = sc.nextInt();
+        
         sc.nextLine();
+        
         System.out.print("Enter Amenities (Input all in one line): ");
         String amenities = sc.nextLine();
         
@@ -173,10 +177,13 @@ public class HotelOperationModule {
             try {
                 RoomType roomType = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities);
                 System.out.println(String.format("Successfully created room type %s!\n", roomType.getName()));
-            } catch (InvalidRoomTypeException | UnknownPersistenceException | InputDataValidationException e) {
-                System.out.println("Error: " + e.toString());
+            } catch (InputDataValidationException e) {
+                System.out.println(e.getMessage() + "\n");
+            } catch (InvalidRoomTypeException e) {
+                System.out.println("An error has occured while creating the room type: " + e.getMessage());
+            } catch (UnknownPersistenceException e) {
+                System.out.println("An unknown error has occured while creating the room type: " + e.getMessage());
             }
-        } else {
             showInputDataValidationErrorsForRoomType(constraintViolations);
         }
     }
@@ -192,7 +199,7 @@ public class HotelOperationModule {
         Scanner sc = new Scanner(System.in);
         Integer response = 0;
         
-        System.out.print("Enter Room Type ID> ");
+        System.out.print("Enter Room Type ID: ");
         Long roomTypeId = sc.nextLong();
         
         try {
@@ -235,8 +242,9 @@ public class HotelOperationModule {
             } else if(response == 2) {
                 doDeleteRoomType(roomType);
             }
+            
         } catch(InvalidRoomTypeException e) {
-            System.out.println("Error: " + e.toString());
+            System.out.println("An error occured while retrieving the room type: " + e.toString());
         }
     }
     
@@ -261,15 +269,15 @@ public class HotelOperationModule {
             roomType.setDescription(input);
         }
         
-        System.out.print("Enter Size (negative number if no change): ");
+        System.out.print("Enter Size (0 if no change): ");
         integerInput = sc.nextInt();
-        if(integerInput >= 0) {
+        if(integerInput > 0) {
             roomType.setSize(integerInput);
         }
         
-        System.out.print("Enter Bed Capacity (negative number if no change): ");
+        System.out.print("Enter Bed Capacity (0 if no change): ");
         integerInput = sc.nextInt();
-        if(integerInput >= 0) {
+        if(integerInput > 0) {
             roomType.setBedCapacity(integerInput);
         }
         
@@ -284,32 +292,38 @@ public class HotelOperationModule {
         sc.nextLine();
         
         while (true) {
+            
             System.out.print("Enter Next Higher Room Type ID (0 if no change)> ");
             nextHigherRoomTypeId = sc.nextLong();
+            
             if (nextHigherRoomTypeId > 0) {
+                
                 try {
+                    
                     nextHigherRoomType = roomTypeSessionBean.retrieveRoomTypeById(nextHigherRoomTypeId);
                     roomType.setNextHigherRoomType(nextHigherRoomType);
+                    
                     break;
                 } catch (InvalidRoomTypeException e) {
-                    System.out.println("Error: " + e.toString());
+                    System.out.println("An error occured whlie retrieving the room type: " + e.getMessage());
                 }
+                
             } else {
                 break;
             }
         }
         
-        while (true) {
+        while (true) {        
             System.out.print("Enter Next Lower Room Type ID (0 if no change)> ");
-            nextLowerRoomTypeId = sc.nextLong();
-            if (nextLowerRoomTypeId > 0) {
+            nextLowerRoomTypeId = sc.nextLong();    
+            if (nextLowerRoomTypeId > 0) {        
                 try {
                     nextLowerRoomType = roomTypeSessionBean.retrieveRoomTypeById(nextLowerRoomTypeId);
                     roomType.setNextLowerRoomType(nextLowerRoomType);
                     break;
                 } catch (InvalidRoomTypeException e) {
-                    System.out.println("Error: " + e.toString());
-                }
+                    System.out.println("An error occured whlie retrieving the room type: " + e.getMessage());
+                } 
             } else {
                 break;
             }
@@ -321,9 +335,10 @@ public class HotelOperationModule {
             try {
                 roomTypeSessionBean.updateRoomType(roomType);
                 System.out.println("Room Type updated successfully!\n");
-            }
-            catch (InvalidRoomTypeException | UpdateRoomTypeException | InputDataValidationException e) {
-                System.out.println("Error: " + e.toString());
+            } catch (InputDataValidationException e) {
+                System.out.println(e.getMessage() + "\n");
+            } catch (InvalidRoomTypeException e) {
+                System.out.println("An error has occured while creating the room type: " + e.getMessage());
             }
         }
         else {
@@ -348,7 +363,7 @@ public class HotelOperationModule {
                 }
             } 
             catch (InvalidRoomTypeException e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println("An error has occured while retrieveing the room type: " + e.toString());
             }
         } else {
             System.out.println("Room Type NOT deleted!\n");
@@ -426,6 +441,7 @@ public class HotelOperationModule {
         
         System.out.print("Enter Room Type ID: ");
         Long roomTypeId = sc.nextLong();
+        
         RoomType roomType = null;
         try {
             roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
@@ -433,6 +449,7 @@ public class HotelOperationModule {
             System.out.println("Error: " + e.toString());
             return;
         }
+        
         Set<ConstraintViolation<Room>> constraintViolations = validator.validate(new Room(roomNumber, roomStatus, roomType));
         
         if (constraintViolations.isEmpty()) {

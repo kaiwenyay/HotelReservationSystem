@@ -42,12 +42,12 @@ public abstract class User implements Serializable {
     
     @Column(nullable = false, length = 32, unique = true)
     @NotNull
-    @Size(min = 1, max = 32)
+    @Size(min = 8, max = 32)
     private String username;
     
-    @Column(nullable = false)
+    @Column(nullable = false, length = 32)
     @NotNull
-    @Size(min = 8)
+    @Size(min = 8, max = 32)
     private String password;
 
     @OneToMany(mappedBy = "user")

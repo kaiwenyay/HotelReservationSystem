@@ -50,7 +50,7 @@ public class RoomRate implements Serializable {
     
     @Column(nullable = false, unique = true, length = 24)
     @NotNull
-    @Size(min = 1, max = 24)
+    @Size(min = 2, max = 24)
     private String name;
     
     @Column(nullable = false)
@@ -58,10 +58,10 @@ public class RoomRate implements Serializable {
     @NotNull
     private RateType rateType;
     
-    @Column(nullable = false, precision = 6, scale = 2)
+    @Column(nullable = false, precision = 7, scale = 2)
     @NotNull
     @Positive
-    @Digits(integer = 6, fraction = 2)
+    @Digits(integer = 5, fraction = 2)
     private BigDecimal ratePerNight;
     
     @Column(nullable = false)
