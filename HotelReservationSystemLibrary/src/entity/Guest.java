@@ -30,7 +30,7 @@ public class Guest extends User implements Serializable {
     
     @Column(nullable = false, length = 64)
     @NotNull
-    @Size(min = 2, max = 32)
+    @Size(min = 2, max = 64)
     private String name;
 
     public Guest() {

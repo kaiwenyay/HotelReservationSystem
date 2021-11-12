@@ -52,4 +52,6 @@ public interface ReservationSessionBeanLocal {
     public List<Reservation> retrieveReservationsByCheckOutDate(LocalDate checkOutDate);
 
     public List<Reservation> retrieveReservationsByCheckOutDate(LocalDate checkOutDate, boolean fetchReservationItems, boolean fetchUser, boolean fetchItemRoom);
+
+    public void allocateRoom(Reservation reservation) throws InvalidRoomException;
 }

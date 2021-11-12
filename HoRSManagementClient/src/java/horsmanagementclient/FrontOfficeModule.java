@@ -18,6 +18,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -26,6 +28,7 @@ import util.enumeration.InvalidStaffRoleException;
 import util.enumeration.RateType;
 import util.enumeration.StaffRole;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidReportException;
 import util.exception.InvalidReservationException;
 import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
@@ -106,6 +109,7 @@ public class FrontOfficeModule {
     }
 
     private void doWalkInSearchRoom() {
+        
         Scanner sc = new Scanner(System.in);
         String input;
         LocalDate checkInDate;
@@ -126,21 +130,27 @@ public class FrontOfficeModule {
         List<RoomType> availableRoomTypes = reservationManagerSessionBean.searchRooms(checkInDate, checkOutDate, noOfRooms);
         
         System.out.println("Please select your desired room type by entering the respective number.\n");
-        System.out.printf("%8s%20s%20s%20s%20s\n", "No.", "Room Type", "Vacancies", "Rate Type", "Rate Per Night");
+        System.out.printf("%8s%20s%20s%20s\n", "No.", "Room Type", "Vacancies", "Rate Per Night");
+        
         RoomType roomType;
         RoomRate roomRate = null;
         for (int i = 0; i < availableRoomTypes.size(); i++) {
+            
             roomType = availableRoomTypes.get(i);
             List<RoomRate> roomRates = roomType.getRoomRates();
+            
             for (RoomRate r: roomRates) {
                 if (r.getRateType() == RateType.PUBLISHED && ! r.isDisabled()) {
                     roomRate = r;
                     break;
                 }
             }
-            System.out.printf("%8s%20s%20s%20s%20s\n", i + 1, roomType.getName(), roomType.getTotalRooms(), roomRate.getRateType(), roomRate.getRatePerNight());
+            
+            System.out.printf("%8s%20s%20s%20s\n", i + 1, roomType.getName(), roomType.getTotalRooms(), roomRate.getRatePerNight());
+            
         }
         System.out.print(">");
+        
         response = sc.nextInt();
         
         if (response < 1 || response > availableRoomTypes.size()) {
@@ -154,11 +164,15 @@ public class FrontOfficeModule {
         
         sc.nextLine(); 
         
-        System.out.println(String.format("For one room, you will be charged a %s rate of $%s per night for %s nights", 
+        System.out.println(String.format("For one %s from %s to %s, you will be charged a %s rate of $%s per night for %s nights", 
+                roomType.getName(),
+                checkInDate,
+                checkOutDate,
                 roomRate.getRateType().toString(), 
                 roomRate.getRatePerNight().toString(), 
                 nights)
         );
+        
         BigDecimal subTotal = roomRate.getRatePerNight().multiply(new BigDecimal(nights));
         BigDecimal totalAmount = subTotal.multiply(new BigDecimal(noOfRooms));
         System.out.print(String.format("Proceed to book %s rooms for a total of $%s? Type 'Y' to proceed: ", noOfRooms, totalAmount));
@@ -172,15 +186,26 @@ public class FrontOfficeModule {
     private void doWalkInReserveRoom(Integer noOfRooms, RoomType roomType, BigDecimal subTotal, LocalDate checkInDate, LocalDate checkOutDate) {
         
         System.out.println();
-        for (Integer i = 0; i < noOfRooms; i++) {
-            try {
-                reservationManagerSessionBean.addReservationItem(subTotal, roomType.getName());
-            } catch (InvalidRoomTypeException | InputDataValidationException e) {
-                System.out.println("An error has occured while reserving the rooms: " + e.getMessage() + "\n");
-                return;
+        
+        for (int i = 0; i < noOfRooms; i++) {
+            
+            ReservationItem reservationItem = new ReservationItem(subTotal);
+            Set<ConstraintViolation<ReservationItem>> constraintViolations = validator.validate(reservationItem);
+                
+            if (constraintViolations.isEmpty()) {
+                try {
+                    reservationManagerSessionBean.addReservationItem(subTotal, roomType.getName());
+                } catch (InvalidRoomTypeException | InputDataValidationException e) {
+                    System.out.println("An error has occured while reserving the rooms: " + e.getMessage() + "\n");
+                    return;
+                }
+            } else {
+                showInputDataValidationErrorsForReservationItem(constraintViolations);
             }
         }
+        
         Reservation reservation;
+        
         try {
             reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), checkInDate, checkOutDate);
             System.out.println(String.format("Reservation successful! Your reservation ID is %s.\n", reservation.getReservationId()));
@@ -240,80 +265,86 @@ public class FrontOfficeModule {
 //        } 
 //    }
     
-    private void doReserveRoom(Integer quantity, Long nights, RoomType roomType, LocalDate checkInDate, LocalDate checkOutDate) {
-        Scanner sc = new Scanner(System.in);
-        
-        List<RoomRate> roomRates = roomType.getRoomRates();
-        RoomRate roomRate = null;
-        for (RoomRate r: roomRates) {
-            if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
-                LocalDate validFrom = r.getValidFrom().minusDays(1l);
-                LocalDate validTo = r.getValidTo().plusDays(1l);
-                LocalDate now = LocalDate.now();
-                if (validFrom.isBefore(now) && validTo.isAfter(now)) {
-                    roomRate = r;
-                }
-            } else if (r.getRateType() == RateType.PEAK && ! r.isDisabled()) {
-                if (roomRate == null) {
-                    LocalDate validFrom = r.getValidFrom().minusDays(1l);
-                    LocalDate validTo = r.getValidTo().plusDays(1l);
-                    LocalDate now = LocalDate.now();
-                    if (validFrom.isBefore(now) && validTo.isAfter(now)) {
-                        roomRate = r;
-                    }
-                }
-            } else if (r.getRateType() == RateType.NORMAL && ! r.isDisabled()) {
-                if (roomRate == null) {
-                    roomRate = r;
-                }
-            }
-        }
-        System.out.println(String.format("For one room, you will be charged a %s rate of %s per night for %s nights", 
-                roomRate.getRateType().toString(), 
-                roomRate.getRatePerNight().toString(), 
-                nights)
-        );
-        BigDecimal subTotal = roomRate.getRatePerNight().multiply(new BigDecimal(nights));
-        BigDecimal totalAmount = subTotal.multiply(new BigDecimal(quantity));
-        System.out.print(String.format("Proceed to book %s rooms for a total of %s? Type 'Y' to proceed: ", quantity, totalAmount));
-        
-        String response = sc.nextLine();
-        if (response.toLowerCase().equals("y")) {
-            for (Integer i = 0; i < quantity; i++) {
-                try {
-                    reservationManagerSessionBean.addReservationItem(subTotal, roomType.getName());
-                } catch (InvalidRoomTypeException | InputDataValidationException e) {
-                    System.out.println("Error: " + e.toString());
-                    return;
-                }
-            }
-            Reservation reservation;
-            try {
-                reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), checkInDate, checkOutDate);
-            } catch (InvalidRoomException | InvalidUserException | InvalidReservationException | UnknownPersistenceException | InputDataValidationException e) {
-                System.out.println("Error: " + e.toString());
-                return;
-            }
-            
-        }
-        System.out.println("Reservation successful!\n");
-    }
+//    private void doReserveRoom(Integer quantity, Long nights, RoomType roomType, LocalDate checkInDate, LocalDate checkOutDate) {
+//        Scanner sc = new Scanner(System.in);
+//        
+//        List<RoomRate> roomRates = roomType.getRoomRates();
+//        RoomRate roomRate = null;
+//        for (RoomRate r: roomRates) {
+//            if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
+//                LocalDate validFrom = r.getValidFrom().minusDays(1l);
+//                LocalDate validTo = r.getValidTo().plusDays(1l);
+//                LocalDate now = LocalDate.now();
+//                if (validFrom.isBefore(now) && validTo.isAfter(now)) {
+//                    roomRate = r;
+//                }
+//            } else if (r.getRateType() == RateType.PEAK && ! r.isDisabled()) {
+//                if (roomRate == null) {
+//                    LocalDate validFrom = r.getValidFrom().minusDays(1l);
+//                    LocalDate validTo = r.getValidTo().plusDays(1l);
+//                    LocalDate now = LocalDate.now();
+//                    if (validFrom.isBefore(now) && validTo.isAfter(now)) {
+//                        roomRate = r;
+//                    }
+//                }
+//            } else if (r.getRateType() == RateType.NORMAL && ! r.isDisabled()) {
+//                if (roomRate == null) {
+//                    roomRate = r;
+//                }
+//            }
+//        }
+//        System.out.println(String.format("For one room, you will be charged a %s rate of %s per night for %s nights", 
+//                roomRate.getRateType().toString(), 
+//                roomRate.getRatePerNight().toString(), 
+//                nights)
+//        );
+//        BigDecimal subTotal = roomRate.getRatePerNight().multiply(new BigDecimal(nights));
+//        BigDecimal totalAmount = subTotal.multiply(new BigDecimal(quantity));
+//        System.out.print(String.format("Proceed to book %s rooms for a total of %s? Type 'Y' to proceed: ", quantity, totalAmount));
+//        
+//        String response = sc.nextLine();
+//        if (response.toLowerCase().equals("y")) {
+//            for (Integer i = 0; i < quantity; i++) {
+//                try {
+//                    reservationManagerSessionBean.addReservationItem(subTotal, roomType.getName());
+//                } catch (InvalidRoomTypeException | InputDataValidationException e) {
+//                    System.out.println("Error: " + e.toString());
+//                    return;
+//                }
+//            }
+//            Reservation reservation;
+//            try {
+//                reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), checkInDate, checkOutDate);
+//            } catch (InvalidRoomException | InvalidUserException | InvalidReservationException | UnknownPersistenceException | InputDataValidationException e) {
+//                System.out.println("Error: " + e.toString());
+//                return;
+//            }
+//            
+//        }
+//        System.out.println("Reservation successful!\n");
+//    }
     
     private void doManualAllocate() {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter allocation date: ");
+        System.out.print("Enter Allocation Date: ");
         LocalDate checkinDate = LocalDate.parse(sc.nextLine(), DateTimeFormatter.ISO_DATE);
+        
+        System.out.println();
+        
         try {
             reservationSessionBean.manualAllocateRooms(checkinDate);
-            System.out.println("Successfully allocated!");
-        } catch (Exception e) {
-            System.out.println("Error: " + e.toString());
+            System.out.println("Successfully allocated!\n");
+        } catch (InvalidRoomException | InvalidReportException | InputDataValidationException e) {
+            System.out.println("An error has occured during manual allocation: " + e.getMessage() + "\n");
+        } catch (UnknownPersistenceException e) {
+            System.out.println("An unknown error has occured during manual allocation: " + e.getMessage() + "\n");
         }
     }
     private void doCheckInGuest() {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter Reservation ID: ");
         Long reservationId = sc.nextLong();
+        
         Reservation reservation;
         try {
             reservation = reservationSessionBean.retrieveReservationById(reservationId, false, true, true, true);
@@ -321,15 +352,20 @@ public class FrontOfficeModule {
             System.out.println("An error occured while retrieving the reservation: " + e.getMessage());
             return;
         }
+        
         List<ReservationItem> items = reservation.getReservationItems();
         for (ReservationItem i : items) {
+            
             if (i.getAllocationExceptionType() == AllocationExceptionType.NO_EXCEPTION) {
+                
                 System.out.println(String.format("Item %s: Booked 1 %s, successfully allocated room %s.",
                         i.getReservationItemId(), 
                         i.getReservedRoomType().getName(), 
                         i.getAllocatedRoom().getRoomNumber()
                 ));
+                
             } else if (i.getAllocationExceptionType() == AllocationExceptionType.TYPE_ONE) {
+                
                 System.out.println(String.format("Item %s: Originally booked 1 %s, due to a lack of vacant %ss, "
                         + "we have upgraded your room type at no additional cost and allocated you room %s.",
                         i.getReservationItemId(),
@@ -337,6 +373,7 @@ public class FrontOfficeModule {
                         i.getReservedRoomType().getName(),
                         i.getAllocatedRoom().getRoomNumber()
                 ));
+                
             } else {
                 System.out.println(String.format("Item %s: Unfortunately, we are overbooked and we could not allocated you any rooms.", i.getReservationItemId()));
             }
@@ -349,6 +386,7 @@ public class FrontOfficeModule {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter Reservation ID: ");
         Long reservationId = sc.nextLong();
+        
         Reservation reservation;
         try {
             reservation = reservationSessionBean.retrieveReservationById(reservationId, false, true, true, true);
@@ -356,11 +394,22 @@ public class FrontOfficeModule {
             System.out.println("An error occured while retrieving the reservation: " + e.getMessage());
             return;
         }
+        
         List<ReservationItem> items = reservation.getReservationItems();
         for (ReservationItem i : items) {
             System.out.println(String.format("Successfully checked out of room %s", i.getAllocatedRoom().getRoomNumber()));
         }
         System.out.println();
         System.out.println("Thank you for staying with us. Have a nice day!\n");
+    }
+    
+    private void showInputDataValidationErrorsForReservationItem(Set<ConstraintViolation<ReservationItem>> constraintViolations) {
+        System.out.println("\nInput data validation error!:");
+
+        for (ConstraintViolation constraintViolation : constraintViolations) {
+            System.out.println("\t" + constraintViolation.getPropertyPath() + " - " + constraintViolation.getInvalidValue() + "; " + constraintViolation.getMessage());
+        }
+
+        System.out.println("\nPlease try again......\n");
     }
 }

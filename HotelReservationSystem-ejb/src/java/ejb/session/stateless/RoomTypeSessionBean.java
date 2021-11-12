@@ -56,6 +56,35 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
+    public RoomType retrieveRoomTypeByName (
+            String name,
+            boolean fetchNextHigherRoomType, 
+            boolean fetchNextLowerRoomType, 
+            boolean fetchRooms, 
+            boolean fetchRoomRates
+    ) throws InvalidRoomTypeException {
+        
+        RoomType roomType = retrieveRoomTypeByName(name);     
+        if(roomType != null) {
+            if (fetchNextHigherRoomType) {
+                roomType.getNextHigherRoomType();
+            }
+            if (fetchNextLowerRoomType) {
+                roomType.getNextLowerRoomType();
+            }
+            if (fetchRooms) {
+                roomType.getRooms().size();
+            }
+            if (fetchRoomRates) {
+                roomType.getRoomRates().size();
+            }
+            return roomType;
+        } else {
+            throw new InvalidRoomTypeException("Room type with name" + name + " does not exist!");
+        }               
+    }
+    
+    @Override
     public RoomType retrieveRoomTypeById(Long roomTypeId) throws InvalidRoomTypeException {
         RoomType roomType = em.find(RoomType.class, roomTypeId);     
         if(roomType != null) {
@@ -93,6 +122,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             throw new InvalidRoomTypeException("Room type " + roomTypeId + " does not exist!");
         }               
     }
+    
     @Override
     public RoomType createRoomType(
             String name, 

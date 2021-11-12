@@ -50,5 +50,7 @@ public interface RoomTypeSessionBeanRemote {
     public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, InputDataValidationException, UnknownPersistenceException;
 
     public boolean deleteRoomType(Long productId) throws InvalidRoomTypeException;
+
+    public RoomType retrieveRoomTypeByName(String name, boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) throws InvalidRoomTypeException;
     
 }

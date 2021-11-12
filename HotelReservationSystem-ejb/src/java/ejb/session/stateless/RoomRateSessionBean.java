@@ -57,8 +57,21 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
                     .getSingleResult();
             return roomRate;
         } catch (NoResultException e) {
-            throw new InvalidRoomRateException(String.format("Room rate with name %s does not exist.", name));
+            throw new InvalidRoomRateException("Room Rate " + name + " does not exist!");
         }
+    }
+    
+    @Override
+    public RoomRate retrieveRoomRateByName(String name, boolean fetchRoomType) throws InvalidRoomRateException {
+        RoomRate roomRate = retrieveRoomRateByName(name);     
+        if(roomRate != null) {
+            if (fetchRoomType) {
+                roomRate.getRoomType();
+            }
+            return roomRate;
+        } else {
+            throw new InvalidRoomRateException("Room Rate " + name + " does not exist!");
+        }               
     }
     
     @Override
@@ -95,6 +108,48 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
     ) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
         
         RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
+        
+        RoomRate roomRate = new RoomRate(name, rateType, ratePerNight, validityFrom, validityTo);
+        Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+                
+                em.persist(roomRate);
+                roomRate.setRoomType(roomType);
+                em.flush();
+                
+            } catch (PersistenceException e) {
+                if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    
+                    if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new InvalidRoomRateException(String.format("Room Rate with name %s already exists.", name));
+                    } else {
+                        throw new UnknownPersistenceException(e.getMessage());
+                    }
+                    
+                } else {
+                    throw new UnknownPersistenceException(e.getMessage());
+                }
+            }
+        } else {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }
+        
+        return roomRate;
+    }
+    
+    @Override
+    public RoomRate createRoomRate(
+            String name, 
+            String roomTypeName, 
+            RateType rateType, 
+            BigDecimal ratePerNight, 
+            LocalDate validityFrom, 
+            LocalDate validityTo
+    ) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
+        
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeByName(roomTypeName);
         
         RoomRate roomRate = new RoomRate(name, rateType, ratePerNight, validityFrom, validityTo);
         Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);

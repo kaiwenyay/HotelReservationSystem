@@ -53,5 +53,9 @@ public interface RoomRateSessionBeanRemote {
     public boolean deleteRoomRate(Long roomRateId) throws InvalidRoomRateException;
 
     public RoomRate retrieveRoomRateById(Long roomRateId, boolean fetchRoomType) throws InvalidRoomRateException;
+
+    public RoomRate createRoomRate(String name, String roomTypeName, RateType rateType, BigDecimal ratePerNight, LocalDate validityFrom, LocalDate validityTo) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException;
+
+    public RoomRate retrieveRoomRateByName(String name, boolean fetchRoomType) throws InvalidRoomRateException;
     
 }

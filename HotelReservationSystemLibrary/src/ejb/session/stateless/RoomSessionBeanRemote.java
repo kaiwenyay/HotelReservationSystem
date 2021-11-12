@@ -23,7 +23,7 @@ import util.exception.UpdateRoomException;
 @Remote
 public interface RoomSessionBeanRemote {
 
-    public Room retrieveRoomByName(String roomNumber) throws InvalidRoomException;
+    public Room retrieveRoomByRoomNumber(String roomNumber) throws InvalidRoomException;
 
     public Room createRoom(String roomNumber, RoomStatus roomStatus, Long roomTypeId) throws InvalidRoomTypeException, InvalidRoomException, UnknownPersistenceException, InputDataValidationException;
 
@@ -36,5 +36,7 @@ public interface RoomSessionBeanRemote {
     public Room retrieveFirstAvailableRoomByRoomType(RoomType roomType) throws InvalidRoomException;
 
     public Room retrieveRoomById(Long roomId, boolean fetchRoomType, boolean fetchRoomTypeRooms) throws InvalidRoomException;
+
+    public Room retrieveRoomByRoomNumber(String roomNumber, boolean fetchRoomType, boolean fetchRoomTypeRooms) throws InvalidRoomException;
     
 }

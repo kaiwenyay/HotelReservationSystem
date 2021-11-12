@@ -56,6 +56,12 @@ public class ReservationItem implements Serializable {
     public ReservationItem() {
         allocationExceptionType = AllocationExceptionType.NO_EXCEPTION;
     }
+    
+    public ReservationItem(BigDecimal subTotal) {
+        this();
+        
+        this.subTotal = subTotal;
+    }
 
     public ReservationItem(BigDecimal subTotal, RoomType reservedRoomType) {
         this();

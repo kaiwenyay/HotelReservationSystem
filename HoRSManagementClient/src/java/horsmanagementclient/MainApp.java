@@ -89,16 +89,16 @@ public class MainApp {
             } else if (response == 2) {
                 break;
             } else {
-                System.out.println("Invalid option.");
+                System.out.println("Invalid option.\n");
             }
         }
     }
     
     public void doLogin() throws InvalidEmployeeException, InvalidCredentialsException {
         Scanner sc = new Scanner(System.in);
-        System.out.print("Enter username: ");
+        System.out.print("Enter Username: ");
         String username = sc.nextLine();
-        System.out.print("Enter password: ");
+        System.out.print("Enter Password: ");
         String password = sc.nextLine();
         currentEmployee = employeeSessionBean.employeeLogin(username, password);
         System.out.println();
@@ -132,8 +132,7 @@ public class MainApp {
                     System.out.println("Invalid option.");
                 }
             } catch (InvalidStaffRoleException e) {
-                System.out.println("Error: " + e.toString());
-                System.out.println("Please try again.");
+                System.out.println("You do not have permission to access the selected module.\n");
             }
         }
     }

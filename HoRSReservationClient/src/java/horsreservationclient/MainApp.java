@@ -164,6 +164,8 @@ public class MainApp {
         System.out.print("Enter Name: ");
         String name = sc.nextLine();
         Set<ConstraintViolation<Guest>> constraintViolations = validator.validate(new Guest(email, password, name));
+        
+        System.out.println();
 
         if (constraintViolations.isEmpty()) {
             try {
@@ -301,6 +303,8 @@ public class MainApp {
 
     public void reserveHotelRoom(Integer noOfRooms, RoomType roomType, BigDecimal subTotal, LocalDate checkInDate, LocalDate checkOutDate) {
       
+        System.out.println();
+        
         Reservation reservation = null;
         for (Integer i = 0; i < noOfRooms; i++) {
             try {
@@ -322,7 +326,7 @@ public class MainApp {
     public void viewMyReservationDetails() {
         Scanner sc = new Scanner(System.in);
         
-        System.out.println("Enter the reservation ID to view details: ");
+        System.out.print("Enter the reservation ID to view details: ");
         
         Long response = sc.nextLong();
         
@@ -349,7 +353,7 @@ public class MainApp {
             }
         }
         if(isValid) {
-            System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+            System.out.printf("%8s%20s%35s%20s%20s%20s%30s\n", 
                         "ID",  
                         "Reservation Status",
                         "Reserved Room Type",
@@ -358,7 +362,7 @@ public class MainApp {
                         "Check-Out Date",
                         "Reservation Date Time"
             );
-            System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+            System.out.printf("%8s%20s%35s%20s%20s%20s%30s\n", 
                     reservation.getReservationId(),
                     reservation.getReservationStatus().toString(),
                     reservation.getReservationItems().get(0).getReservedRoomType(),
@@ -370,6 +374,8 @@ public class MainApp {
         } else {
             System.out.println("Invalid ID");
         }
+        
+        sc.nextLine();
         
         System.out.print("Press any key to continue...> ");
         sc.nextLine();
@@ -385,7 +391,7 @@ public class MainApp {
         } catch (InvalidReservationException e) {
             System.out.println("An error occured while retrieving the reservations: " + e.toString());
         }
-        System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+        System.out.printf("%8s%20s%35s%20s%20s%20s%30s\n", 
                         "ID",  
                         "Reservation Status",
                         "Reserved Room Type",
@@ -396,7 +402,7 @@ public class MainApp {
         );
         for (Reservation r : retrieveReservationsByUser) {
          
-            System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+            System.out.printf("%8s%20s%35s%20s%20s%20s%30s\n", 
                     r.getReservationId(),
                     r.getReservationStatus().toString(),
                     r.getReservationItems().get(0).getReservedRoomType(),

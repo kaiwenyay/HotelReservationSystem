@@ -48,8 +48,8 @@ public class AllocationExceptionReport implements Serializable {
         this.reservations = new ArrayList<>();
     }
 
-    public AllocationExceptionReport(LocalDate day) {
-        this.day = day;
+    public AllocationExceptionReport(LocalDate date) {
+        this.day = date;
     }
 
     public Long getAllocationExceptionReportId() {
@@ -88,15 +88,15 @@ public class AllocationExceptionReport implements Serializable {
     /**
      * @return the day
      */
-    public LocalDate getDay() {
+    public LocalDate getDate() {
         return day;
     }
 
     /**
      * @param day the day to set
      */
-    public void setDay(LocalDate day) {
-        this.day = day;
+    public void setDate(LocalDate date) {
+        this.day = date;
     }
 
     /**
