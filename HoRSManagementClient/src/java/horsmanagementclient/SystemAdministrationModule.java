@@ -98,6 +98,8 @@ public class SystemAdministrationModule {
         Integer response = 0;
         StaffRole staffRole = null;
         
+        System.out.println();
+        
         while (staffRole == null) {
             System.out.println("Please select employee's staff role.");
             System.out.println("1. System Administrator");
@@ -129,9 +131,9 @@ public class SystemAdministrationModule {
             } catch (InputDataValidationException e) {
                 System.out.println(e.getMessage() + "\n");
             } catch (InvalidEmployeeException e) {
-                System.out.println("An error has occured while creating the employee: " + e.getMessage());
+                System.out.println("An error has occured while creating the employee: " + e.getMessage() + "\n");
             } catch (UnknownPersistenceException e) {
-                System.out.println("An unknown error has occured while creating the employee: " + e.getMessage());
+                System.out.println("An unknown error has occured while creating the employee: " + e.getMessage() + "\n");
             }
         } else {
             showInputDataValidationErrorsForEmployee(constraintViolations);
@@ -164,6 +166,8 @@ public class SystemAdministrationModule {
         
         Set<ConstraintViolation<Partner>> constraintViolations = validator.validate(new Partner(username, password, partnerName));
         
+        System.out.println();
+        
         if (constraintViolations.isEmpty()) {
             try {
                 Partner partner = partnerSessionBean.createPartner(username, password, partnerName);
@@ -171,9 +175,9 @@ public class SystemAdministrationModule {
             } catch (InputDataValidationException e) {
                 System.out.println(e.getMessage() + "\n");
             } catch (InvalidPartnerException e) {
-                System.out.println("An error has occured while creating the partner: " + e.getMessage());
+                System.out.println("An error has occured while creating the partner: " + e.getMessage() + "\n");
             } catch (UnknownPersistenceException e) {
-                System.out.println("An unknown error has occured while creating the partner: " + e.getMessage());
+                System.out.println("An unknown error has occured while creating the partner: " + e.getMessage() + "\n");
             }
         } else {
             showInputDataValidationErrorsForPartner(constraintViolations);

@@ -53,8 +53,8 @@ public class GuestSessionBean implements GuestSessionBeanRemote, GuestSessionBea
     }
     
     @Override
-    public Guest createGuest(String email, String password) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException {
-        Guest guest = new Guest(email, password);
+    public Guest createGuest(String email, String password, String name) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException {
+        Guest guest = new Guest(email, password, name);
         Set<ConstraintViolation<Guest>>constraintViolations = validator.validate(guest);
         
         if (constraintViolations.isEmpty()) {

@@ -70,8 +70,9 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
         reservationItems = new ArrayList<>();
         totalAmount = new BigDecimal(0.00);
     }
-    
-    public List<RoomType> searchRooms(LocalDate checkInDate, LocalDate checkOutDate) {
+       
+    @Override
+    public List<RoomType> searchRooms(LocalDate checkInDate, LocalDate checkOutDate, Integer noOfRooms) {
         List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(false, false, false, true);
         List<Reservation> clashingReservations = reservationSessionBean.retrieveReservationsByPeriod(checkInDate, checkOutDate);
         roomTypes.forEach(x -> em.detach(x));
@@ -86,9 +87,11 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
                 }
             }
         }
+        roomTypes.removeIf(x -> x.getTotalRooms() < noOfRooms);
         return roomTypes;
     }
     
+    @Override
     public void addReservationItem(BigDecimal subTotal, String roomTypeName) throws InvalidRoomTypeException, InputDataValidationException {
         RoomType roomType = roomTypeSessionBean.retrieveRoomTypeByName(roomTypeName);
         ReservationItem reservationItem = new ReservationItem(subTotal, roomType);

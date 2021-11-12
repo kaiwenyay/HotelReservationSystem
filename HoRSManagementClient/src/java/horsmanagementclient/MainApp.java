@@ -84,8 +84,8 @@ public class MainApp {
                     frontOfficeModule = new FrontOfficeModule(currentEmployee, reservationSessionBean, reservationManagerSessionBean);
                     mainMenu();
                 } catch (InvalidEmployeeException | InvalidCredentialsException e) {
-                    System.out.println("Error: " + e.toString());
-                }
+                    System.out.println("An error occured while logging in: " + e.getMessage() + "\n");
+                } 
             } else if (response == 2) {
                 break;
             } else {

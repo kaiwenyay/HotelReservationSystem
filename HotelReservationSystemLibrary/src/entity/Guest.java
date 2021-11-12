@@ -6,9 +6,12 @@
 package entity;
 
 import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  *
@@ -24,13 +27,19 @@ import javax.persistence.NamedQuery;
 public class Guest extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
+    
+    @Column(nullable = false, length = 64)
+    @NotNull
+    @Size(min = 2, max = 32)
+    private String name;
 
     public Guest() {
         super();
     }
 
-    public Guest(String email, String password) {
+    public Guest(String email, String password, String name) {
         super(email, password);
+        this.name = name;
     }
 
     @Override
@@ -56,5 +65,19 @@ public class Guest extends User implements Serializable {
     @Override
     public String toString() {
         return "entity.Guest[ userId=" + userId + " ]";
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name the name to set
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }

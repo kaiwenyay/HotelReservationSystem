@@ -21,7 +21,7 @@ public interface GuestSessionBeanRemote {
 
     public Guest retrieveGuestByEmail(String email) throws InvalidGuestException;
     
-    public Guest createGuest(String email, String password) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException;
+    public Guest createGuest(String email, String password, String name) throws InvalidGuestException, UnknownPersistenceException, InputDataValidationException;
  
     public Guest guestLogin(String email, String password) throws InvalidGuestException, InvalidCredentialsException;
  
