@@ -40,7 +40,9 @@ public interface RoomTypeSessionBeanRemote {
              String description, 
              Integer size, 
              Integer bedCapacity, 
-             String amenities
+             String amenities,
+             String nextHigherRoomTypeName,
+             String nextLowerRoomTypeName
      ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException;
 
     public List<RoomType> retrieveAllRoomTypes(boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates);

@@ -93,7 +93,6 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             throw new InvalidRoomTypeException("Room type " + roomTypeId + " does not exist!");
         }               
     }
-    
     @Override
     public RoomType createRoomType(
             String name, 
@@ -104,14 +103,73 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
         
         RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities);
+         
+        Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
+        
+        if (constraintViolations.isEmpty()) {
+            try {
+
+                em.persist(roomType);
+                em.flush();
+                
+            } catch (PersistenceException e) {
+                if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
+                    
+                    if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                        throw new InvalidRoomTypeException(String.format("Room type with name %s already exists.", name));
+                    } else {
+                        throw new UnknownPersistenceException(e.getMessage());
+                    }
+                    
+                } else {
+                    throw new UnknownPersistenceException(e.getMessage());
+                }
+            }
+        } else {
+            throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
+        }
+        
+        return roomType;
+    }
+    
+    @Override
+    public RoomType createRoomType(
+            String name, 
+            String description, 
+            Integer size, 
+            Integer bedCapacity, 
+            String amenities,
+            String nextHigherRoomTypeName,
+            String nextLowerRoomTypeName
+    ) throws InvalidRoomTypeException, UnknownPersistenceException, InputDataValidationException {
+  
+        RoomType nextHigherRoomType = null;
+        if (nextHigherRoomTypeName != null) {
+            nextHigherRoomType = retrieveRoomTypeByName(nextHigherRoomTypeName);
+        }
+        
+        RoomType nextLowerRoomType = null;
+        if (nextLowerRoomTypeName != null) {
+            
+            nextLowerRoomType = retrieveRoomTypeByName(nextLowerRoomTypeName);
+        }
+        
+        RoomType roomType = new RoomType(name, description, size, bedCapacity, amenities, nextHigherRoomType, nextLowerRoomType);
         
         Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
         if (constraintViolations.isEmpty()) {
             try {
-                
                 em.persist(roomType);
                 em.flush();
+                
+                if (nextHigherRoomType != null) {
+                    nextHigherRoomType.setNextLowerRoomType(roomType);
+                }
+                if (nextLowerRoomType != null) {
+                    nextLowerRoomType.setNextHigherRoomType(roomType);
+                }
+                
                 
             } catch (PersistenceException e) {
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
@@ -173,7 +231,17 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             if(constraintViolations.isEmpty()) {
                 try {
                 
-                em.persist(roomType);
+                    if (roomType.getNextHigherRoomType() != null) {
+                        RoomType nextHigherRoomType = retrieveRoomTypeById(roomType.getNextHigherRoomType().getRoomTypeId());
+                        nextHigherRoomType.setNextLowerRoomType(roomType);
+                    }
+                
+                    if (roomType.getNextLowerRoomType() != null) {
+                        RoomType nextLowerRoomType = retrieveRoomTypeById(roomType.getNextLowerRoomType().getRoomTypeId());
+                        nextLowerRoomType.setNextHigherRoomType(roomType);
+                    }
+                
+                em.merge(roomType);
                 em.flush();
                 
                 } catch (PersistenceException e) {
@@ -188,14 +256,6 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                     } else {
                         throw new UnknownPersistenceException(e.getMessage());
                     }
-                }
-                if (roomType.getNextHigherRoomType() != null) {
-                    RoomType nextHigherRoomType = retrieveRoomTypeById(roomType.getNextHigherRoomType().getRoomTypeId());
-                    nextHigherRoomType.setNextLowerRoomType(roomType);
-                }
-                if (roomType.getNextLowerRoomType() != null) {
-                    RoomType nextLowerRoomType = retrieveRoomTypeById(roomType.getNextLowerRoomType().getRoomTypeId());
-                    nextLowerRoomType.setNextHigherRoomType(roomType);
                 }
                 
             } else {
