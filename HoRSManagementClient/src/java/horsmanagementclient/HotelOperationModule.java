@@ -157,7 +157,7 @@ public class HotelOperationModule {
         
         Scanner sc = new Scanner(System.in);
         
-        System.out.print("Enter Name> ");
+        System.out.print("Enter Name: ");
         String name = sc.nextLine();
         System.out.print("Enter Description: ");
         String description = sc.nextLine();
@@ -171,19 +171,33 @@ public class HotelOperationModule {
         System.out.print("Enter Amenities (Input all in one line): ");
         String amenities = sc.nextLine();
         
+        System.out.print("Enter Next Higher Room Type Name (blank if none): ");
+        String nextHigherRoomTypeName = sc.nextLine();
+        if (nextHigherRoomTypeName.length() < 1) {
+            nextHigherRoomTypeName = null;
+        }
+        
+        System.out.print("Enter Next Lower Room Type Name (blank if none): ");
+        String nextLowerRoomTypeName = sc.nextLine();
+        if (nextLowerRoomTypeName.length() < 1) {
+            nextLowerRoomTypeName = null;
+        }
+        
         Set<ConstraintViolation<RoomType>> constraintViolations = validator.validate(new RoomType(name, description, size, bedCapacity, amenities));
         
         if (constraintViolations.isEmpty()) {
             try {
-                RoomType roomType = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities);
+                RoomType roomType = roomTypeSessionBean.createRoomType(name, description, size, bedCapacity, amenities, nextHigherRoomTypeName, nextLowerRoomTypeName);
                 System.out.println(String.format("Successfully created room type %s!\n", roomType.getName()));
             } catch (InputDataValidationException e) {
+                System.out.println("here");
                 System.out.println(e.getMessage() + "\n");
             } catch (InvalidRoomTypeException e) {
                 System.out.println("An error has occured while creating the room type: " + e.getMessage());
             } catch (UnknownPersistenceException e) {
                 System.out.println("An unknown error has occured while creating the room type: " + e.getMessage());
             }
+        } else {
             showInputDataValidationErrorsForRoomType(constraintViolations);
         }
     }
@@ -204,7 +218,7 @@ public class HotelOperationModule {
         
         try {
             RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, true, true, false, true);
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
+            System.out.printf("%8s%25s%25s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     "ID", 
                     "Name", 
                     "Description", 
@@ -217,7 +231,7 @@ public class HotelOperationModule {
                     "Lower Room Type", 
                     "Room Rates"
             );
-            System.out.printf("%8s%20s%20s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
+            System.out.printf("%8s%25s%25s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     roomType.getRoomTypeId().toString(), 
                     roomType.getName(), 
                     roomType.getDescription(), 
@@ -374,7 +388,7 @@ public class HotelOperationModule {
         Scanner sc= new Scanner(System.in);
         
         List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(true, true, false, true);
-        System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%30s%30s%40s\n", 
+        System.out.printf("%8s%25s%25s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     "ID", 
                     "Name", 
                     "Description", 
@@ -391,7 +405,7 @@ public class HotelOperationModule {
 
         for(RoomType roomType : roomTypes) {
             
-            System.out.printf("%8s%20s%20s%15s%20s%20s%15s%20s%30s%30s%40s\n", 
+            System.out.printf("%8s%25s%25s%20s%20s%20s%20s%20s%20s%20s%20s\n", 
                     roomType.getRoomTypeId().toString(), 
                     roomType.getName(), 
                     roomType.getDescription(), 
@@ -593,10 +607,10 @@ public class HotelOperationModule {
         Scanner sc= new Scanner(System.in);
         
         List<Room> rooms = roomSessionBean.retrieveAllRooms(true);
-        System.out.printf("%8s%20s%20s%30s\n", "Room ID", "Room Number", "Room Status", "Room Type");
+        System.out.printf("%8s%20s%20s%35s\n", "Room ID", "Room Number", "Room Status", "Room Type");
 
         for(Room r : rooms) {
-            System.out.printf("%8s%20s%20s%30s\n", r.getRoomId().toString(), r.getRoomNumber(), r.getRoomStatus().toString(), r.getRoomType().toString());
+            System.out.printf("%8s%20s%20s%35s\n", r.getRoomId().toString(), r.getRoomNumber(), r.getRoomStatus().toString(), r.getRoomType().toString());
         }
 
         System.out.print("Press any key to continue...> ");
@@ -652,7 +666,7 @@ public class HotelOperationModule {
         
         System.out.print("Enter Name: ");
         String name = sc.nextLine();
-        System.out.print("Enter Room Type Id: ");
+        System.out.print("Enter Room Type ID: ");
         Long roomTypeId = sc.nextLong();
         RateType rateType = null;
         while (rateType == null) {
@@ -724,7 +738,7 @@ public class HotelOperationModule {
         
         try {
             RoomRate roomRate = roomRateSessionBean.retrieveRoomRateById(roomRateId, true);
-            System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+            System.out.printf("%8s%40s%40s%15s%20s%15s%15s%15s\n", 
                     "ID", 
                     "Name", 
                     "Room Type",
@@ -734,7 +748,7 @@ public class HotelOperationModule {
                     "Valid From", 
                     "Valid To"
             );
-            System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+            System.out.printf("%8s%40s%40s%15s%20s%15s%15s%15s\n", 
                     roomRate.getRoomRateId().toString(), 
                     roomRate.getName(), 
                     roomRate.getRoomType(), 
@@ -872,7 +886,7 @@ public class HotelOperationModule {
         Scanner sc = new Scanner(System.in);
         
         List<RoomRate> roomRates = roomRateSessionBean.retrieveAllRoomRates(true);
-        System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+        System.out.printf("%8s%40s%40s%15s%20s%15s%15s%15s\n", 
                 "ID", 
                 "Name", 
                 "Room Type",
@@ -885,7 +899,7 @@ public class HotelOperationModule {
 
         for(RoomRate roomRate : roomRates) {
             
-            System.out.printf("%8s%25s%25s%15s%20s%15s%15s%15s\n", 
+            System.out.printf("%8s%40s%40s%15s%20s%15s%15s%15s\n", 
                 roomRate.getRoomRateId().toString(), 
                 roomRate.getName(), 
                 roomRate.getRoomType(), 

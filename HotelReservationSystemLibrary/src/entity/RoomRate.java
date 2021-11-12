@@ -48,9 +48,9 @@ public class RoomRate implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long roomRateId;
     
-    @Column(nullable = false, unique = true, length = 24)
+    @Column(nullable = false, unique = true, length = 48)
     @NotNull
-    @Size(min = 2, max = 24)
+    @Size(min = 2, max = 48)
     private String name;
     
     @Column(nullable = false)

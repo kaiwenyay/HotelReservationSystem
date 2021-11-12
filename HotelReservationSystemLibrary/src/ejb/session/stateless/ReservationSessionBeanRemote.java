@@ -57,5 +57,6 @@ public interface ReservationSessionBeanRemote {
             boolean fetchItemRoomType,
             boolean fetchItemRoom
     ) throws InvalidReservationException;
-    
+
+    public Reservation retrieveReservationById(Long reservationId) throws InvalidReservationException;
 }

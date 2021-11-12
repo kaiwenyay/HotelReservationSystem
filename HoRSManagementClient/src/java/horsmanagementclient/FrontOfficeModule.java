@@ -241,10 +241,20 @@ public class FrontOfficeModule {
         RoomRate roomRate = null;
         for (RoomRate r: roomRates) {
             if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
-                roomRate = r;
+                LocalDate validFrom = r.getValidFrom().minusDays(1l);
+                LocalDate validTo = r.getValidTo().plusDays(1l);
+                LocalDate now = LocalDate.now();
+                if (validFrom.isBefore(now) && validTo.isAfter(now)) {
+                    roomRate = r;
+                }
             } else if (r.getRateType() == RateType.PEAK && ! r.isDisabled()) {
                 if (roomRate == null) {
-                    roomRate = r;
+                    LocalDate validFrom = r.getValidFrom().minusDays(1l);
+                    LocalDate validTo = r.getValidTo().plusDays(1l);
+                    LocalDate now = LocalDate.now();
+                    if (validFrom.isBefore(now) && validTo.isAfter(now)) {
+                        roomRate = r;
+                    }
                 }
             } else if (r.getRateType() == RateType.NORMAL && ! r.isDisabled()) {
                 if (roomRate == null) {
