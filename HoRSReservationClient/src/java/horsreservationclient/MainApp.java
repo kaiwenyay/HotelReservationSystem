@@ -192,45 +192,54 @@ public class MainApp {
         input = sc.nextLine();
         checkOutDate = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
         
+        Long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        
         System.out.print("Enter number of rooms: ");
         Integer noOfRooms = sc.nextInt();
 
         List<RoomType> availableRoomTypes = reservationManagerSessionBeanRemote.searchRooms(checkInDate, checkOutDate, noOfRooms);
         
         System.out.println("Please select your desired room type by entering the respective number.\n");
-        System.out.printf("%8s%25s%20s%20s%20s\n", "No.", "Room Type", "Vacancies", "Rate Type", "Rate Per Night");
+        System.out.printf("%8s%25s%20s%20s\n", "No.", "Room Type", "Vacancies", "Sub Total");
         RoomType roomType;
-        List<RoomRate> roomRateForEach = new ArrayList<>();
+        
+        List<BigDecimal> subTotals = new ArrayList<>();
         for (int i = 0; i < availableRoomTypes.size(); i++) {
+            BigDecimal subTotal = new BigDecimal(0);
             roomType = availableRoomTypes.get(i);
             List<RoomRate> roomRates = roomType.getRoomRates();
-            RoomRate roomRate = null;
-            for (RoomRate r: roomRates) {
-                if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
-                    LocalDate validFrom = r.getValidFrom().minusDays(1l);
-                    LocalDate validTo = r.getValidTo().plusDays(1l);
-                    System.out.println(validFrom.isBefore(checkInDate) && validTo.isAfter(checkInDate));
-                    if (validFrom.isBefore(checkInDate) && validTo.isAfter(checkInDate)) {
-                        roomRate = r;
-                    }
-                } else if (r.getRateType() == RateType.PEAK && ! r.isDisabled()) {
-                    if (roomRate == null || roomRate.getRateType() != RateType.PROMOTION) {
-                        LocalDate validFrom = r.getValidFrom().minusDays(1l);
-                        LocalDate validTo = r.getValidTo().plusDays(1l);
-                        LocalDate now = LocalDate.now();
-                        System.out.println(validFrom.isBefore(now) && validTo.isAfter(now));
-                        if (validFrom.isBefore(now) && validTo.isAfter(now)) {
-                            roomRate = r;
+            LocalDate nightCounter = checkInDate;
+            for (int j = 0; j < nights; j++) {
+                boolean foundPrevailingRate = false;
+                BigDecimal ratePerNight = new BigDecimal(0);
+                for (RoomRate r: roomRates) {
+                    if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
+                        LocalDate validFrom = r.getValidFrom();
+                        LocalDate validTo = r.getValidTo();
+                        if (validFrom.compareTo(nightCounter) <= 0 && validTo.compareTo(nightCounter) >= 0) {
+                            foundPrevailingRate = true;
+                            ratePerNight = r.getRatePerNight();
                         }
-                    }
-                } else if (r.getRateType() == RateType.NORMAL && ! r.isDisabled()) {
-                    if (roomRate == null || (roomRate.getRateType() != RateType.PROMOTION && roomRate.getRateType() != RateType.PEAK)) {
-                        roomRate = r;
+                    } 
+                    if (r.getRateType() == RateType.PEAK && ! r.isDisabled() && ! foundPrevailingRate) {
+                        LocalDate validFrom = r.getValidFrom();
+                        LocalDate validTo = r.getValidTo();
+                        if (validFrom.compareTo(nightCounter) <= 0 && validTo.compareTo(nightCounter) >= 0) {
+                            foundPrevailingRate = true;
+                            ratePerNight = r.getRatePerNight();
+                        }
+                    } 
+                    if (r.getRateType() == RateType.NORMAL && ! r.isDisabled() && ! foundPrevailingRate) {
+                        ratePerNight = r.getRatePerNight();
                     }
                 }
+                
+                nightCounter = nightCounter.plusDays(1);
+                subTotal = subTotal.add(ratePerNight);
+
             }
-            roomRateForEach.add(roomRate);
-            System.out.printf("%8s%25s%20s%20s%20s\n", i + 1, roomType.getName(), roomType.getTotalRooms(), roomRate.getRateType(), roomRate.getRatePerNight());
+            subTotals.add(subTotal);
+            System.out.printf("%8s%25s%20s%20s\n", i + 1, roomType.getName(), roomType.getTotalRooms(), subTotal);
         }
         System.out.print(">");
         response = sc.nextInt();
@@ -242,18 +251,13 @@ public class MainApp {
 
         roomType = availableRoomTypes.get(response - 1);
         
-        Long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        BigDecimal subTotal = subTotals.get(response - 1);
         
         sc.nextLine();
 
-        System.out.println(String.format("For one room, you will be charged a %s rate of %s per night for %s nights", 
-                roomRateForEach.get(response - 1).getRateType().toString(), 
-                roomRateForEach.get(response - 1).getRatePerNight().toString(), 
-                nights)
-        );
-        BigDecimal subTotal = roomRateForEach.get(response - 1).getRatePerNight().multiply(new BigDecimal(nights));
+        System.out.println(String.format("For one %s from %s to %s, you will be charged $%s for %s nights", roomType.getName(), checkInDate, checkOutDate, subTotal, nights));
         BigDecimal totalAmount = subTotal.multiply(new BigDecimal(noOfRooms));
-        System.out.print(String.format("Proceed to book %s rooms for a total of %s? Type 'Y' to proceed: ", noOfRooms, totalAmount));
+        System.out.print(String.format("Proceed to book %s rooms for a total of $%s? Type 'Y' to proceed: ", noOfRooms, totalAmount));
         input = sc.nextLine();
 
         if (input.toLowerCase().equals("y")) {
@@ -289,8 +293,9 @@ public class MainApp {
                         System.out.println("Please try again.");
                     }
                 }
+            } else {
+               reserveHotelRoom(noOfRooms, roomType, subTotal, checkInDate, checkOutDate); 
             }
-
         }
     }
 
@@ -306,7 +311,7 @@ public class MainApp {
             }
         }
         try {
-            reservation = reservationManagerSessionBeanRemote.reserveRooms(currentGuest.getUsername(), LocalDate.now(), checkOutDate);
+            reservation = reservationManagerSessionBeanRemote.reserveRooms(currentGuest.getUsername(), checkInDate, checkOutDate);
         } catch (InvalidRoomException | InvalidUserException | InvalidReservationException | UnknownPersistenceException | InputDataValidationException e) {
             System.out.println("Error: " + e.toString());
             return;
@@ -321,16 +326,21 @@ public class MainApp {
         
         Long response = sc.nextLong();
         
-        
-        // need to validate reservation with this ID belongs to the the guest
-        // need this method in remote
         Reservation reservation = null;
         try {
-            reservation = reservationSessionBeanRemote.retrieveReservationById(response);
+            reservation = reservationSessionBeanRemote.retrieveReservationById(response, true, true, true, false);
         } catch (InvalidReservationException e) {
             System.out.println("An error occured while retrieiving the reservation: " + e.getMessage());
         }
-        List<Reservation> retrieveReservationsByUser = reservationSessionBeanRemote.retrieveReservationsByUser(currentGuest.getUsername());
+        
+        List<Reservation> retrieveReservationsByUser = new ArrayList<>();
+        
+        try {
+            retrieveReservationsByUser = reservationSessionBeanRemote.retrieveReservationsByUser(currentGuest.getUsername(), true, true, true, false);
+        } catch (InvalidReservationException e) {
+            System.out.println("An error occured while retrieiving the reservation: " + e.getMessage());
+        }
+        
         Boolean isValid = false;
         for(Reservation r:retrieveReservationsByUser)  {
             if (reservation.equals(r)) {
@@ -339,29 +349,66 @@ public class MainApp {
             }
         }
         if(isValid) {
-            System.out.println(reservation);
+            System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+                        "ID",  
+                        "Reservation Status",
+                        "Reserved Room Type",
+                        "Total Amount", 
+                        "Check-In Date", 
+                        "Check-Out Date",
+                        "Reservation Date Time"
+            );
+            System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+                    reservation.getReservationId(),
+                    reservation.getReservationStatus().toString(),
+                    reservation.getReservationItems().get(0).getReservedRoomType(),
+                    reservation.getTotalAmount(),
+                    reservation.getCheckInDate(),
+                    reservation.getCheckOutDate(),
+                    reservation.getReservationDateTime()
+            );
         } else {
             System.out.println("Invalid ID");
         }
+        
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
+        
     }
 
     public void viewAllMyReservations() {
-        List<Reservation> retrieveReservationsByUser = reservationSessionBeanRemote.retrieveReservationsByUser(currentGuest.getUsername());
-        System.out.println(retrieveReservationsByUser);
-        
         Scanner sc = new Scanner(System.in);
         
-        while (true) {
-            System.out.println("Do you want to view a reservation details?\n");
-            System.out.println("1: Yes");
-            System.out.println("2: No");
-            Integer response = sc.nextInt();
-            if (response == 1)
-            {
-                viewMyReservationDetails();
-            }
-
+        List<Reservation> retrieveReservationsByUser = new ArrayList<>();
+        try {
+            retrieveReservationsByUser = reservationSessionBeanRemote.retrieveReservationsByUser(currentGuest.getUsername(), true, true, true, false);
+        } catch (InvalidReservationException e) {
+            System.out.println("An error occured while retrieving the reservations: " + e.toString());
         }
+        System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+                        "ID",  
+                        "Reservation Status",
+                        "Reserved Room Type",
+                        "Total Amount", 
+                        "Check-In Date", 
+                        "Check-Out Date",
+                        "Reservation Date Time"
+        );
+        for (Reservation r : retrieveReservationsByUser) {
+         
+            System.out.printf("%8s%20s%25s%20s%20s%20s%30s\n", 
+                    r.getReservationId(),
+                    r.getReservationStatus().toString(),
+                    r.getReservationItems().get(0).getReservedRoomType(),
+                    r.getTotalAmount(),
+                    r.getCheckInDate(),
+                    r.getCheckOutDate(),
+                    r.getReservationDateTime()
+            );
+        }
+        
+        System.out.print("Press any key to continue...> ");
+        sc.nextLine();
     }
 
     private void showInputDataValidationErrorsForGuest(Set<ConstraintViolation<Guest>> constraintViolations) {

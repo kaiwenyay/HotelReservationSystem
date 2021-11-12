@@ -301,10 +301,11 @@ public class FrontOfficeModule {
     
     private void doManualAllocate() {
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enteer allocation date: ");
+        System.out.print("Enter allocation date: ");
         LocalDate checkinDate = LocalDate.parse(sc.nextLine(), DateTimeFormatter.ISO_DATE);
         try {
             reservationSessionBean.manualAllocateRooms(checkinDate);
+            System.out.println("Successfully allocated!");
         } catch (Exception e) {
             System.out.println("Error: " + e.toString());
         }

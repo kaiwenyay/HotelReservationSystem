@@ -40,6 +40,14 @@ public interface ReservationSessionBeanRemote {
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate);
 
     public List<Reservation> retrieveReservationsByUser(String username);
+    
+    public List<Reservation> retrieveReservationsByUser(
+            String username,
+            boolean fetchUser, 
+            boolean fetchItems, 
+            boolean fetchItemRoomType,
+            boolean fetchItemRoom
+    ) throws InvalidReservationException;
 
     public List<Reservation> retrieveReservationsByCheckInDate(
             LocalDate checkInDate, 
@@ -58,5 +66,4 @@ public interface ReservationSessionBeanRemote {
             boolean fetchItemRoom
     ) throws InvalidReservationException;
 
-    public Reservation retrieveReservationById(Long reservationId) throws InvalidReservationException;
 }

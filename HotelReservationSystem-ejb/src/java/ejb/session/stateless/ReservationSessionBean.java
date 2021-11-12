@@ -236,6 +236,37 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Override
+    public List<Reservation> retrieveReservationsByUser(
+            String username,
+            boolean fetchUser, 
+            boolean fetchItems, 
+            boolean fetchItemRoomType,
+            boolean fetchItemRoom
+    ) throws InvalidReservationException {
+        List<Reservation> reservations = retrieveReservationsByUser(username);
+        for (Reservation r : reservations) {
+            if (fetchUser) {
+                r.getUser();
+            }
+            if (fetchItems) {
+                List<ReservationItem> items = r.getReservationItems();
+                items.size();
+                if (fetchItemRoomType || fetchItemRoom) {
+                    for (ReservationItem i : items) {
+                        if (fetchItemRoomType) {
+                            i.getReservedRoomType();
+                        }
+                        if (fetchItemRoom) {
+                            i.getAllocatedRoom();
+                        }
+                    }
+                }
+            }
+        }
+        return reservations;
+    }
+    
+    @Override
     public List<Reservation> retrieveReservationsByPeriod(LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> reservations = em.createNamedQuery("retrieveReservationsByPeriod", Reservation.class)
                 .setParameter("inCheckInDate", checkInDate)
