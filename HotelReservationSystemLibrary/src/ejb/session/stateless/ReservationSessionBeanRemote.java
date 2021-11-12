@@ -15,6 +15,7 @@ import java.util.List;
 import javax.ejb.Remote;
 import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidReportException;
 import util.exception.InvalidReservationException;
 import util.exception.InvalidRoomException;
 import util.exception.UnknownPersistenceException;
@@ -46,5 +47,15 @@ public interface ReservationSessionBeanRemote {
             boolean fetchUser, 
             boolean fetchItemRoomType
     );
+
+    public void manualAllocateRooms(LocalDate date) throws InvalidRoomException, InvalidReportException, UnknownPersistenceException, InputDataValidationException;
+
+    public Reservation retrieveReservationById(
+            Long reservationId, 
+            boolean fetchUser, 
+            boolean fetchItems, 
+            boolean fetchItemRoomType,
+            boolean fetchItemRoom
+    ) throws InvalidReservationException;
     
 }

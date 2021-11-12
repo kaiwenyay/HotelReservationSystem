@@ -6,7 +6,6 @@
 package ejb.session.stateless;
 
 import entity.Room;
-import entity.RoomRate;
 import entity.RoomType;
 import java.util.List;
 import java.util.Set;
@@ -16,14 +15,13 @@ import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceException;
 import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.exception.InputDataValidationException;
-import util.exception.InvalidRoomException;
 import util.exception.InvalidRoomTypeException;
 import util.exception.UnknownPersistenceException;
-import util.exception.UpdateRoomTypeException;
 
 /**
  *
@@ -68,7 +66,14 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public RoomType retrieveRoomTypeById(Long roomTypeId, boolean fetchNextHigherRoomType, boolean fetchNextLowerRoomType, boolean fetchRooms, boolean fetchRoomRates) throws InvalidRoomTypeException {
+    public RoomType retrieveRoomTypeById(
+            Long roomTypeId, 
+            boolean fetchNextHigherRoomType, 
+            boolean fetchNextLowerRoomType, 
+            boolean fetchRooms, 
+            boolean fetchRoomRates
+    ) throws InvalidRoomTypeException {
+        
         RoomType roomType = em.find(RoomType.class, roomTypeId);     
         if(roomType != null) {
             if (fetchNextHigherRoomType) {
@@ -85,11 +90,10 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
             }
             return roomType;
         } else {
-            throw new InvalidRoomTypeException("Room Type " + roomTypeId + " does not exist!");
+            throw new InvalidRoomTypeException("Room type " + roomTypeId + " does not exist!");
         }               
     }
     
-    // Doesn't yet account for creating a new room type whose ranking is inbetween two existing room types
     @Override
     public RoomType createRoomType(
             String name, 
@@ -113,7 +117,7 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     
                     if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                        throw new InvalidRoomTypeException(String.format("RoomType with name %s already exists.", name));
+                        throw new InvalidRoomTypeException(String.format("Room type with name %s already exists.", name));
                     } else {
                         throw new UnknownPersistenceException(e.getMessage());
                     }
@@ -161,33 +165,44 @@ public class RoomTypeSessionBean implements RoomTypeSessionBeanRemote, RoomTypeS
     }
     
     @Override
-    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, UpdateRoomTypeException, InputDataValidationException {
+    public RoomType updateRoomType(RoomType roomType) throws InvalidRoomTypeException, InputDataValidationException, UnknownPersistenceException {
         
         if(roomType != null && roomType.getRoomTypeId()!= null) {
             Set<ConstraintViolation<RoomType>>constraintViolations = validator.validate(roomType);
         
             if(constraintViolations.isEmpty()) {
-                RoomType roomTypeToUpdate = retrieveRoomTypeById(roomType.getRoomTypeId());
+                try {
+                
+                em.persist(roomType);
+                em.flush();
+                
+                } catch (PersistenceException e) {
+                    if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
 
-                if (roomTypeToUpdate.getName().equals(roomType.getName())) {
-                    em.merge(roomType);
-                    em.flush();
-                    if (roomType.getNextHigherRoomType() != null) {
-                        RoomType nextHigherRoomType = retrieveRoomTypeById(roomType.getNextHigherRoomType().getRoomTypeId());
-                        nextHigherRoomType.setNextLowerRoomType(roomType);
+                        if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
+                            throw new InvalidRoomTypeException(String.format("Room type with name %s already exists.", roomType.getName()));
+                        } else {
+                            throw new UnknownPersistenceException(e.getMessage());
+                        }
+
+                    } else {
+                        throw new UnknownPersistenceException(e.getMessage());
                     }
-                    if (roomType.getNextLowerRoomType() != null) {
-                        RoomType nextLowerRoomType = retrieveRoomTypeById(roomType.getNextLowerRoomType().getRoomTypeId());
-                        nextLowerRoomType.setNextHigherRoomType(roomType);
-                    }
-                } else {
-                    throw new UpdateRoomTypeException("Name of Room Type to be updated does not match the existing record");
                 }
+                if (roomType.getNextHigherRoomType() != null) {
+                    RoomType nextHigherRoomType = retrieveRoomTypeById(roomType.getNextHigherRoomType().getRoomTypeId());
+                    nextHigherRoomType.setNextLowerRoomType(roomType);
+                }
+                if (roomType.getNextLowerRoomType() != null) {
+                    RoomType nextLowerRoomType = retrieveRoomTypeById(roomType.getNextLowerRoomType().getRoomTypeId());
+                    nextLowerRoomType.setNextHigherRoomType(roomType);
+                }
+                
             } else {
                 throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(constraintViolations));
             }
         } else {
-            throw new InvalidRoomTypeException("Room Type ID not provided for product to be updated");
+            throw new InvalidRoomTypeException("Room type ID not provided for product to be updated");
         }
         
         return roomType;

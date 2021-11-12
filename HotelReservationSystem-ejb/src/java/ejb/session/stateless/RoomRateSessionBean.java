@@ -94,7 +94,7 @@ public class RoomRateSessionBean implements RoomRateSessionBeanRemote, RoomRateS
             LocalDate validityTo
     ) throws InvalidRoomTypeException, InvalidRoomRateException, UnknownPersistenceException, InputDataValidationException {
         
-        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId, false, false, false, true);
+        RoomType roomType = roomTypeSessionBean.retrieveRoomTypeById(roomTypeId);
         
         RoomRate roomRate = new RoomRate(name, rateType, ratePerNight, validityFrom, validityTo);
         Set<ConstraintViolation<RoomRate>>constraintViolations = validator.validate(roomRate);

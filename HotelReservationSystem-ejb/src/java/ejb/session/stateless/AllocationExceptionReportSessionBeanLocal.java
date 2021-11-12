@@ -5,7 +5,12 @@
  */
 package ejb.session.stateless;
 
+import entity.AllocationExceptionReport;
+import java.time.LocalDate;
 import javax.ejb.Local;
+import util.exception.InputDataValidationException;
+import util.exception.InvalidReportException;
+import util.exception.UnknownPersistenceException;
 
 /**
  *
@@ -13,5 +18,7 @@ import javax.ejb.Local;
  */
 @Local
 public interface AllocationExceptionReportSessionBeanLocal {
+
+    public AllocationExceptionReport createReport(LocalDate day) throws InvalidReportException, UnknownPersistenceException, InputDataValidationException;
     
 }

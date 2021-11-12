@@ -68,7 +68,7 @@ public class PartnerSessionBean implements PartnerSessionBeanRemote, PartnerSess
                 if(e.getCause() != null && e.getCause().getClass().getName().equals("org.eclipse.persistence.exceptions.DatabaseException")) {
                     
                     if(e.getCause().getCause() != null && e.getCause().getCause().getClass().getName().equals("java.sql.SQLIntegrityConstraintViolationException")) {
-                        throw new InvalidPartnerException(String.format("Partner with username %s already exists.", username));
+                        throw new InvalidPartnerException(String.format("Partner with username %s or partner name %s already exists.", username, partnerName));
                     } else {
                         throw new UnknownPersistenceException(e.getMessage());
                     }

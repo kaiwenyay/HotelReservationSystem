@@ -38,7 +38,7 @@ import util.enumeration.RoomStatus;
     ),
     @NamedQuery(
             name = "retrieveRoomsByRoomTypeAndStatus",
-            query = "SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId AND r.roomStatus = :inRoomStatus"
+            query = "SELECT r FROM Room r WHERE r.roomType.roomTypeId = :inRoomTypeId AND r.roomStatus = :inRoomStatus AND NOT r.disabled"
         )
 })
 public class Room implements Serializable {
@@ -60,10 +60,6 @@ public class Room implements Serializable {
     
     @Column(nullable = false)
     @NotNull
-    private String enumQueryString;
-    
-    @Column(nullable = false)
-    @NotNull
     private boolean disabled;
     
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -80,7 +76,6 @@ public class Room implements Serializable {
         this.roomNumber = roomNumber;
         this.roomStatus = roomStatus;
         this.roomType = roomType;
-        this.enumQueryString = roomStatus.toString();
     }
 
     public Long getRoomId() {
@@ -111,9 +106,14 @@ public class Room implements Serializable {
         return true;
     }
 
+//    @Override
+//    public String toString() {
+//        return "entity.Room[ id=" + roomId + " ]";
+//    }
+    
     @Override
     public String toString() {
-        return "entity.Room[ id=" + roomId + " ]";
+        return String.format("%s (ID: %s)", roomNumber, roomId);
     }
 
     /**
@@ -141,14 +141,14 @@ public class Room implements Serializable {
      * @param roomStatus the roomStatus to set
      */
     public void setRoomStatus(RoomStatus roomStatus) {
-        if (roomStatus != this.roomStatus) {
-            if (this.roomStatus == RoomStatus.AVAILABLE && roomStatus == RoomStatus.NOT_AVAILABLE) {
-                this.roomType.decreaseCurrentAvailableRooms();
-            } else if (this.roomStatus == RoomStatus.NOT_AVAILABLE && roomStatus == RoomStatus.AVAILABLE) {
-                this.roomType.increaseCurrentAvailableRooms();
-            }
+//        if (roomStatus != this.roomStatus) {
+//            if (this.roomStatus == RoomStatus.AVAILABLE && roomStatus == RoomStatus.NOT_AVAILABLE) {
+//                this.roomType.decreaseCurrentAvailableRooms();
+//            } else if (this.roomStatus == RoomStatus.NOT_AVAILABLE && roomStatus == RoomStatus.AVAILABLE) {
+//                this.roomType.increaseCurrentAvailableRooms();
+//            }
             this.roomStatus = roomStatus;
-        }
+//        }
     }
 
     /**
@@ -194,11 +194,5 @@ public class Room implements Serializable {
     
     public void disassociate() {
         this.roomType.removeRoom(this); 
-    }
-    
-    
-    public void allocateRoom() {
-        setRoomStatus(RoomStatus.NOT_AVAILABLE);
-//        roomType.decreaseCurrentAvailableRooms();
     }
 }

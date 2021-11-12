@@ -25,10 +25,11 @@ import util.exception.UnknownPersistenceException;
 @Remote
 public interface ReservationManagerSessionBeanRemote {
 
-    public List<RoomType> searchRoom(LocalDate checkInDate, LocalDate checkOutDate);
+    public List<RoomType> searchRooms(LocalDate checkInDate, LocalDate checkOutDate);
 
     public void addReservationItem(BigDecimal subTotal, String roomTypeName) throws InvalidRoomTypeException, InputDataValidationException;
 
     public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+
     
 }

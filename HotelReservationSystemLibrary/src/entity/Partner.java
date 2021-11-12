@@ -32,9 +32,9 @@ public class Partner extends User implements Serializable {
 
     private static final long serialVersionUID = 1L;
     
-    @Column(nullable = false, length = 32)
+    @Column(nullable = false, unique = true, length = 32)
     @NotNull
-    @Size(min = 1, max = 32)
+    @Size(min = 2, max = 32)
     private String partnerName;
 
     @Override

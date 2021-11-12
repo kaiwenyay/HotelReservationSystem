@@ -5,6 +5,7 @@
  */
 package ejb.session.stateless;
 
+import entity.AllocationExceptionReport;
 import entity.Reservation;
 import entity.ReservationItem;
 import entity.Room;
@@ -29,6 +30,7 @@ import util.enumeration.AllocationExceptionType;
 import util.enumeration.ReservationStatus;
 import util.enumeration.RoomStatus;
 import util.exception.InputDataValidationException;
+import util.exception.InvalidReportException;
 import util.exception.InvalidReservationException;
 import util.exception.InvalidRoomException;
 import util.exception.UnknownPersistenceException;
@@ -39,6 +41,9 @@ import util.exception.UnknownPersistenceException;
  */
 @Stateless
 public class ReservationSessionBean implements ReservationSessionBeanRemote, ReservationSessionBeanLocal {
+
+    @EJB
+    private AllocationExceptionReportSessionBeanLocal allocationExceptionReportSessionBean;
 
     @EJB
     private RoomSessionBeanLocal roomSessionBean;
@@ -60,14 +65,55 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         if(reservation != null) {
             return reservation;
         } else {
-            throw new InvalidReservationException("Rservation " + reservationId + " does not exist!");
+            throw new InvalidReservationException("Reservation " + reservationId + " does not exist!");
+        }               
+    }
+    
+    @Override
+    public Reservation retrieveReservationById(
+            Long reservationId, 
+            boolean fetchUser, 
+            boolean fetchItems, 
+            boolean fetchItemRoomType, 
+            boolean fetchItemRoom
+    ) throws InvalidReservationException {
+        
+        Reservation reservation = em.find(Reservation.class, reservationId);     
+        if(reservation != null) {
+            if (fetchUser) {
+                reservation.getUser();
+            }
+            if (fetchItems) {
+                List<ReservationItem> items = reservation.getReservationItems();
+                if (fetchItemRoom || fetchItemRoomType) {
+                    for (ReservationItem i : items) {
+                        if (fetchItemRoom) {
+                            i.getAllocatedRoom();
+                        }
+                        if (fetchItemRoomType) {
+                            i.getReservedRoomType();
+                        }
+                    }
+                }
+            }
+            return reservation;
+        } else {
+            throw new InvalidReservationException("Reservation " + reservationId + " does not exist!");
         }               
     }
     
     @Override
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate) {
-        List<Reservation> reservations = em.createNamedQuery("retrieveReservationByCheckInDate", Reservation.class)
+        List<Reservation> reservations = em.createNamedQuery("retrieveReservationsByCheckInDate", Reservation.class)
                 .setParameter("inCheckInDate", checkInDate)
+                .getResultList();
+        return reservations;
+    }
+    
+    @Override
+    public List<Reservation> retrieveReservationsByCheckOutDate(LocalDate checkOutDate) {
+        List<Reservation> reservations = em.createNamedQuery("retrieveReservationsByCheckOutDate", Reservation.class)
+                .setParameter("inCheckOutDate", checkOutDate)
                 .getResultList();
         return reservations;
     }
@@ -85,14 +131,47 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
         for (Reservation r : reservations) {
             if (fetchReservationItems) {
-                r.getReservationItems().size();
+                List<ReservationItem> items = r.getReservationItems();
+                items.size();
+                if (fetchItemRoomType) {
+                    items.forEach(x -> x.getReservedRoomType());
+                }
             }
             if (fetchUser) {
                 r.getUser();
             }
-            if (fetchItemRoomType) {
-                r.getReservationItems().forEach(x -> x.getReservedRoomType());
+            
+        }
+        return reservations;
+    }
+    
+    @Override
+    public List<Reservation> retrieveReservationsByCheckOutDate(
+            LocalDate checkOutDate, 
+            boolean fetchReservationItems, 
+            boolean fetchUser, 
+            boolean fetchItemRoom
+    ) {
+        List<Reservation> reservations = retrieveReservationsByCheckOutDate(checkOutDate);
+        if (! fetchReservationItems && ! fetchUser && ! fetchItemRoom) {
+            return reservations;
+        }
+        for (Reservation r : reservations) {
+            if (fetchReservationItems) {
+                List<ReservationItem> items = r.getReservationItems();
+                items.size();
+                if (fetchItemRoom) {
+                    for (ReservationItem i : items) {
+                        if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {
+                            i.getAllocatedRoom();
+                        }
+                    }
+                }
             }
+            if (fetchUser) {
+                r.getUser();
+            }
+            
         }
         return reservations;
     }
@@ -141,10 +220,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             throw new InputDataValidationException(prepareInputDataValidationErrorsMessage(reservationConstraintViolations));
         }
         
-        System.out.println(checkInDate);
-        System.out.println(reservationDateTime.getHour());
         if (checkInDate.equals(LocalDate.now()) && reservationDateTime.getHour() > 1) {
-            System.out.println("here");
             allocateRoom(reservation);
         }
         
@@ -180,26 +256,34 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
     }
     
     @Schedule(hour = "2", minute = "0", info = "allocateRooms")  
-    public void allocateRooms() throws InvalidRoomException {
-        List<Reservation> reservations = retrieveReservationsByCheckInDate(LocalDate.now(), true, false, true);
-        reservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
-        for (Reservation r : reservations) {
-
+    public void allocateRooms() throws InvalidRoomException, InvalidReportException, UnknownPersistenceException, InputDataValidationException {
+        AllocationExceptionReport report = allocationExceptionReportSessionBean.createReport(LocalDate.now());
+        List<Reservation> checkInReservations = retrieveReservationsByCheckInDate(LocalDate.now());
+        List<Reservation> checkOutReservations = retrieveReservationsByCheckOutDate(LocalDate.now());
+        for (Reservation r : checkOutReservations) {
+            List<ReservationItem> items = r.getReservationItems();
+            for (ReservationItem i : items) {
+                if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {
+                    i.getAllocatedRoom().setRoomStatus(RoomStatus.AVAILABLE);
+                }
+            }
+        }
+        checkInReservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
+        for (Reservation r : checkInReservations) {
             List<ReservationItem> items = r.getReservationItems();
             for (ReservationItem i : items) {
                 RoomType roomType = i.getReservedRoomType();
                 try {
                     Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                    room.allocateRoom();
-                    roomType.decreaseCurrentAvailableRooms();
+                    room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                     i.setAllocatedRoom(room);
                 } catch (InvalidRoomException e) {
+                    report.addReservation(r);
                     roomType = roomType.getNextHigherRoomType();
                     if (roomType != null) {
                         try {
                             Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                             room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                            roomType.decreaseCurrentAvailableRooms();
                             i.setAllocatedRoom(room);
                             i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                         } catch (InvalidRoomException ex) {
@@ -214,26 +298,36 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
         }
     }
     
-    public void allocateRooms(LocalDate date) throws InvalidRoomException {
-        List<Reservation> reservations = retrieveReservationsByCheckInDate(date, true, false, true);
-        reservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
-        for (Reservation r : reservations) {
+    @Override
+    public void manualAllocateRooms(LocalDate date) throws InvalidRoomException, InvalidReportException, UnknownPersistenceException, InputDataValidationException {
+        AllocationExceptionReport report = allocationExceptionReportSessionBean.createReport(LocalDate.now());
+        List<Reservation> checkInReservations = retrieveReservationsByCheckInDate(date);
+        List<Reservation> checkOutReservations = retrieveReservationsByCheckOutDate(date);
+        for (Reservation r : checkOutReservations) {
+            List<ReservationItem> items = r.getReservationItems();
+            for (ReservationItem i : items) {
+                if (i.getAllocationExceptionType() != AllocationExceptionType.TYPE_TWO) {
+                    i.getAllocatedRoom().setRoomStatus(RoomStatus.AVAILABLE);
+                }
+            }
+        }
+        checkInReservations.sort((x,y) -> x.getReservationDateTime().compareTo(y.getReservationDateTime()));
+        for (Reservation r : checkInReservations) {
 
             List<ReservationItem> items = r.getReservationItems();
             for (ReservationItem i : items) {
                 RoomType roomType = i.getReservedRoomType();
                 try {
                     Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                    room.allocateRoom();
-                    roomType.decreaseCurrentAvailableRooms();
+                    room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                     i.setAllocatedRoom(room);
                 } catch (InvalidRoomException e) {
+                    report.addReservation(r);
                     roomType = roomType.getNextHigherRoomType();
                     if (roomType != null) {
                         try {
                             Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                             room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                            roomType.decreaseCurrentAvailableRooms();
                             i.setAllocatedRoom(room);
                             i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                         } catch (InvalidRoomException ex) {
@@ -254,8 +348,7 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
             RoomType roomType = i.getReservedRoomType();
             try {
                 Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
-                room.allocateRoom();
-                roomType.decreaseCurrentAvailableRooms();
+                room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
                 i.setAllocatedRoom(room);
             } catch (InvalidRoomException e) {
                 roomType = roomType.getNextHigherRoomType();
@@ -263,7 +356,6 @@ public class ReservationSessionBean implements ReservationSessionBeanRemote, Res
                     try {
                         Room room = roomSessionBean.retrieveFirstAvailableRoomByRoomType(roomType);
                         room.setRoomStatus(RoomStatus.NOT_AVAILABLE);
-                        roomType.decreaseCurrentAvailableRooms();
                         i.setAllocatedRoom(room);
                         i.setAllocationExceptionType(AllocationExceptionType.TYPE_ONE);
                     } catch (InvalidRoomException ex) {

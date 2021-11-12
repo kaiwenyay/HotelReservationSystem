@@ -106,7 +106,7 @@ public class SystemAdministrationModule {
             System.out.println("4. Guest Relations Officer");
             System.out.print(">");
             response = sc.nextInt();
-
+            System.out.println();
             if (response == 1) {
                 staffRole = StaffRole.ADMIN;
             } else if (response == 2) {
@@ -126,8 +126,12 @@ public class SystemAdministrationModule {
             try {
                 Employee employee = employeeSessionBean.createEmployee(username, password, staffRole);
                 System.out.println(String.format("Successfully created employee %s!\n", employee.getUsername()));
-            } catch (InvalidEmployeeException | UnknownPersistenceException | InputDataValidationException e) {
-                System.out.println("Error: " + e.toString());
+            } catch (InputDataValidationException e) {
+                System.out.println(e.getMessage() + "\n");
+            } catch (InvalidEmployeeException e) {
+                System.out.println("An error has occured while creating the employee: " + e.getMessage());
+            } catch (UnknownPersistenceException e) {
+                System.out.println("An unknown error has occured while creating the employee: " + e.getMessage());
             }
         } else {
             showInputDataValidationErrorsForEmployee(constraintViolations);
@@ -135,7 +139,7 @@ public class SystemAdministrationModule {
     }
     
     public void doViewAllEmployees() {
-        Scanner scanner = new Scanner(System.in);
+        Scanner sc = new Scanner(System.in);
         
         List<Employee> employees = employeeSessionBean.retrieveAllEmployees();
         System.out.printf("%8s%20s%20s%20s\n", "User ID", "Username", "Password", "Staff Role");
@@ -145,7 +149,7 @@ public class SystemAdministrationModule {
         }
 
         System.out.print("Press any key to continue...> ");
-        scanner.nextLine();
+        sc.nextLine();
     }
     
     public void doCreateNewPartner() {
@@ -163,9 +167,13 @@ public class SystemAdministrationModule {
         if (constraintViolations.isEmpty()) {
             try {
                 Partner partner = partnerSessionBean.createPartner(username, password, partnerName);
-                System.out.println(String.format("Successfully created partner %s! (Userame: %s)\n", partner.getPartnerName(), partner.getUsername()));
-            } catch (InvalidPartnerException | UnknownPersistenceException | InputDataValidationException e) {
-                System.out.println("Error: " + e.toString());
+                System.out.println(String.format("Successfully created partner %s! (Username: %s)\n", partner.getPartnerName(), partner.getUsername()));
+            } catch (InputDataValidationException e) {
+                System.out.println(e.getMessage() + "\n");
+            } catch (InvalidPartnerException e) {
+                System.out.println("An error has occured while creating the partner: " + e.getMessage());
+            } catch (UnknownPersistenceException e) {
+                System.out.println("An unknown error has occured while creating the partner: " + e.getMessage());
             }
         } else {
             showInputDataValidationErrorsForPartner(constraintViolations);

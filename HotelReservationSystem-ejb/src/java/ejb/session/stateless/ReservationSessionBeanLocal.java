@@ -48,4 +48,8 @@ public interface ReservationSessionBeanLocal {
             List<ReservationItem> reservationItems, 
             User user
     ) throws InvalidReservationException, UnknownPersistenceException, InputDataValidationException, InvalidRoomException;
+
+    public List<Reservation> retrieveReservationsByCheckOutDate(LocalDate checkOutDate);
+
+    public List<Reservation> retrieveReservationsByCheckOutDate(LocalDate checkOutDate, boolean fetchReservationItems, boolean fetchUser, boolean fetchItemRoom);
 }
