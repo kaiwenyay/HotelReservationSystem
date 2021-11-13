@@ -71,11 +71,11 @@ public class DataInitSessionBean {
         if (em.find(RoomType.class, 1l) == null) {
             try {
                 String amenities = "Toilet, TV";
-                grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities);
-                juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities);
-                familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities);
-                premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities);
                 deluxeRoom = roomTypeSessionBean.createRoomType("Deluxe Room", "A deluxe room", 400, 2, amenities);
+                premierRoom = roomTypeSessionBean.createRoomType("Premier Room", "A premier room", 600, 2, amenities);
+                familyRoom = roomTypeSessionBean.createRoomType("Family Room", "A family room", 1000, 4, amenities);
+                juniorSuite = roomTypeSessionBean.createRoomType("Junior Suite", "A junior suite", 1500, 6, amenities);
+                grandSuite = roomTypeSessionBean.createRoomType("Grand Suite", "A grand suite", 2000, 8, amenities);
                 
                 grandSuite.setNextLowerRoomType(juniorSuite);
                 roomTypeSessionBean.updateRoomType(grandSuite);

@@ -14,7 +14,6 @@ import ejb.session.stateless.RoomSessionBeanRemote;
 import ejb.session.stateless.RoomTypeSessionBeanRemote;
 import entity.Guest;
 import entity.Reservation;
-import entity.RoomRate;
 import entity.RoomType;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -53,14 +52,6 @@ public class MainApp {
 
     private ReservationSessionBeanRemote reservationSessionBeanRemote;
 
-    private RoomSessionBeanRemote roomSessionBeanRemote;
-
-    private RoomRateSessionBeanRemote roomRateSessionBeanRemote;
-
-    private RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
-
-    private AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBeanRemote;
-
     private Guest currentGuest;
 
     MainApp() {
@@ -68,16 +59,12 @@ public class MainApp {
         validator = validatorFactory.getValidator();
     }
 
-    public MainApp(ReservationManagerSessionBeanRemote reservationManagerSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote, RoomSessionBeanRemote roomSessionBeanRemote, RoomRateSessionBeanRemote roomRateSessionBeanRemote, RoomTypeSessionBeanRemote roomTypeSessionBeanRemote, AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBeanRemote) {
+    public MainApp(ReservationManagerSessionBeanRemote reservationManagerSessionBeanRemote, GuestSessionBeanRemote guestSessionBeanRemote, ReservationSessionBeanRemote reservationSessionBeanRemote) {
         validatorFactory = Validation.buildDefaultValidatorFactory();
         validator = validatorFactory.getValidator();
         this.reservationManagerSessionBeanRemote = reservationManagerSessionBeanRemote;
         this.guestSessionBeanRemote = guestSessionBeanRemote;
         this.reservationSessionBeanRemote = reservationSessionBeanRemote;
-        this.roomSessionBeanRemote = roomSessionBeanRemote;
-        this.roomRateSessionBeanRemote = roomRateSessionBeanRemote;
-        this.roomTypeSessionBeanRemote = roomTypeSessionBeanRemote;
-        this.allocationExceptionReportSessionBeanRemote = allocationExceptionReportSessionBeanRemote;
     }
 
     public void runApp() {
@@ -201,48 +188,20 @@ public class MainApp {
 
         List<RoomType> availableRoomTypes = reservationManagerSessionBeanRemote.searchRooms(checkInDate, checkOutDate, noOfRooms);
         
+        
         System.out.println("Please select your desired room type by entering the respective number.\n");
         System.out.printf("%8s%25s%20s%20s\n", "No.", "Room Type", "Vacancies", "Sub Total");
-        RoomType roomType;
         
-        List<BigDecimal> subTotals = new ArrayList<>();
-        for (int i = 0; i < availableRoomTypes.size(); i++) {
-            BigDecimal subTotal = new BigDecimal(0);
-            roomType = availableRoomTypes.get(i);
-            List<RoomRate> roomRates = roomType.getRoomRates();
-            LocalDate nightCounter = checkInDate;
-            for (int j = 0; j < nights; j++) {
-                boolean foundPrevailingRate = false;
-                BigDecimal ratePerNight = new BigDecimal(0);
-                for (RoomRate r: roomRates) {
-                    if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
-                        LocalDate validFrom = r.getValidFrom();
-                        LocalDate validTo = r.getValidTo();
-                        if (validFrom.compareTo(nightCounter) <= 0 && validTo.compareTo(nightCounter) >= 0) {
-                            foundPrevailingRate = true;
-                            ratePerNight = r.getRatePerNight();
-                        }
-                    } 
-                    if (r.getRateType() == RateType.PEAK && ! r.isDisabled() && ! foundPrevailingRate) {
-                        LocalDate validFrom = r.getValidFrom();
-                        LocalDate validTo = r.getValidTo();
-                        if (validFrom.compareTo(nightCounter) <= 0 && validTo.compareTo(nightCounter) >= 0) {
-                            foundPrevailingRate = true;
-                            ratePerNight = r.getRatePerNight();
-                        }
-                    } 
-                    if (r.getRateType() == RateType.NORMAL && ! r.isDisabled() && ! foundPrevailingRate) {
-                        ratePerNight = r.getRatePerNight();
-                    }
-                }
-                
-                nightCounter = nightCounter.plusDays(1);
-                subTotal = subTotal.add(ratePerNight);
-
-            }
-            subTotals.add(subTotal);
-            System.out.printf("%8s%25s%20s%20s\n", i + 1, roomType.getName(), roomType.getTotalRooms(), subTotal);
+        if (availableRoomTypes.isEmpty()) {
+            System.out.println("\nNo vacant rooms for this period\n");
+            return;
         }
+        List<BigDecimal> subTotals = reservationManagerSessionBeanRemote.calculateSubTotals();
+        
+        for (int i = 0; i < availableRoomTypes.size(); i++) {
+            System.out.printf("%8s%25s%20s%20s\n", i + 1, availableRoomTypes.get(i).getName(), availableRoomTypes.get(i).getTotalRooms(), subTotals.get(i));
+        }
+
         System.out.print(">");
         response = sc.nextInt();
 
@@ -251,7 +210,7 @@ public class MainApp {
             return;
         }
 
-        roomType = availableRoomTypes.get(response - 1);
+        RoomType roomType = availableRoomTypes.get(response - 1);
         
         BigDecimal subTotal = subTotals.get(response - 1);
         
@@ -315,7 +274,7 @@ public class MainApp {
             }
         }
         try {
-            reservation = reservationManagerSessionBeanRemote.reserveRooms(currentGuest.getUsername(), checkInDate, checkOutDate);
+            reservation = reservationManagerSessionBeanRemote.reserveRooms(currentGuest.getUsername());
         } catch (InvalidRoomException | InvalidUserException | InvalidReservationException | UnknownPersistenceException | InputDataValidationException e) {
             System.out.println("Error: " + e.toString());
             return;

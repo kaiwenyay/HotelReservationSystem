@@ -132,6 +132,11 @@ public class FrontOfficeModule {
         System.out.println("Please select your desired room type by entering the respective number.\n");
         System.out.printf("%8s%20s%20s%20s\n", "No.", "Room Type", "Vacancies", "Rate Per Night");
         
+        if (availableRoomTypes.isEmpty()) {
+            System.out.println("\nNo vacant rooms for this period\n");
+            return;
+        }
+        
         RoomType roomType;
         RoomRate roomRate = null;
         for (int i = 0; i < availableRoomTypes.size(); i++) {
@@ -207,7 +212,7 @@ public class FrontOfficeModule {
         Reservation reservation;
         
         try {
-            reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), checkInDate, checkOutDate);
+            reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername());
             System.out.println(String.format("Reservation successful! Your reservation ID is %s.\n", reservation.getReservationId()));
         } catch (InvalidRoomException | InvalidUserException | InvalidReservationException e) {
             System.out.println("An error has occured while reserving the rooms: " + e.getMessage() + "\n");

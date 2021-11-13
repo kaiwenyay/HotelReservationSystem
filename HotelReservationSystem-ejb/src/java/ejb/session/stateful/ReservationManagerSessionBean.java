@@ -10,11 +10,13 @@ import ejb.session.stateless.RoomTypeSessionBeanLocal;
 import ejb.session.stateless.UserSessionBeanLocal;
 import entity.Reservation;
 import entity.ReservationItem;
+import entity.RoomRate;
 import entity.RoomType;
 import entity.User;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,6 +29,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import util.enumeration.AllocationExceptionType;
+import util.enumeration.RateType;
 import util.enumeration.ReservationStatus;
 import util.exception.InputDataValidationException;
 import util.exception.InvalidReservationException;
@@ -57,6 +60,9 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
     private final ValidatorFactory validatorFactory;
     private final Validator validator;
     
+    private LocalDate checkInDate;
+    private LocalDate checkOutDate;
+    private List<RoomType> availableRoomTypes;
     private List<ReservationItem> reservationItems;
     private BigDecimal totalAmount;
 
@@ -67,12 +73,17 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
     }
     
     private void initialiseState() {
+        checkInDate = null;
+        checkOutDate = null;
+        availableRoomTypes = new ArrayList<>();
         reservationItems = new ArrayList<>();
         totalAmount = new BigDecimal(0.00);
     }
        
     @Override
     public List<RoomType> searchRooms(LocalDate checkInDate, LocalDate checkOutDate, Integer noOfRooms) {
+        this.checkInDate = checkInDate;
+        this.checkOutDate = checkOutDate;
         List<RoomType> roomTypes = roomTypeSessionBean.retrieveAllRoomTypes(false, false, false, true);
         List<Reservation> clashingReservations = reservationSessionBean.retrieveReservationsByPeriod(checkInDate, checkOutDate);
         roomTypes.forEach(x -> em.detach(x));
@@ -88,6 +99,7 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
             }
         }
         roomTypes.removeIf(x -> x.getTotalRooms() < noOfRooms);
+        availableRoomTypes = roomTypes;
         return roomTypes;
     }
     
@@ -103,12 +115,56 @@ public class ReservationManagerSessionBean implements ReservationManagerSessionB
         totalAmount = totalAmount.add(reservationItem.getSubTotal());
     }
     
-    public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
+    public Reservation reserveRooms(String username) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException {
         User user = userSessionBean.retrieveUserByUsername(username);
         LocalDateTime reservationDateTime = LocalDateTime.now();
         Reservation reservation = reservationSessionBean.createReservation(totalAmount, checkInDate, checkOutDate, reservationDateTime, ReservationStatus.RESERVED, reservationItems, user);
         initialiseState();
         return reservation;
+    }
+    
+    @Override
+    public List<BigDecimal> calculateSubTotals() {
+        List<BigDecimal> subTotals = new ArrayList<>();
+        for (int i = 0; i < availableRoomTypes.size(); i++) {
+            BigDecimal subTotal = new BigDecimal(0);
+            RoomType roomType = availableRoomTypes.get(i);
+            List<RoomRate> roomRates = roomType.getRoomRates();
+            Long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+            LocalDate nightCounter = checkInDate;
+
+            for (int j = 0; j < nights; j++) {
+                boolean foundPrevailingRate = false;
+                BigDecimal ratePerNight = new BigDecimal(0);
+                for (RoomRate r: roomRates) {
+                    if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
+                        LocalDate validFrom = r.getValidFrom();
+                        LocalDate validTo = r.getValidTo();
+                        if (validFrom.compareTo(nightCounter) <= 0 && validTo.compareTo(nightCounter) >= 0) {
+                            foundPrevailingRate = true;
+                            ratePerNight = r.getRatePerNight();
+                        }
+                    } 
+                    if (r.getRateType() == RateType.PEAK && ! r.isDisabled() && ! foundPrevailingRate) {
+                        LocalDate validFrom = r.getValidFrom();
+                        LocalDate validTo = r.getValidTo();
+                        if (validFrom.compareTo(nightCounter) <= 0 && validTo.compareTo(nightCounter) >= 0) {
+                            foundPrevailingRate = true;
+                            ratePerNight = r.getRatePerNight();
+                        }
+                    } 
+                    if (r.getRateType() == RateType.NORMAL && ! r.isDisabled() && ! foundPrevailingRate) {
+                        ratePerNight = r.getRatePerNight();
+                    }
+                }
+                
+                nightCounter = nightCounter.plusDays(1);
+                subTotal = subTotal.add(ratePerNight);
+
+            }
+            subTotals.add(subTotal);
+        }
+        return subTotals;
     }
     
     public void clear() {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="http://localhost:8080/PartnerWebService/PartnerWebService?wsdl" uri="wsdl/localhost_8080/PartnerWebService/PartnerWebService.wsdl"/>
+    <system systemId="http://localhost:8080/PartnerWebService/PartnerWebService?xsd=1" uri="wsdl/localhost_8080/PartnerWebService/PartnerWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/ReservationManagerWebService/ReservationManagerWebService?wsdl" uri="wsdl/localhost_8080/ReservationManagerWebService/ReservationManagerWebService.wsdl"/>
+    <system systemId="http://localhost:8080/ReservationManagerWebService/ReservationManagerWebService?xsd=1" uri="wsdl/localhost_8080/ReservationManagerWebService/ReservationManagerWebService.xsd_1.xsd"/>
+    <system systemId="http://localhost:8080/PartnerWebService/PartnerClientWebService?wsdl" uri="wsdl/localhost_8080/PartnerWebService/PartnerClientWebService.wsdl"/>
+    <system systemId="http://localhost:8080/PartnerWebService/PartnerClientWebService?xsd=1" uri="wsdl/localhost_8080/PartnerWebService/PartnerClientWebService.xsd_1.xsd"/>
+</catalog>

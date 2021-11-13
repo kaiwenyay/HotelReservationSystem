@@ -213,7 +213,11 @@ public class RoomRate implements Serializable {
     public RoomType getRoomType() {
         return roomType;
     }
-
+    
+    // For web services
+    public void setRoomTypeNull() {
+        this.roomType = null;
+    }
     /**
      * @param roomType the roomType to set
      */

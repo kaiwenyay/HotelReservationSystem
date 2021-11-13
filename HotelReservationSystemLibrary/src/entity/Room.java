@@ -157,11 +157,16 @@ public class Room implements Serializable {
     public RoomType getRoomType() {
         return roomType;
     }
-
+    
+    // For web services
+    public void setRoomTypeNull() {
+        this.roomType = null;
+    }
     /**
      * @param roomType the roomType to set
      */
     public void setRoomType(RoomType roomType) {
+        
         if (this.roomType != null && roomType.getRoomTypeId().longValue() != this.roomType.getRoomTypeId().longValue()) {
            this.roomType.removeRoom(this);
         }

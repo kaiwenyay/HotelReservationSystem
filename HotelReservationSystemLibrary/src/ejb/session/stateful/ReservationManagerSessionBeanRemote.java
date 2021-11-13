@@ -28,7 +28,9 @@ public interface ReservationManagerSessionBeanRemote {
     
     public void addReservationItem(BigDecimal subTotal, String roomTypeName) throws InvalidRoomTypeException, InputDataValidationException;
 
-    public Reservation reserveRooms(String username, LocalDate checkInDate, LocalDate checkOutDate) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+    public Reservation reserveRooms(String username) throws InvalidRoomException, InvalidUserException, InvalidReservationException, UnknownPersistenceException, InputDataValidationException;
+
+    public List<BigDecimal> calculateSubTotals();
 
     
 }

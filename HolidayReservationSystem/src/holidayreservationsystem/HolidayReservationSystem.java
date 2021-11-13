@@ -5,6 +5,10 @@
  */
 package holidayreservationsystem;
 
+import ws.client.PartnerWebService;
+import ws.client.PartnerWebService_Service;
+
+
 /**
  *
  * @author kwpwn
@@ -15,7 +19,10 @@ public class HolidayReservationSystem {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // TODO code application logic here
+        PartnerWebService partnerService = (new PartnerWebService_Service()).getPartnerWebServicePort();
+        MainApp mainApp = new MainApp(partnerService);
+        mainApp.runApp();
+
     }
     
 }

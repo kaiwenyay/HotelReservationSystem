@@ -28,6 +28,14 @@ public interface ReservationSessionBeanLocal {
 
     public Reservation retrieveReservationById(Long reservationId) throws InvalidReservationException;
     
+    public Reservation retrieveReservationById(
+            Long reservationId, 
+            boolean fetchUser, 
+            boolean fetchItems, 
+            boolean fetchItemRoomType, 
+            boolean fetchItemRoom
+    ) throws InvalidReservationException;
+    
     public List<Reservation> retrieveReservationsByPeriod(LocalDate checkInDate, LocalDate checkOutDate);
     
     public List<Reservation> retrieveReservationsByCheckInDate(LocalDate checkInDate);
@@ -54,4 +62,8 @@ public interface ReservationSessionBeanLocal {
     public List<Reservation> retrieveReservationsByCheckOutDate(LocalDate checkOutDate, boolean fetchReservationItems, boolean fetchUser, boolean fetchItemRoom);
 
     public void allocateRoom(Reservation reservation) throws InvalidRoomException;
+    
+    public List<Reservation> retrieveReservationsByUser(String username);
+    
+    
 }

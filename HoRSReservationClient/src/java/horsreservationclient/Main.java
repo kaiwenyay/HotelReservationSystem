@@ -20,18 +20,6 @@ import javax.ejb.EJB;
  */
 public class Main {
 
-    @EJB(name = "AllocationExceptionReportSessionBeanRemote")
-    private static AllocationExceptionReportSessionBeanRemote allocationExceptionReportSessionBeanRemote;
-
-    @EJB(name = "RoomTypeSessionBeanRemote")
-    private static RoomTypeSessionBeanRemote roomTypeSessionBeanRemote;
-
-    @EJB(name = "RoomSessionBeanRemote")
-    private static RoomSessionBeanRemote roomSessionBeanRemote;
-
-    @EJB(name = "RoomRateSessionBeanRemote")
-    private static RoomRateSessionBeanRemote roomRateSessionBeanRemote;
-
     @EJB(name = "ReservationSessionBeanRemote")
     private static ReservationSessionBeanRemote reservationSessionBeanRemote;
 
@@ -47,14 +35,10 @@ public class Main {
     public static void main(String[] args) {
         // TODO code application logic here
         MainApp mainApp = new MainApp(
-        reservationManagerSessionBeanRemote,
-        guestSessionBeanRemote,
-        reservationSessionBeanRemote,
-        roomSessionBeanRemote,
-        roomRateSessionBeanRemote,
-        roomTypeSessionBeanRemote,
-        allocationExceptionReportSessionBeanRemote
-        );
+            reservationManagerSessionBeanRemote,
+            guestSessionBeanRemote,
+            reservationSessionBeanRemote
+            );
         mainApp.runApp();
 
     }
