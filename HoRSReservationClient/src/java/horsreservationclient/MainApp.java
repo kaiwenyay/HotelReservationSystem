@@ -189,7 +189,7 @@ public class MainApp {
         List<RoomType> availableRoomTypes = reservationManagerSessionBeanRemote.searchRooms(checkInDate, checkOutDate, noOfRooms);
         
         
-        System.out.println("Please select your desired room type by entering the respective number.\n");
+        System.out.println("Please select your desired room type by entering the respective number. Type '0' to exit.\n");
         System.out.printf("%8s%25s%20s%20s\n", "No.", "Room Type", "Vacancies", "Sub Total");
         
         if (availableRoomTypes.isEmpty()) {
@@ -206,7 +206,6 @@ public class MainApp {
         response = sc.nextInt();
 
         if (response < 1 || response > availableRoomTypes.size()) {
-            System.out.println("Invalid option.");
             return;
         }
 
@@ -233,7 +232,7 @@ public class MainApp {
                     if (response == 1) {
                         try {
                             doLogin();
-                            reserveHotelRoom(noOfRooms, roomType, subTotal, checkInDate, checkOutDate);
+                            reserveHotelRoom(noOfRooms, roomType, subTotal);
                             break;
                         } catch (InvalidGuestException | InvalidCredentialsException e) {
                             System.out.println("Error: " + e.toString());
@@ -242,7 +241,7 @@ public class MainApp {
                         registerAsGuest();
                         try {
                             doLogin();
-                            reserveHotelRoom(noOfRooms, roomType, subTotal, checkInDate, checkOutDate);
+                            reserveHotelRoom(noOfRooms, roomType, subTotal);
                             break;
                         } catch (InvalidGuestException | InvalidCredentialsException e) {
                             System.out.println("Error: " + e.toString());
@@ -255,12 +254,12 @@ public class MainApp {
                     }
                 }
             } else {
-               reserveHotelRoom(noOfRooms, roomType, subTotal, checkInDate, checkOutDate); 
+               reserveHotelRoom(noOfRooms, roomType, subTotal); 
             }
         }
     }
 
-    public void reserveHotelRoom(Integer noOfRooms, RoomType roomType, BigDecimal subTotal, LocalDate checkInDate, LocalDate checkOutDate) {
+    public void reserveHotelRoom(Integer noOfRooms, RoomType roomType, BigDecimal subTotal) {
       
         System.out.println();
         

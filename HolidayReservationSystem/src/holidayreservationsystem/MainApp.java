@@ -133,7 +133,7 @@ public class MainApp {
 
         List<RoomType> availableRoomTypes = partnerWebService.searchRooms(checkInDateString, checkOutDateString, noOfRooms);
         
-        System.out.println("Please select your desired room type by entering the respective number.\n");
+        System.out.println("Please select your desired room type by entering the respective number. Type '0' to exit.\n");
         System.out.printf("%8s%25s%20s%20s\n", "No.", "Room Type", "Vacancies", "Sub Total");
         
         if (availableRoomTypes.isEmpty()) {
@@ -151,7 +151,6 @@ public class MainApp {
         response = sc.nextInt();
 
         if (response < 1 || response > availableRoomTypes.size()) {
-            System.out.println("Invalid option.");
             return;
         }
 

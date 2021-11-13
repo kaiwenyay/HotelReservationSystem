@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 @NamedQueries({
     @NamedQuery(
             name = "retrieveAllocationExceptionReportByDay",
-            query = "SELECT r FROM AllocationExceptionReport r WHERE r.day = :inDay"
+            query = "SELECT r FROM AllocationExceptionReport r WHERE r.date = :inDate"
     )
 })
 public class AllocationExceptionReport implements Serializable {
@@ -39,7 +39,7 @@ public class AllocationExceptionReport implements Serializable {
     
     @Column(nullable = false, unique = true, columnDefinition = "DATE")
     @NotNull
-    private LocalDate day;
+    private LocalDate date;
     
     @OneToMany
     private List<Reservation> reservations;
@@ -49,7 +49,7 @@ public class AllocationExceptionReport implements Serializable {
     }
 
     public AllocationExceptionReport(LocalDate date) {
-        this.day = date;
+        this.date = date;
     }
 
     public Long getAllocationExceptionReportId() {
@@ -89,14 +89,14 @@ public class AllocationExceptionReport implements Serializable {
      * @return the day
      */
     public LocalDate getDate() {
-        return day;
+        return date;
     }
 
     /**
      * @param day the day to set
      */
     public void setDate(LocalDate date) {
-        this.day = date;
+        this.date = date;
     }
 
     /**

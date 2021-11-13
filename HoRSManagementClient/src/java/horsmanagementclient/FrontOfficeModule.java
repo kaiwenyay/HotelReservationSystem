@@ -129,66 +129,51 @@ public class FrontOfficeModule {
         
         List<RoomType> availableRoomTypes = reservationManagerSessionBean.searchRooms(checkInDate, checkOutDate, noOfRooms);
         
-        System.out.println("Please select your desired room type by entering the respective number.\n");
+        System.out.println("Please select your desired room type by entering the respective number. Type '0' to exit.\n");
         System.out.printf("%8s%20s%20s%20s\n", "No.", "Room Type", "Vacancies", "Rate Per Night");
         
-        if (availableRoomTypes.isEmpty()) {
+       if (availableRoomTypes.isEmpty()) {
             System.out.println("\nNo vacant rooms for this period\n");
             return;
         }
+        List<BigDecimal> subTotals = reservationManagerSessionBean.calculateSubTotals();
         
-        RoomType roomType;
-        RoomRate roomRate = null;
         for (int i = 0; i < availableRoomTypes.size(); i++) {
-            
-            roomType = availableRoomTypes.get(i);
-            List<RoomRate> roomRates = roomType.getRoomRates();
-            
-            for (RoomRate r: roomRates) {
-                if (r.getRateType() == RateType.PUBLISHED && ! r.isDisabled()) {
-                    roomRate = r;
-                    break;
-                }
-            }
-            
-            System.out.printf("%8s%20s%20s%20s\n", i + 1, roomType.getName(), roomType.getTotalRooms(), roomRate.getRatePerNight());
-            
+            System.out.printf("%8s%25s%20s%20s\n", i + 1, availableRoomTypes.get(i).getName(), availableRoomTypes.get(i).getTotalRooms(), subTotals.get(i));
         }
         System.out.print(">");
         
         response = sc.nextInt();
         
         if (response < 1 || response > availableRoomTypes.size()) {
-            System.out.println("Invalid option.");
             return;
         }
         
-        roomType = availableRoomTypes.get(response - 1);
-        
+        RoomType roomType = availableRoomTypes.get(response - 1);
+        BigDecimal subTotal = subTotals.get(response - 1);
+
         Long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
         
         sc.nextLine(); 
         
-        System.out.println(String.format("For one %s from %s to %s, you will be charged a %s rate of $%s per night for %s nights", 
+        System.out.println(String.format("For one %s from %s to %s, you will be charged $%s for %s nights", 
                 roomType.getName(),
                 checkInDate,
                 checkOutDate,
-                roomRate.getRateType().toString(), 
-                roomRate.getRatePerNight().toString(), 
+                subTotal, 
                 nights)
         );
         
-        BigDecimal subTotal = roomRate.getRatePerNight().multiply(new BigDecimal(nights));
         BigDecimal totalAmount = subTotal.multiply(new BigDecimal(noOfRooms));
         System.out.print(String.format("Proceed to book %s rooms for a total of $%s? Type 'Y' to proceed: ", noOfRooms, totalAmount));
         
         input = sc.nextLine();
         if (input.toLowerCase().equals("y")) {
-            doWalkInReserveRoom(noOfRooms, roomType,subTotal, checkInDate, checkOutDate);
+            doWalkInReserveRoom(noOfRooms, roomType,subTotal);
         } 
     }
     
-    private void doWalkInReserveRoom(Integer noOfRooms, RoomType roomType, BigDecimal subTotal, LocalDate checkInDate, LocalDate checkOutDate) {
+    private void doWalkInReserveRoom(Integer noOfRooms, RoomType roomType, BigDecimal subTotal) {
         
         System.out.println();
         
@@ -222,112 +207,6 @@ public class FrontOfficeModule {
             System.out.println(e.getMessage() + "\n");
         }
     }
-    
-//    private void doSearchRoom() {
-//        Scanner sc = new Scanner(System.in);
-//        String input;
-//        LocalDate checkOutDate;
-//        LocalDate checkInDate;
-//        Integer response = 0;
-//        
-//        System.out.print("Enter check-in date (YYYY-MM-DD): ");
-//        input = sc.nextLine();
-//        checkInDate = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
-//       
-//        System.out.print("Enter check-out date (YYYY-MM-DD): ");
-//        input = sc.nextLine();
-//        checkOutDate = LocalDate.parse(input, DateTimeFormatter.ISO_DATE);
-//        
-//        List<RoomType> availableRoomTypes = reservationManagerSessionBean.searchRooms(checkInDate, checkOutDate);
-//        
-//        System.out.println("Please select your desired room type.");
-//        for (int i = 0; i < availableRoomTypes.size(); i++) {
-//            RoomType roomType = availableRoomTypes.get(i);
-//            System.out.println(String.format("%s. %s : %s vacancies", i + 1, roomType.getName(), roomType.getTotalRooms()));
-//        }
-//        System.out.print(">");
-//        response = sc.nextInt();
-//        
-//        if (response < 1 || response > availableRoomTypes.size()) {
-//            System.out.println("Invalid option.");
-//            return;
-//        }
-//        
-//        RoomType selected = availableRoomTypes.get(response - 1);
-//        System.out.print("Enter the number of rooms you would like to reserve: ");
-//        response = sc.nextInt();
-//        if (selected.getTotalRooms() < response) {
-//            System.out.println(String.format("%s has insufficient vacancies.", selected.getName()));
-//            return;
-//        }
-//        sc.nextLine();
-//        
-//        System.out.print(String.format("You have chosen to reserve %s rooms of type %s. Type 'Y' to continue: ", response, selected.getName()));
-//        input = sc.nextLine();
-//        if (input.toLowerCase().equals("y")) {
-//            Long nights = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
-//            doReserveRoom(response, nights, selected, checkInDate, checkOutDate);
-//        } 
-//    }
-    
-//    private void doReserveRoom(Integer quantity, Long nights, RoomType roomType, LocalDate checkInDate, LocalDate checkOutDate) {
-//        Scanner sc = new Scanner(System.in);
-//        
-//        List<RoomRate> roomRates = roomType.getRoomRates();
-//        RoomRate roomRate = null;
-//        for (RoomRate r: roomRates) {
-//            if (r.getRateType() == RateType.PROMOTION && ! r.isDisabled()) {
-//                LocalDate validFrom = r.getValidFrom().minusDays(1l);
-//                LocalDate validTo = r.getValidTo().plusDays(1l);
-//                LocalDate now = LocalDate.now();
-//                if (validFrom.isBefore(now) && validTo.isAfter(now)) {
-//                    roomRate = r;
-//                }
-//            } else if (r.getRateType() == RateType.PEAK && ! r.isDisabled()) {
-//                if (roomRate == null) {
-//                    LocalDate validFrom = r.getValidFrom().minusDays(1l);
-//                    LocalDate validTo = r.getValidTo().plusDays(1l);
-//                    LocalDate now = LocalDate.now();
-//                    if (validFrom.isBefore(now) && validTo.isAfter(now)) {
-//                        roomRate = r;
-//                    }
-//                }
-//            } else if (r.getRateType() == RateType.NORMAL && ! r.isDisabled()) {
-//                if (roomRate == null) {
-//                    roomRate = r;
-//                }
-//            }
-//        }
-//        System.out.println(String.format("For one room, you will be charged a %s rate of %s per night for %s nights", 
-//                roomRate.getRateType().toString(), 
-//                roomRate.getRatePerNight().toString(), 
-//                nights)
-//        );
-//        BigDecimal subTotal = roomRate.getRatePerNight().multiply(new BigDecimal(nights));
-//        BigDecimal totalAmount = subTotal.multiply(new BigDecimal(quantity));
-//        System.out.print(String.format("Proceed to book %s rooms for a total of %s? Type 'Y' to proceed: ", quantity, totalAmount));
-//        
-//        String response = sc.nextLine();
-//        if (response.toLowerCase().equals("y")) {
-//            for (Integer i = 0; i < quantity; i++) {
-//                try {
-//                    reservationManagerSessionBean.addReservationItem(subTotal, roomType.getName());
-//                } catch (InvalidRoomTypeException | InputDataValidationException e) {
-//                    System.out.println("Error: " + e.toString());
-//                    return;
-//                }
-//            }
-//            Reservation reservation;
-//            try {
-//                reservation = reservationManagerSessionBean.reserveRooms(currentEmployee.getUsername(), checkInDate, checkOutDate);
-//            } catch (InvalidRoomException | InvalidUserException | InvalidReservationException | UnknownPersistenceException | InputDataValidationException e) {
-//                System.out.println("Error: " + e.toString());
-//                return;
-//            }
-//            
-//        }
-//        System.out.println("Reservation successful!\n");
-//    }
     
     private void doManualAllocate() {
         Scanner sc = new Scanner(System.in);

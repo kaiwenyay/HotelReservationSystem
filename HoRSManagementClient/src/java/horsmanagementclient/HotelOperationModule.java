@@ -635,10 +635,13 @@ public class HotelOperationModule {
     private void doViewRoomAllocationExceptionReport() {
         
         Scanner sc = new Scanner(System.in);
+        System.out.print("Enter Date: ");
+        
+        LocalDate date = LocalDate.parse(sc.nextLine(), DateTimeFormatter.ISO_DATE);
         
         AllocationExceptionReport report;
         try {
-            report = allocationExceptionReportSessionBean.retrieveReport(LocalDate.now(), true, true, true, true);
+            report = allocationExceptionReportSessionBean.retrieveReport(date, true, true, true, true);
         } catch (InvalidReportException e) {
             System.out.println("An error occured while retrieving the report: " + e.getMessage());
             return;

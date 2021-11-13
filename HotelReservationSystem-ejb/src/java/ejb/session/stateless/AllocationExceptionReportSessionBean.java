@@ -44,11 +44,11 @@ public class AllocationExceptionReportSessionBean implements AllocationException
     }
 
     @Override
-    public AllocationExceptionReport retrieveReport(LocalDate day, boolean fetchReservation, boolean fetchReservationItems, boolean fetchRoomType, boolean fetchRoom) throws InvalidReportException {
+    public AllocationExceptionReport retrieveReport(LocalDate date, boolean fetchReservation, boolean fetchReservationItems, boolean fetchRoomType, boolean fetchRoom) throws InvalidReportException {
         AllocationExceptionReport report;
         try {
             report = em.createNamedQuery("retrieveAllocationExceptionReportByDay", AllocationExceptionReport.class)
-                    .setParameter("inDay", day)
+                    .setParameter("inDate", date)
                     .getSingleResult();
             if (fetchReservation) {
                 List<Reservation> reservations = report.getReservations();
@@ -71,7 +71,7 @@ public class AllocationExceptionReportSessionBean implements AllocationException
                 }
             }
         } catch (NoResultException e) {
-            throw new InvalidReportException(String.format("Report on day %s does not exist.", day));
+            throw new InvalidReportException(String.format("Report on day %s does not exist.", date));
         }
         return report;
     }
